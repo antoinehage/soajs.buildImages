@@ -359,8 +359,12 @@ service.init(function () {
             return res.status(200).send(data);
         });
     });
-    service.get("/buildGC", function (req, res) {
-
+    service.get("/buildGCS", function (req, res) {
+        lib.createService(config.localSrcDir + "soajs.GSC", req.soajs.log, function (err, data) {
+            if (err)
+                return res.jsonp(req.soajs.buildResponse({"code": 401, "msg": err}));
+            return res.status(200).send(data);
+        });
     });
     service.get("/buildExamples", function (req, res) {
         var response = {};
