@@ -182,7 +182,7 @@ service.init(function () {
                 fs.writeFile(filePath, JSON.stringify(packageJSON), "utf8", function(err){
                     if(err){ return cb(err); }
 
-                    return true;
+                    return cb(null, true);
                 });
             }
 

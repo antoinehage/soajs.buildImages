@@ -26,6 +26,7 @@
     "dockerode": "*",
     "ncp": "*",
     "rimraf": "*",
-    "mkdirp": "*"
+    "mkdirp": "*",
+    "archiver": "*"
   }
 }
