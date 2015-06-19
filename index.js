@@ -225,7 +225,7 @@ service.init(function () {
         },
         /**
          *
-         * @param param {nginxPath, servicePath, maintenanceInc, dockerTpl, type, serviceInfo, log}
+         * @param param {nginxPath, servicePath, maintenanceInc, dockerTpl, type, serviceInfo, log, deleteFolder}
          * @param cb
          */
         "createImage": function (param, cb) {
@@ -260,23 +260,26 @@ service.init(function () {
                         });
                         stream.on('end', function () {
                             stream.destroy();
-                            console.log(data);
-                            return cb(null, data);
-                            rimraf(tarInfo.root, function (err) {
+                            if (param.deleteFolder) {
+                                rimraf(tarInfo.root, function (err) {
+                                    return cb(null, data);
+                                });
+                            }
+                            else
                                 return cb(null, data);
-                            });
                         });
                     }
                 });
             });
         },
-        "createService": function (servicePath, log, cb) {
+        "createService": function (servicePath, log, deleteFolder, cb) {
             lib.createImage({
                 servicePath: servicePath,
                 maintenanceInc: 1000,
                 dockerTpl: config.dockerTemnplates.service,
                 type: "service",
-                log: log
+                log: log,
+                deleteFolder: deleteFolder || null
             }, cb);
         }
     };
@@ -289,7 +292,8 @@ service.init(function () {
             serviceInfo: {
                 "name": "soajs"
             },
-            log: req.soajs.log
+            log: req.soajs.log,
+            deleteFolder: req.query.delete || null
         }, function (err, data) {
             if (err)
                 return res.jsonp(req.soajs.buildResponse({"code": 401, "msg": err}));
@@ -306,7 +310,8 @@ service.init(function () {
                 "name": "nginxAPI",
                 "ports": "8080"
             },
-            log: req.soajs.log
+            log: req.soajs.log,
+            deleteFolder: req.query.delete || null
         }, function (err, data) {
             if (err)
                 return res.jsonp(req.soajs.buildResponse({"code": 401, "msg": err}));
@@ -323,7 +328,8 @@ service.init(function () {
                 "name": "controller",
                 "ports": "4000 " + (4000 + maintenanceInc)
             },
-            log: req.soajs.log
+            log: req.soajs.log,
+            deleteFolder: req.query.delete || null
         }, function (err, data) {
             if (err)
                 return res.jsonp(req.soajs.buildResponse({"code": 401, "msg": err}));
@@ -331,21 +337,21 @@ service.init(function () {
         });
     });
     service.get("/buildUrac", function (req, res) {
-        lib.createService(config.localSrcDir + "soajs.urac", req.soajs.log, function (err, data) {
+        lib.createService(config.localSrcDir + "soajs.urac", req.soajs.log, req.query.delete, function (err, data) {
             if (err)
                 return res.jsonp(req.soajs.buildResponse({"code": 401, "msg": err}));
             return res.status(200).send(data);
         });
     });
     service.get("/buildoAuth", function (req, res) {
-        lib.createService(config.localSrcDir + "soajs.oauth", req.soajs.log, function (err, data) {
+        lib.createService(config.localSrcDir + "soajs.oauth", req.soajs.log, req.query.delete, function (err, data) {
             if (err)
                 return res.jsonp(req.soajs.buildResponse({"code": 401, "msg": err}));
             return res.status(200).send(data);
         });
     });
     service.get("/buildDashboard", function (req, res) {
-        lib.createService(config.localSrcDir + "soajs.dashboard/service", req.soajs.log, function (err, data) {
+        lib.createService(config.localSrcDir + "soajs.dashboard/service", req.soajs.log, req.query.delete, function (err, data) {
             if (err)
                 return res.jsonp(req.soajs.buildResponse({"code": 401, "msg": err}));
             return res.status(200).send(data);
@@ -362,7 +368,8 @@ service.init(function () {
                 "name": "nginx",
                 "ports": "80"
             },
-            log: req.soajs.log
+            log: req.soajs.log,
+            deleteFolder: req.query.delete || null
         }, function (err, data) {
             if (err)
                 return res.jsonp(req.soajs.buildResponse({"code": 401, "msg": err}));
@@ -370,7 +377,7 @@ service.init(function () {
         });
     });
     service.get("/buildGCS", function (req, res) {
-        lib.createService(config.localSrcDir + "soajs.GCS", req.soajs.log, function (err, data) {
+        lib.createService(config.localSrcDir + "soajs.GCS", req.soajs.log, req.query.delete, function (err, data) {
             if (err)
                 return res.jsonp(req.soajs.buildResponse({"code": 401, "msg": err}));
             return res.status(200).send(data);
@@ -378,15 +385,15 @@ service.init(function () {
     });
     service.get("/buildExamples", function (req, res) {
         var response = {};
-        lib.createService(config.localSrcDir + "soajs.examples/hello_world", req.soajs.log, function (err, data) {
+        lib.createService(config.localSrcDir + "soajs.examples/hello_world", req.soajs.log, req.query.delete, function (err, data) {
             resopnse["helloWorld"] = {"error": err, "data": data};
-            lib.createService(config.localSrcDir + "soajs.examples/example01", req.soajs.log, function (err, data) {
+            lib.createService(config.localSrcDir + "soajs.examples/example01", req.soajs.log, req.query.delete, function (err, data) {
                 resopnse["example01"] = {"error": err, "data": data};
-                lib.createService(config.localSrcDir + "soajs.examples/example02", req.soajs.log, function (err, data) {
+                lib.createService(config.localSrcDir + "soajs.examples/example02", req.soajs.log, req.query.delete, function (err, data) {
                     resopnse["example02"] = {"error": err, "data": data};
-                    lib.createService(config.localSrcDir + "soajs.examples/example03", req.soajs.log, function (err, data) {
+                    lib.createService(config.localSrcDir + "soajs.examples/example03", req.soajs.log, req.query.delete, function (err, data) {
                         resopnse["example03"] = {"error": err, "data": data};
-                        lib.createService(config.localSrcDir + "soajs.examples/example04", req.soajs.log, function (err, data) {
+                        lib.createService(config.localSrcDir + "soajs.examples/example04", req.soajs.log, req.query.delete, function (err, data) {
                             return res.json(req.soajs.buildResponse(null, response));
                         });
                     });
