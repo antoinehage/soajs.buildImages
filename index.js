@@ -8,6 +8,10 @@ var ncp = require('ncp').ncp;
 var rimraf = require('rimraf');
 var mkdirp = require('mkdirp');
 
+//schema validation
+var validatorSchemas = require("./schemas");
+var core = require("soajs/modules/soajs.core");
+var validator = new core.validator.Validator();
 
 var service = new soajs.server.service({"config": config});
 
@@ -45,6 +49,12 @@ service.init(function () {
             try {
                 delete require.cache[require.resolve(param.loc + "config.js")];
                 var tmpConfig = require(param.loc + "config.js");
+
+                var check = validator.validate(tmpConfig, validatorSchemas.config);
+                if(!check.valid) {
+                    return cb(null);
+                }
+
                 if (tmpConfig.servicePort && tmpConfig.serviceName) {
                     return cb({
                         "name": tmpConfig.serviceName,
@@ -131,18 +141,51 @@ service.init(function () {
                 }, function (err) {
                     if (err) return cb(err.message);
                     var packageFile = rootFolder + "FILES/" + serviceInfo.name + "/package.json";
-                    fs.stat(packageFile, function (err, stats) {
-                        if (err)
-                            return tarFolder(rootFolder, serviceInfo);
-                        else{
 
-                            //TODO: read packageFile and validate and remove soajs from dependencies
+                    fs.exists(packageFile, function(exists){
+                       if(!exists){ return cb(packageFile + " not Found!"); }
 
-                            return tarFolder(rootFolder, serviceInfo);
-                        }
-                    })
+                        fs.stat(packageFile, function (err, stats) {
+                            if (err)
+                                return tarFolder(rootFolder, serviceInfo);
+                            else{
+                                if(!stats.isFile()){ return cb(packageFile + " is not a file!"); }
+
+                                validatePackageJSON(packageFile, validatorSchemas.package, function(err){
+                                   if(err){ return cb(err.message); }
+
+                                    return tarFolder(rootFolder, serviceInfo);
+                                });
+                            }
+                        });
+                    });
                 });
             }
+
+            function validatePackageJSON(filePath, schema, cb){
+                var errMsgs =[];
+                if(require.resolve(filePath)){
+                    delete require.cache[require.resolve(filePath)];
+                }
+                var packageJSON = require(filePath);
+
+                //validate package.json
+                var check = validator.validate(packageJSON, schema);
+                if(!check.valid) {
+                    check.errors.forEach(function(oneError){
+                        errMsgs.push(oneError.stack);
+                    });
+                    return cb(new Error(errMsgs) );
+                }
+
+                delete packageJSON.dependencies.soajs;
+                fs.writeFile(filePath, JSON.stringify(packageJSON), "utf8", function(err){
+                    if(err){ return cb(err); }
+
+                    return true;
+                });
+            }
+
             function afterServiceInfo(serviceInfo, path) {
                 if (serviceInfo) {
                     lib.generateUniqueId(16, function (err, fName) {
@@ -378,6 +421,13 @@ service.init(function () {
     });
     service.get("/buildGCS", function (req, res) {
         lib.createService(config.localSrcDir + "soajs.GCS", req.soajs.log, req.query.delete, function (err, data) {
+            if (err)
+                return res.jsonp(req.soajs.buildResponse({"code": 401, "msg": err}));
+            return res.status(200).send(data);
+        });
+    });
+    service.get("/buildCustomService", function (req, res) {
+        lib.createService(config.localSrcDir + req.query.name, req.soajs.log, req.query.delete, function (err, data) {
             if (err)
                 return res.jsonp(req.soajs.buildResponse({"code": 401, "msg": err}));
             return res.status(200).send(data);
