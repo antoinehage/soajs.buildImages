@@ -362,9 +362,10 @@ service.init(function () {
         });
     });
     service.get("/buildController", function (req, res) {
+        var maintenanceInc = 1000;
         lib.createImage({
             servicePath: config.localSrcDir + "soajs.controller",
-            maintenanceInc: 1000,
+            maintenanceInc: maintenanceInc,
             dockerTpl: config.dockerTemnplates.service,
             type: "service",
             serviceInfo: {
