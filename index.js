@@ -130,7 +130,17 @@ service.init(function () {
                     "loc": rootFolder + "FILES/" + serviceInfo.name
                 }, function (err) {
                     if (err) return cb(err.message);
-                    tarFolder(rootFolder, serviceInfo);
+                    var packageFile = rootFolder + "FILES/" + serviceInfo.name + "/package.json";
+                    fs.stat(packageFile, function (err, stats) {
+                        if (err)
+                            return tarFolder(rootFolder, serviceInfo);
+                        else{
+
+                            //TODO: read packageFile and validate and remove soajs from dependencies
+
+                            return tarFolder(rootFolder, serviceInfo);
+                        }
+                    })
                 });
             }
             function afterServiceInfo(serviceInfo, path) {
@@ -360,7 +370,7 @@ service.init(function () {
         });
     });
     service.get("/buildGCS", function (req, res) {
-        lib.createService(config.localSrcDir + "soajs.GSC", req.soajs.log, function (err, data) {
+        lib.createService(config.localSrcDir + "soajs.GCS", req.soajs.log, function (err, data) {
             if (err)
                 return res.jsonp(req.soajs.buildResponse({"code": 401, "msg": err}));
             return res.status(200).send(data);
