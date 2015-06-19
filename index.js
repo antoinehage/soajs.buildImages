@@ -350,7 +350,7 @@ service.init(function () {
             dockerTpl: config.dockerTemnplates.nginx,
             type: "nginx",
             serviceInfo: {
-                "name": "nginxAPI",
+                "name": "nginxapi",
                 "ports": "8080"
             },
             log: req.soajs.log,

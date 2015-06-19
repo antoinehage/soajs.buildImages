@@ -111,7 +111,7 @@ var pckg = {
 		},
 		"scripts": {
 			"type": "object",
-			"required": true,
+			"required": false,
 			"properties": {
 				"test": {"type": "string", "required": true},
 				"additionalProperties": true
