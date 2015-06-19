@@ -217,7 +217,7 @@ service.init(function () {
                                         else if (param.type === "nginx" || param.type === "nginxdash") {
                                             lib.writeFiles({
                                                 "src": path + "/",
-                                                "loc": rootFolder + "FILES/" + serviceInfo.name
+                                                "loc": rootFolder + "FILES/nginx"
                                             }, function (err) {
                                                 if (err) return cb(err.message);
                                                 if (param.type === "nginxdash" && param.servicePath) {
