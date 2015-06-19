@@ -26,7 +26,7 @@ var config = {
 					"additionalProperties": {
 						"type": "object",
 						"properties": {
-							"req": {"type": "boolean", "required": true},
+							"required": {"type": "boolean", "required": true},
 							"source": {"type": "array", "minItems": 1, "items": {"type": "string"}, "required": true},
 							"validation": {
 								"type": "object",
@@ -53,7 +53,7 @@ var config = {
 							"additionalProperties": {
 								"type": "object",
 								"properties": {
-									"req": {"type": "boolean", "required": true},
+									"required": {"type": "boolean", "required": true},
 									"source": {"type": "array", "minItems": 1, "items": {"type": "string"}, "required": true},
 									"validation": {
 										"type": "object",
