@@ -35,14 +35,20 @@ service.init(function () {
                 cb(err);
             }
         },
-        "getDocker": function () {
-            var docker = new Docker({
-                host: '192.168.59.103',
-                port: 2376,
-                ca: fs.readFileSync('certs/ca.pem'),
-                cert: fs.readFileSync('certs/cert.pem'),
-                key: fs.readFileSync('certs/key.pem')
-            });
+        "getDocker": function (socket) {
+            var docker = null;
+            if (socket) {
+                docker = new Docker({socketPath: '/var/run/docker.sock'});
+            }
+            else {
+                docker = new Docker({
+                    host: '192.168.59.103',
+                    port: 2376,
+                    ca: fs.readFileSync('certs/ca.pem'),
+                    cert: fs.readFileSync('certs/cert.pem'),
+                    key: fs.readFileSync('certs/key.pem')
+                });
+            }
             return docker;
         },
         getServiceInfo: function (param, cb) {
@@ -287,7 +293,7 @@ service.init(function () {
                 var imageName = imagePrefix + tarInfo.serviceInfo.name;
                 var archiveFile = tarInfo.tar;
 
-                var docker = lib.getDocker();
+                var docker = lib.getDocker(param.socket);
                 docker.buildImage(archiveFile, {t: imageName}, function (error, stream) {
                     if (error) {
                         param.log.error('createImage error: ', error);
