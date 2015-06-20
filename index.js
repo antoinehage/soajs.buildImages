@@ -443,13 +443,13 @@ service.init(function () {
     service.get("/buildExamples", function (req, res) {
         var response = {};
         lib.createService(config.localSrcDir + "soajs.examples/hello_world", req.soajs.log, req.query.delete, function (err, data) {
-            resopnse["helloWorld"] = {"error": err, "data": data};
+            response["helloWorld"] = {"error": err, "data": data};
             lib.createService(config.localSrcDir + "soajs.examples/example01", req.soajs.log, req.query.delete, function (err, data) {
-                resopnse["example01"] = {"error": err, "data": data};
+                response["example01"] = {"error": err, "data": data};
                 lib.createService(config.localSrcDir + "soajs.examples/example02", req.soajs.log, req.query.delete, function (err, data) {
-                    resopnse["example02"] = {"error": err, "data": data};
+                    response["example02"] = {"error": err, "data": data};
                     lib.createService(config.localSrcDir + "soajs.examples/example03", req.soajs.log, req.query.delete, function (err, data) {
-                        resopnse["example03"] = {"error": err, "data": data};
+                        response["example03"] = {"error": err, "data": data};
                         lib.createService(config.localSrcDir + "soajs.examples/example04", req.soajs.log, req.query.delete, function (err, data) {
                             return res.json(req.soajs.buildResponse(null, response));
                         });
