@@ -26,8 +26,8 @@ var lib = {
     "writeApiConf": function (param, cb) {
         var wstream = fs.createWriteStream(param.loc + 'api.conf');
         wstream.write("server {\n");
-        wstream.write("  server_name  "+apiDomain+";\n");
         wstream.write("  listen       "+apiPort+";\n");
+        wstream.write("  server_name  "+apiDomain+";\n");
         wstream.write("  location / {\n");
         wstream.write("    proxy_pass 		    http://" + upstreamName + ";\n");
         wstream.write("    proxy_set_header   	X-Forwarded-Proto 	    $scheme;\n");
