@@ -427,7 +427,18 @@ service.init(function () {
         });
     });
     service.get("/buildGCS", function (req, res) {
-        lib.createService(config.localSrcDir + "soajs.GCS", req.soajs.log, req.query.delete, function (err, data) {
+        var maintenanceInc = 1000;
+        lib.createImage({
+            servicePath: config.localSrcDir + "soajs.GCS",
+            maintenanceInc: maintenanceInc,
+            dockerTpl: config.dockerTemnplates.service,
+            type: "service",
+            serviceInfo: {
+                "name": "gcs"
+            },
+            log: req.soajs.log,
+            deleteFolder: req.query.delete || null
+        }, function (err, data) {
             if (err)
                 return res.jsonp(req.soajs.buildResponse({"code": 401, "msg": err}));
             return res.status(200).send(data);
