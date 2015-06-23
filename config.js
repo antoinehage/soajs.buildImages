@@ -21,6 +21,15 @@ module.exports = {
                 'EXPOSE #SERVICEPORT#',
                 'CMD /opt/soajs/FILES/runNginx.sh']
         },
+        "gc": {
+            "from": 'FROM local/soajs',
+            "maintainer": 'MAINTAINER SOAJS Team <team@soajs.org>',
+            "body": [
+                'ADD ./FILES /opt/soajs/FILES/',
+                'ENV NODE_ENV=production',
+                'RUN cd /opt/soajs/FILES && cd ./#SERVICEFOLDERNAME# && npm install && cd ../ && mv ./#SERVICEFOLDERNAME# /opt/soajs/node_modules/ && chmod +x /opt/soajs/FILES/runService.sh',
+                'CMD ["/opt/soajs/FILES/runService.sh", "/opt/soajs/node_modules/#SERVICEFOLDERNAME#/index.js"]']
+        },
         "service": {
             "from": 'FROM local/soajs',
             "maintainer": 'MAINTAINER SOAJS Team <team@soajs.org>',

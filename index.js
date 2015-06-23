@@ -431,7 +431,7 @@ service.init(function () {
         lib.createImage({
             servicePath: config.localSrcDir + "soajs.GCS",
             maintenanceInc: maintenanceInc,
-            dockerTpl: config.dockerTemnplates.service,
+            dockerTpl: config.dockerTemnplates.gc,
             type: "service",
             serviceInfo: {
                 "name": "gcs"
