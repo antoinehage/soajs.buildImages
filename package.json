@@ -27,6 +27,7 @@
     "ncp": "*",
     "rimraf": "*",
     "mkdirp": "*",
-    "archiver": "*"
+    "archiver": "*",
+    "formidable": "*"
   }
 }

@@ -8,6 +8,9 @@ var ncp = require('ncp').ncp;
 var rimraf = require('rimraf');
 var mkdirp = require('mkdirp');
 
+var formidable = require('formidable');
+var util = require('util');
+
 //schema validation
 var validatorSchemas = require("./schemas");
 var core = require("soajs/modules/soajs.core");
@@ -470,5 +473,28 @@ service.init(function () {
         });
     });
 
+    service.post("/upload", function (req, res) {
+        var form = new formidable.IncomingForm();
+
+        form.uploadDir = "./FILES";
+        form.keepExtensions = true;
+
+        form.parse(req, function(err, fields, files) {
+            res.writeHead(200, {'content-type': 'text/plain'});
+            res.write('received upload:\n\n');
+            res.end(util.inspect({fields: fields, files: files}));
+        });
+    });
+
+    service.get("/uploadForm", function (req, res){
+        res.writeHead(200, {'content-type': 'text/html'});
+        res.end(
+            '<form action="/buildImages/upload" enctype="multipart/form-data" method="post">'+
+            '<input type="text" name="title"><br>'+
+            '<input type="file" name="upload" multiple="multiple"><br>'+
+            '<input type="submit" value="Upload">'+
+            '</form>'
+        );
+    });
     service.start();
 });
