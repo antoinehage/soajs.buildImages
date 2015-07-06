@@ -7,7 +7,10 @@ module.exports = {
     "workingDir": "/opt/tmp/",
     "localSrcDir": "/opt/soajs/node_modules/",
 
-    "imagePrefix": "local/",
+    "imagePrefix": {
+        "core": "soajsorg/",
+        "custom": "local/"
+    },
 
     "dockerTemnplates": {
         "nginx": {
@@ -22,7 +25,7 @@ module.exports = {
                 'CMD /opt/soajs/FILES/runNginx.sh']
         },
         "gc": {
-            "from": 'FROM local/soajs',
+            "from": 'FROM soajsorg/soajs',
             "maintainer": 'MAINTAINER SOAJS Team <team@soajs.org>',
             "body": [
                 'ADD ./FILES /opt/soajs/FILES/',
@@ -31,7 +34,7 @@ module.exports = {
                 'CMD ["/opt/soajs/FILES/runService.sh", "/opt/soajs/node_modules/#SERVICEFOLDERNAME#/index.js"]']
         },
         "service": {
-            "from": 'FROM local/soajs',
+            "from": 'FROM soajsorg/soajs',
             "maintainer": 'MAINTAINER SOAJS Team <team@soajs.org>',
             "body": [
                 'ADD ./FILES /opt/soajs/FILES/',

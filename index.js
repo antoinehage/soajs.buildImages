@@ -60,7 +60,7 @@ service.init(function () {
                 var tmpConfig = require(param.loc + "config.js");
 
                 var check = validator.validate(tmpConfig, validatorSchemas.config);
-                if(!check.valid) {
+                if (!check.valid) {
                     return cb(null);
                 }
 
@@ -143,7 +143,8 @@ service.init(function () {
                 archive.directory(rootFolder + 'FILES', 'FILES');
                 archive.finalize();
             }
-            function handleServiceFiles (path, rootFolder, serviceInfo){
+
+            function handleServiceFiles(path, rootFolder, serviceInfo) {
                 lib.writeFiles({
                     "src": path + "/",
                     "loc": rootFolder + "FILES/" + serviceInfo.name
@@ -151,17 +152,23 @@ service.init(function () {
                     if (err) return cb(err.message);
                     var packageFile = rootFolder + "FILES/" + serviceInfo.name + "/package.json";
 
-                    fs.exists(packageFile, function(exists){
-                       if(!exists){ return cb(packageFile + " not Found!"); }
+                    fs.exists(packageFile, function (exists) {
+                        if (!exists) {
+                            return cb(packageFile + " not Found!");
+                        }
 
                         fs.stat(packageFile, function (err, stats) {
                             if (err)
                                 return tarFolder(rootFolder, serviceInfo);
-                            else{
-                                if(!stats.isFile()){ return cb(packageFile + " is not a file!"); }
+                            else {
+                                if (!stats.isFile()) {
+                                    return cb(packageFile + " is not a file!");
+                                }
 
-                                validatePackageJSON(packageFile, validatorSchemas.package, function(err){
-                                   if(err){ return cb(err.message); }
+                                validatePackageJSON(packageFile, validatorSchemas.package, function (err) {
+                                    if (err) {
+                                        return cb(err.message);
+                                    }
 
                                     return tarFolder(rootFolder, serviceInfo);
                                 });
@@ -171,25 +178,27 @@ service.init(function () {
                 });
             }
 
-            function validatePackageJSON(filePath, schema, cb){
-                var errMsgs =[];
-                if(require.resolve(filePath)){
+            function validatePackageJSON(filePath, schema, cb) {
+                var errMsgs = [];
+                if (require.resolve(filePath)) {
                     delete require.cache[require.resolve(filePath)];
                 }
                 var packageJSON = require(filePath);
 
                 //validate package.json
                 var check = validator.validate(packageJSON, schema);
-                if(!check.valid) {
-                    check.errors.forEach(function(oneError){
+                if (!check.valid) {
+                    check.errors.forEach(function (oneError) {
                         errMsgs.push(oneError.stack);
                     });
-                    return cb(new Error(errMsgs) );
+                    return cb(new Error(errMsgs));
                 }
 
                 delete packageJSON.dependencies.soajs;
-                fs.writeFile(filePath, JSON.stringify(packageJSON), "utf8", function(err){
-                    if(err){ return cb(err); }
+                fs.writeFile(filePath, JSON.stringify(packageJSON), "utf8", function (err) {
+                    if (err) {
+                        return cb(err);
+                    }
 
                     return cb(null, true);
                 });
@@ -216,11 +225,11 @@ service.init(function () {
                                             if (param.type === "service") {
                                                 lib.writeProfiles({"loc": rootFolder + "FILES/"}, function (err) {
                                                     if (err) return cb(err.message);
-                                                    handleServiceFiles (path, rootFolder, serviceInfo);
+                                                    handleServiceFiles(path, rootFolder, serviceInfo);
                                                 });
                                             }
                                             else {
-                                                handleServiceFiles (path, rootFolder, serviceInfo);
+                                                handleServiceFiles(path, rootFolder, serviceInfo);
                                             }
                                         }
                                         else if (param.type === "nginx" || param.type === "nginxdash") {
@@ -281,7 +290,7 @@ service.init(function () {
          * @param cb
          */
         "createImage": function (param, cb) {
-            var imagePrefix = config.imagePrefix;
+            var imagePrefix = param.imagePrefix;
             var maintenanceInc = param.maintenanceInc;
             lib.buildServiceTar({
                 "type": param.type,
@@ -324,19 +333,21 @@ service.init(function () {
                 });
             });
         },
-        "createService": function (servicePath, log, deleteFolder, cb) {
+        "createService": function (params, cb) {
             lib.createImage({
-                servicePath: servicePath,
+                imagePrefix: params.imagePrefix,
+                servicePath: params.servicePath,
                 maintenanceInc: 1000,
                 dockerTpl: config.dockerTemnplates.service,
                 type: "service",
-                log: log,
-                deleteFolder: deleteFolder || null
+                log: params.log,
+                deleteFolder: params.deleteFolder || null
             }, cb);
         }
     };
     service.get("/buildSoajs", function (req, res) {
         lib.createImage({
+            imagePrefix: config.imagePrefix.core,
             servicePath: config.localSrcDir + "soajs",
             maintenanceInc: 1000,
             dockerTpl: config.dockerTemnplates.soajs,
@@ -354,6 +365,7 @@ service.init(function () {
     });
     service.get("/buildAPINginx", function (req, res) {
         lib.createImage({
+            imagePrefix: config.imagePrefix.core,
             nginxPath: config.FILES + "nginx",
             maintenanceInc: 1000,
             dockerTpl: config.dockerTemnplates.nginx,
@@ -373,6 +385,7 @@ service.init(function () {
     service.get("/buildController", function (req, res) {
         var maintenanceInc = 1000;
         lib.createImage({
+            imagePrefix: config.imagePrefix.core,
             servicePath: config.localSrcDir + "soajs.controller",
             maintenanceInc: maintenanceInc,
             dockerTpl: config.dockerTemnplates.service,
@@ -390,21 +403,39 @@ service.init(function () {
         });
     });
     service.get("/buildUrac", function (req, res) {
-        lib.createService(config.localSrcDir + "soajs.urac", req.soajs.log, req.query.delete, function (err, data) {
+        var params = {
+            imagePrefix: config.imagePrefix.core,
+            servicePath: config.localSrcDir + "soajs.urac",
+            log: req.soajs.log,
+            deleteFolder: req.query.delete
+        };
+        lib.createService(params, function (err, data) {
             if (err)
                 return res.jsonp(req.soajs.buildResponse({"code": 401, "msg": err}));
             return res.status(200).send(data);
         });
     });
     service.get("/buildoAuth", function (req, res) {
-        lib.createService(config.localSrcDir + "soajs.oauth", req.soajs.log, req.query.delete, function (err, data) {
+        var params = {
+            imagePrefix: config.imagePrefix.core,
+            servicePath: config.localSrcDir + "soajs.oauth",
+            log: req.soajs.log,
+            deleteFolder: req.query.delete
+        };
+        lib.createService(params, function (err, data) {
             if (err)
                 return res.jsonp(req.soajs.buildResponse({"code": 401, "msg": err}));
             return res.status(200).send(data);
         });
     });
     service.get("/buildDashboard", function (req, res) {
-        lib.createService(config.localSrcDir + "soajs.dashboard/service", req.soajs.log, req.query.delete, function (err, data) {
+        var params = {
+            imagePrefix: config.imagePrefix.core,
+            servicePath: config.localSrcDir + "soajs.dashboard/service",
+            log: req.soajs.log,
+            deleteFolder: req.query.delete
+        };
+        lib.createService(params, function (err, data) {
             if (err)
                 return res.jsonp(req.soajs.buildResponse({"code": 401, "msg": err}));
             return res.status(200).send(data);
@@ -412,6 +443,7 @@ service.init(function () {
     });
     service.get("/buildDashboardNginx", function (req, res) {
         lib.createImage({
+            imagePrefix: config.imagePrefix.core,
             servicePath: config.localSrcDir + "soajs.dashboard/ui",
             nginxPath: config.FILES + "nginx",
             maintenanceInc: 1000,
@@ -432,6 +464,7 @@ service.init(function () {
     service.get("/buildGCS", function (req, res) {
         var maintenanceInc = 1000;
         lib.createImage({
+            imagePrefix: config.imagePrefix.core,
             servicePath: config.localSrcDir + "soajs.GCS",
             maintenanceInc: maintenanceInc,
             dockerTpl: config.dockerTemnplates.gc,
@@ -448,7 +481,13 @@ service.init(function () {
         });
     });
     service.get("/buildCustomService", function (req, res) {
-        lib.createService(config.localSrcDir + req.query.name, req.soajs.log, req.query.delete, function (err, data) {
+        var params = {
+            imagePrefix: config.imagePrefix.core,
+            servicePath: config.localSrcDir + req.query.name,
+            log: req.soajs.log,
+            deleteFolder: req.query.delete
+        };
+        lib.createService(params, function (err, data) {
             if (err)
                 return res.jsonp(req.soajs.buildResponse({"code": 401, "msg": err}));
             return res.status(200).send(data);
@@ -456,15 +495,29 @@ service.init(function () {
     });
     service.get("/buildExamples", function (req, res) {
         var response = {};
-        lib.createService(config.localSrcDir + "soajs.examples/hello_world", req.soajs.log, req.query.delete, function (err, data) {
+        var params = {
+            imagePrefix: config.imagePrefix.core,
+            servicePath: config.localSrcDir + "soajs.examples/hello_world",
+            log: req.soajs.log,
+            deleteFolder: req.query.delete
+        };
+        lib.createService(params, function (err, data) {
             response["helloWorld"] = {"error": err, "data": data};
-            lib.createService(config.localSrcDir + "soajs.examples/example01", req.soajs.log, req.query.delete, function (err, data) {
+
+            params.servicePath = config.localSrcDir + "soajs.examples/example01";
+            lib.createService(params, function (err, data) {
                 response["example01"] = {"error": err, "data": data};
-                lib.createService(config.localSrcDir + "soajs.examples/example02", req.soajs.log, req.query.delete, function (err, data) {
+
+                params.servicePath = config.localSrcDir + "soajs.examples/example02";
+                lib.createService(params, function (err, data) {
                     response["example02"] = {"error": err, "data": data};
-                    lib.createService(config.localSrcDir + "soajs.examples/example03", req.soajs.log, req.query.delete, function (err, data) {
+
+                    params.servicePath = config.localSrcDir + "soajs.examples/example03";
+                    lib.createService(params, function (err, data) {
                         response["example03"] = {"error": err, "data": data};
-                        lib.createService(config.localSrcDir + "soajs.examples/example04", req.soajs.log, req.query.delete, function (err, data) {
+
+                        params.servicePath = config.localSrcDir + "soajs.examples/example04";
+                        lib.createService(params, function (err, data) {
                             return res.json(req.soajs.buildResponse(null, response));
                         });
                     });
@@ -479,20 +532,20 @@ service.init(function () {
         form.uploadDir = "./FILES";
         form.keepExtensions = true;
 
-        form.parse(req, function(err, fields, files) {
+        form.parse(req, function (err, fields, files) {
             res.writeHead(200, {'content-type': 'text/plain'});
             res.write('received upload:\n\n');
             res.end(util.inspect({fields: fields, files: files}));
         });
     });
 
-    service.get("/uploadForm", function (req, res){
+    service.get("/uploadForm", function (req, res) {
         res.writeHead(200, {'content-type': 'text/html'});
         res.end(
-            '<form action="/buildImages/upload" enctype="multipart/form-data" method="post">'+
-            '<input type="text" name="title"><br>'+
-            '<input type="file" name="upload" multiple="multiple"><br>'+
-            '<input type="submit" value="Upload">'+
+            '<form action="/buildImages/upload" enctype="multipart/form-data" method="post">' +
+            '<input type="text" name="title"><br>' +
+            '<input type="file" name="upload" multiple="multiple"><br>' +
+            '<input type="submit" value="Upload">' +
             '</form>'
         );
     });
