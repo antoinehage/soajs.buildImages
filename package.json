@@ -28,6 +28,7 @@
     "rimraf": "*",
     "mkdirp": "*",
     "archiver": "*",
-    "formidable": "*"
+    "formidable": "*",
+    "unzip": "*"
   }
 }

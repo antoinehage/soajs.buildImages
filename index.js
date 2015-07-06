@@ -7,7 +7,8 @@ var crypto = require('crypto');
 var ncp = require('ncp').ncp;
 var rimraf = require('rimraf');
 var mkdirp = require('mkdirp');
-
+var archiver = require('archiver');
+var unzip = require("unzip");
 var formidable = require('formidable');
 var util = require('util');
 
@@ -125,7 +126,6 @@ service.init(function () {
          */
         "buildServiceTar": function (param, cb) {
             function tarFolder(rootFolder, serviceInfo) {
-                var archiver = require('archiver');
                 var output = fs.createWriteStream(rootFolder + "service.tar");
                 var archive = archiver('tar');
                 output.on('close', function () {
@@ -493,6 +493,55 @@ service.init(function () {
             return res.status(200).send(data);
         });
     });
+    service.post("/uploadCustomService", function (req, res) {
+        var form = new formidable.IncomingForm();
+        form.encoding = 'utf-8';
+        form.uploadDir = config.uploadDir;
+        form.keepExtensions = true;
+
+        form.parse(req, function (err, fields, files) {
+            if (err) {
+                return res.jsonp(req.soajs.buildResponse({"code": 401, "msg": err}));
+            }
+
+            if (!files || !files.upload || !fields || !fields.name) {
+                return res.jsonp(req.soajs.buildResponse({"code": 402, "msg": config.errors[402]}));
+            }
+
+            //extract zip file & call lib.createService
+            var srvTmpFolderName = fields.name;
+            srvTmpFolderName = srvTmpFolderName.replace(/\s/g, '_').replace(/\W/gi, '-').toLowerCase();
+            fs.createReadStream(files.upload.path)
+                .pipe(unzip.Extract({"path": config.uploadDir + srvTmpFolderName}))
+                .on('close', function(){
+                    createService(srvTmpFolderName, files);
+            });
+        });
+
+        function createService(srvTmpFolderName, files){
+            var params = {
+                imagePrefix: config.imagePrefix.custom,
+                servicePath: config.uploadDir + srvTmpFolderName + "/" + files.upload.name.replace(".zip", ""),
+                log: req.soajs.log,
+                deleteFolder: true
+            };
+
+            lib.createService(params, function (err, data) {
+                if (err){ return res.jsonp(req.soajs.buildResponse({"code": 401, "msg": err}));   }
+
+                //remove extracted folder, remove zip file
+                rimraf(config.uploadDir + srvTmpFolderName, function(err){
+                    if (err){ return res.jsonp(req.soajs.buildResponse({"code": 401, "msg": err})); }
+
+                    rimraf(files.upload.path, function(err){
+                        if (err){ return res.jsonp(req.soajs.buildResponse({"code": 401, "msg": err})); }
+
+                        return res.json(req.soajs.buildResponse(null, data));
+                    })
+                });
+            });
+        }
+    });
     service.get("/buildExamples", function (req, res) {
         var response = {};
         var params = {
@@ -526,28 +575,5 @@ service.init(function () {
         });
     });
 
-    service.post("/upload", function (req, res) {
-        var form = new formidable.IncomingForm();
-
-        form.uploadDir = "./FILES";
-        form.keepExtensions = true;
-
-        form.parse(req, function (err, fields, files) {
-            res.writeHead(200, {'content-type': 'text/plain'});
-            res.write('received upload:\n\n');
-            res.end(util.inspect({fields: fields, files: files}));
-        });
-    });
-
-    service.get("/uploadForm", function (req, res) {
-        res.writeHead(200, {'content-type': 'text/html'});
-        res.end(
-            '<form action="/buildImages/upload" enctype="multipart/form-data" method="post">' +
-            '<input type="text" name="title"><br>' +
-            '<input type="file" name="upload" multiple="multiple"><br>' +
-            '<input type="submit" value="Upload">' +
-            '</form>'
-        );
-    });
     service.start();
 });

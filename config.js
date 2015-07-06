@@ -7,6 +7,8 @@ module.exports = {
     "workingDir": "/opt/tmp/",
     "localSrcDir": "/opt/soajs/node_modules/",
 
+    "uploadDir": "/opt/soajs/node_modules/soajs.buildImages/FILES/uploads/",
+
     "imagePrefix": {
         "core": "soajsorg/",
         "custom": "local/"
@@ -66,7 +68,9 @@ module.exports = {
         }
     },
 
-    "errors": {},
+    "errors": {
+        "402": "No Uploaded files where detected."
+    },
     "schema": {
         "/buildSoajsImage": {
             "_apiInfo": {
@@ -163,6 +167,12 @@ module.exports = {
                 "validation": {
                     "type": "boolean"
                 }
+            }
+        },
+
+        "/uploadCustomService":{
+            "_apiInfo": {
+                "l": "Build Custom Service Image from Uploaded ZIP file"
             }
         }
     }
