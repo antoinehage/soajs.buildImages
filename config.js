@@ -69,7 +69,8 @@ module.exports = {
     },
 
     "errors": {
-        "402": "No Uploaded files where detected."
+        "402": "No Uploaded files where detected.",
+        "403": "Invalid file uploaded! make sure you zip your service before you upload it."
     },
     "schema": {
         "/buildSoajsImage": {

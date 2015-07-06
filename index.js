@@ -508,6 +508,11 @@ service.init(function () {
                 return res.jsonp(req.soajs.buildResponse({"code": 402, "msg": config.errors[402]}));
             }
 
+            if(files && files.upload && files.upload.type !== 'application/zip' && files.upload.name.indexOf(".zip") === -1){
+                rimraf(files.upload.path, function(err){});
+                return res.jsonp(req.soajs.buildResponse({"code": 403, "msg": config.errors[403]}));
+            }
+
             //extract zip file & call lib.createService
             var srvTmpFolderName = fields.name;
             srvTmpFolderName = srvTmpFolderName.replace(/\s/g, '_').replace(/\W/gi, '-').toLowerCase();
@@ -515,7 +520,7 @@ service.init(function () {
                 .pipe(unzip.Extract({"path": config.uploadDir + srvTmpFolderName}))
                 .on('close', function(){
                     createService(srvTmpFolderName, files);
-            });
+                });
         });
 
         function createService(srvTmpFolderName, files){
