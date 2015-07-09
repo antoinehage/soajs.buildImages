@@ -504,29 +504,31 @@ service.init(function () {
                 return res.jsonp(req.soajs.buildResponse({"code": 401, "msg": err}));
             }
 
-            if (!files || !files.upload || !fields || !fields.name) {
+            if (!files || Object.keys(files).length === 0) {
+                rimraf(files[fileName].path, function(err){});
                 return res.jsonp(req.soajs.buildResponse({"code": 402, "msg": config.errors[402]}));
             }
 
-            if(files && files.upload && files.upload.type !== 'application/zip' && files.upload.name.indexOf(".zip") === -1){
-                rimraf(files.upload.path, function(err){});
+            var fileName = Object.keys(files)[0];
+            if(files && fileName && files[fileName].type !== 'application/zip' && files[fileName].name.indexOf(".zip") === -1){
+                rimraf(files[fileName].path, function(err){});
                 return res.jsonp(req.soajs.buildResponse({"code": 403, "msg": config.errors[403]}));
             }
 
             //extract zip file & call lib.createService
             var srvTmpFolderName = fields.name;
             srvTmpFolderName = srvTmpFolderName.replace(/\s/g, '_').replace(/\W/gi, '-').toLowerCase();
-            fs.createReadStream(files.upload.path)
+            fs.createReadStream(files[fileName].path)
                 .pipe(unzip.Extract({"path": config.uploadDir + srvTmpFolderName}))
                 .on('close', function(){
-                    createService(srvTmpFolderName, files);
+                    createService(fileName, srvTmpFolderName, files);
                 });
         });
 
-        function createService(srvTmpFolderName, files){
+        function createService(fileName, srvTmpFolderName, files){
             var params = {
                 imagePrefix: config.imagePrefix.custom,
-                servicePath: config.uploadDir + srvTmpFolderName + "/" + files.upload.name.replace(".zip", ""),
+                servicePath: config.uploadDir + srvTmpFolderName + "/" + files[fileName].name.replace(".zip", ""),
                 log: req.soajs.log,
                 deleteFolder: true
             };
@@ -538,7 +540,7 @@ service.init(function () {
                 rimraf(config.uploadDir + srvTmpFolderName, function(err){
                     if (err){ return res.jsonp(req.soajs.buildResponse({"code": 401, "msg": err})); }
 
-                    rimraf(files.upload.path, function(err){
+                    rimraf(files[fileName].path, function(err){
                         if (err){ return res.jsonp(req.soajs.buildResponse({"code": 401, "msg": err})); }
 
                         return res.json(req.soajs.buildResponse(null, data));
