@@ -10,7 +10,7 @@ module.exports = {
     "uploadDir": "/opt/soajs/node_modules/soajs.buildImages/FILES/uploads/",
 
     "imagePrefix": {
-        "core": "soajsorg/",
+        "core": "antoinehage/",
         "custom": "antoinehage/"
     },
 
