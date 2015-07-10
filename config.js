@@ -11,7 +11,7 @@ module.exports = {
 
     "imagePrefix": {
         "core": "soajsorg/",
-        "custom": "local/"
+        "custom": "antoinehage/"
     },
 
     "dockerTemnplates": {
@@ -25,7 +25,7 @@ module.exports = {
                 'RUN chmod +x /opt/soajs/FILES/runNginx.sh',
                 'EXPOSE #SERVICEPORT#',
                 'CMD /opt/soajs/FILES/runNginx.sh']
-        },
+        },/*
         "gc": {
             "from": 'FROM soajsorg/soajs',
             "maintainer": 'MAINTAINER SOAJS Team <team@soajs.org>',
@@ -56,6 +56,7 @@ module.exports = {
                 'EXPOSE #SERVICEPORT#',
                 'CMD /opt/soajs/FILES/runNginx.sh']
         },
+        */
         "soajs": {
             "from": 'FROM ubuntu',
             "maintainer": 'MAINTAINER SOAJS Team <team@soajs.org>',

@@ -363,6 +363,26 @@ service.init(function () {
             return res.status(200).send(data);
         });
     });
+    service.get("/buildNginx", function (req, res) {
+        lib.createImage({
+            imagePrefix: config.imagePrefix.core,
+            nginxPath: config.FILES + "nginx",
+            maintenanceInc: 1000,
+            dockerTpl: config.dockerTemnplates.nginx,
+            type: "nginx",
+            serviceInfo: {
+                "name": "nginx",
+                "ports": "80 8080 8081 8082 8083"
+            },
+            log: req.soajs.log,
+            deleteFolder: req.query.delete || null
+        }, function (err, data) {
+            if (err)
+                return res.jsonp(req.soajs.buildResponse({"code": 401, "msg": err}));
+            return res.status(200).send(data);
+        });
+    });
+    /*
     service.get("/buildAPINginx", function (req, res) {
         lib.createImage({
             imagePrefix: config.imagePrefix.core,
@@ -581,6 +601,6 @@ service.init(function () {
             });
         });
     });
-
+    */
     service.start();
 });
