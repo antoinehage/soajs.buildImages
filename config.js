@@ -25,7 +25,8 @@ module.exports = {
                 'RUN chmod +x /opt/soajs/FILES/runNginx.sh',
                 'EXPOSE #SERVICEPORT#',
                 'CMD /opt/soajs/FILES/runNginx.sh']
-        },/*
+        },
+        /*
         "gc": {
             "from": 'FROM soajsorg/soajs',
             "maintainer": 'MAINTAINER SOAJS Team <team@soajs.org>',
@@ -119,7 +120,7 @@ module.exports = {
                 }
             }
         },
-        "/buildNginx": {
+        "/buildNginxImage": {
             "_apiInfo": {
                 "l": "Dockernize a soajs nginx"
             },
