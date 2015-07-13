@@ -22,7 +22,6 @@
 
   },
   "dependencies": {
-    "soajs": "*",
     "dockerode": "*",
     "ncp": "*",
     "rimraf": "*",
@@ -30,5 +29,8 @@
     "archiver": "*",
     "formidable": "*",
     "unzip": "*"
+  },
+  "peerDependencies": {
+    "soajs": "0.1.*"
   }
 }
