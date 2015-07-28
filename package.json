@@ -26,9 +26,7 @@
     "ncp": "*",
     "rimraf": "*",
     "mkdirp": "*",
-    "archiver": "*",
-    "formidable": "*",
-    "unzip": "*"
+    "archiver": "*"
   },
   "peerDependencies": {
     "soajs": "0.1.*"
