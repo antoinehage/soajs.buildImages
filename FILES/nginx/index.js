@@ -44,7 +44,7 @@ var lib = {
         wstream.write("server {\n");
         wstream.write("  server_name  "+dashDomain+";\n");
         wstream.write("  location / {\n");
-        wstream.write("    root   /opt/soajs/open_source/dashboard;\n");
+        wstream.write("    root   /opt/soajs/dashboard;\n");
         wstream.write("    sendfile       off;\n");
         wstream.write("    index  index.html index.htm;\n");
         wstream.write("  }\n");
