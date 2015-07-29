@@ -8,7 +8,6 @@ var ncp = require('ncp').ncp;
 var rimraf = require('rimraf');
 var mkdirp = require('mkdirp');
 var archiver = require('archiver');
-var util = require('util');
 
 //schema validation
 var validatorSchemas = require("./schemas");
@@ -39,9 +38,8 @@ service.init(function () {
         },
         "getDocker": function (socket) {
             var docker = null;
-            if (socket) {
+            if (socket)
                 docker = new Docker({socketPath: '/var/run/docker.sock'});
-            }
             else {
                 docker = new Docker({
                     host: '192.168.59.103',
@@ -52,43 +50,6 @@ service.init(function () {
                 });
             }
             return docker;
-        },
-        getServiceInfo: function (param, cb) {
-            try {
-                delete require.cache[require.resolve(param.loc + "config.js")];
-                var tmpConfig = require(param.loc + "config.js");
-
-                var check = validator.validate(tmpConfig, validatorSchemas.config);
-                if (!check.valid) {
-                    return cb(null);
-                }
-
-                if (tmpConfig.servicePort && tmpConfig.serviceName) {
-                    return cb({
-                        "name": tmpConfig.serviceName,
-                        "ports": tmpConfig.servicePort + " " + (tmpConfig.servicePort + param.maintenanceInc)
-                    });
-                }
-                else
-                    return cb(null);
-            }
-            catch (e) {
-                return cb(null);
-            }
-        },
-        writeProfiles: function (param, cb) {
-            ncp.limit = 16;
-            ncp(config.FILES + "profiles/", param.loc + 'profiles', function (err) {
-                if (err) return cb(err.message);
-                return cb(null);
-            });
-        },
-        writeScripts: function (param, cb) {
-            ncp.limit = 16;
-            ncp(config.FILES + "scripts/", param.loc, function (err) {
-                if (err) return cb(err.message);
-                return cb(null);
-            });
         },
         writeFiles: function (param, cb) {
             ncp.limit = 16;
@@ -119,7 +80,7 @@ service.init(function () {
         },
         /**
          *
-         * @param param {servicePath, maintenanceInc, dockerTpl, type, serviceInfo}
+         * @param param {servicePath, dockerTpl, type, serviceInfo}
          * @param cb
          */
         "buildServiceTar": function (param, cb) {
@@ -149,25 +110,18 @@ service.init(function () {
                 }, function (err) {
                     if (err) return cb(err.message);
                     var packageFile = rootFolder + "FILES/" + serviceInfo.name + "/package.json";
-
                     fs.exists(packageFile, function (exists) {
-                        if (!exists) {
+                        if (!exists)
                             return cb(packageFile + " not Found!");
-                        }
-
                         fs.stat(packageFile, function (err, stats) {
                             if (err)
                                 return tarFolder(rootFolder, serviceInfo);
                             else {
-                                if (!stats.isFile()) {
+                                if (!stats.isFile())
                                     return cb(packageFile + " is not a file!");
-                                }
-
                                 validatePackageJSON(packageFile, validatorSchemas.package, function (err) {
-                                    if (err) {
+                                    if (err)
                                         return cb(err.message);
-                                    }
-
                                     return tarFolder(rootFolder, serviceInfo);
                                 });
                             }
@@ -178,9 +132,8 @@ service.init(function () {
 
             function validatePackageJSON(filePath, schema, cb) {
                 var errMsgs = [];
-                if (require.resolve(filePath)) {
+                if (require.resolve(filePath))
                     delete require.cache[require.resolve(filePath)];
-                }
                 var packageJSON = require(filePath);
 
                 //validate package.json
@@ -194,10 +147,8 @@ service.init(function () {
 
                 delete packageJSON.dependencies.soajs;
                 fs.writeFile(filePath, JSON.stringify(packageJSON), "utf8", function (err) {
-                    if (err) {
+                    if (err)
                         return cb(err);
-                    }
-
                     return cb(null, true);
                 });
             }
@@ -217,46 +168,10 @@ service.init(function () {
                                     "tpl": param.dockerTpl
                                 }, function (err) {
                                     if (err) return cb(err.message);
-                                    lib.writeScripts({"loc": rootFolder + "FILES/"}, function (err) {
-                                        if (err) return cb(err.message);
-                                        if (param.type === "service" || param.type === "soajs") {
-                                            if (param.type === "service") {
-                                                lib.writeProfiles({"loc": rootFolder + "FILES/"}, function (err) {
-                                                    if (err) return cb(err.message);
-                                                    handleServiceFiles(path, rootFolder, serviceInfo);
-                                                });
-                                            }
-                                            else {
-                                                handleServiceFiles(path, rootFolder, serviceInfo);
-                                            }
-                                        }
-                                        else if (param.type === "nginx" || param.type === "nginxdash") {
-                                            lib.writeFiles({
-                                                "src": path + "/",
-                                                "loc": rootFolder + "FILES/nginx"
-                                            }, function (err) {
-                                                if (err) return cb(err.message);
-                                                if (param.type === "nginxdash" && param.servicePath) {
-                                                    lib.assurePath(param.servicePath, function (err, path2) {
-                                                        console.log(path2)
-                                                        if (err) return cb(err.message);
-                                                        mkdirp(rootFolder + "FILES/soajs.dashboard/", function (err) {
-                                                            if (err) return cb(err.message);
-                                                            lib.writeFiles({
-                                                                "src": path2 + "/",
-                                                                "loc": rootFolder + "FILES/soajs.dashboard/ui"
-                                                            }, function (err) {
-                                                                if (err) return cb(err.message);
-                                                                tarFolder(rootFolder, serviceInfo);
-                                                            });
-                                                        });
-                                                    });
-                                                }
-                                                else
-                                                    tarFolder(rootFolder, serviceInfo);
-                                            });
-                                        }
-                                    });
+                                    if (param.type === "soajs" && path)
+                                        handleServiceFiles(path, rootFolder, serviceInfo);
+                                    else if (param.type === "nginx")
+                                        tarFolder(rootFolder, serviceInfo);
                                 });
                             });
                         });
@@ -266,35 +181,25 @@ service.init(function () {
                     return cb("You need to have servicePort as well as serviceName in [" + path + "/config.js]");
             }
 
-            var serviceFolder = param.nginxPath || param.servicePath;
-            lib.assurePath(serviceFolder, function (err, path) {
-                if (err) return cb(err.message);
-                if (param.serviceInfo) {
-                    afterServiceInfo(param.serviceInfo, path);
-                }
-                else {
-                    lib.getServiceInfo({
-                        "loc": path + "/",
-                        "maintenanceInc": param.maintenanceInc
-                    }, function (serviceInfo) {
-                        afterServiceInfo(serviceInfo, path);
-                    });
-                }
-            });
+            if (param.servicePath) {
+                lib.assurePath(param.servicePath, function (err, path) {
+                    if (err) return cb(err.message);
+                    return afterServiceInfo(param.serviceInfo, path);
+                });
+            }
+            else
+                return afterServiceInfo(param.serviceInfo, null);
         },
         /**
          *
-         * @param param {nginxPath, servicePath, maintenanceInc, dockerTpl, type, serviceInfo, log, deleteFolder}
+         * @param param {servicePath, dockerTpl, type, serviceInfo, log, deleteFolder}
          * @param cb
          */
         "createImage": function (param, cb) {
             var imagePrefix = param.imagePrefix;
-            var maintenanceInc = param.maintenanceInc;
             lib.buildServiceTar({
                 "type": param.type,
                 "servicePath": param.servicePath,
-                "nginxPath": param.nginxPath,
-                "maintenanceInc": maintenanceInc,
                 "dockerTpl": param.dockerTpl,
                 "serviceInfo": param.serviceInfo
             }, function (err, tarInfo) {
@@ -335,7 +240,6 @@ service.init(function () {
             lib.createImage({
                 imagePrefix: params.imagePrefix,
                 servicePath: params.servicePath,
-                maintenanceInc: 1000,
                 dockerTpl: config.dockerTemnplates.service,
                 type: "service",
                 log: params.log,
@@ -347,7 +251,6 @@ service.init(function () {
         lib.createImage({
             imagePrefix: config.imagePrefix.core,
             servicePath: config.localSrcDir + "soajs",
-            maintenanceInc: 1000,
             dockerTpl: config.dockerTemnplates.soajs,
             type: "soajs",
             serviceInfo: {
@@ -364,8 +267,6 @@ service.init(function () {
     service.get("/buildNginx", function (req, res) {
         lib.createImage({
             imagePrefix: config.imagePrefix.core,
-            nginxPath: config.FILES + "nginx",
-            maintenanceInc: 1000,
             dockerTpl: config.dockerTemnplates.nginx,
             type: "nginx",
             serviceInfo: {
