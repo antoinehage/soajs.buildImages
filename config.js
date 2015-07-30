@@ -38,24 +38,5 @@ module.exports = {
         "403": "Invalid file uploaded! make sure you zip your service before you upload it."
     },
     "schema": {
-        "/buildSoajsImage": {
-            "_apiInfo": {
-                "l": "Dockernize soajs core"
-            },
-            "vLabel": {
-                "source": ['query.vLabel'],
-                "required": false,
-                "validation": {
-                    "type": "string"
-                }
-            },
-            "vForce": {
-                "source": ['query.vForce'],
-                "required": false,
-                "validation": {
-                    "type": "boolean"
-                }
-            }
-        }
     }
 };
