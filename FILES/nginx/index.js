@@ -28,6 +28,7 @@ var lib = {
         wstream.write("server {\n");
         wstream.write("  listen       "+apiPort+";\n");
         wstream.write("  server_name  "+apiDomain+";\n");
+        wstream.write("  client_max_body_size 100m;\n");
         wstream.write("  location / {\n");
         wstream.write("    proxy_pass 		    http://" + upstreamName + ";\n");
         wstream.write("    proxy_set_header   	X-Forwarded-Proto 	    $scheme;\n");
@@ -43,6 +44,7 @@ var lib = {
         var wstream = fs.createWriteStream(param.loc + 'dash.conf');
         wstream.write("server {\n");
         wstream.write("  server_name  "+dashDomain+";\n");
+        wstream.write("  client_max_body_size 100m;\n");
         wstream.write("  location / {\n");
         wstream.write("    root   /opt/soajs/dashboard;\n");
         wstream.write("    sendfile       off;\n");
