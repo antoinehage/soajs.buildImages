@@ -29,6 +29,6 @@
     "archiver": "*"
   },
   "peerDependencies": {
-    "soajs": "0.1.*"
+    "soajs": "0.2.*"
   }
 }
