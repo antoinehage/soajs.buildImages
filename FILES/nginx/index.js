@@ -8,16 +8,25 @@ var apiPort = process.env.SOAJS_NX_APIPORT || "8080";
 var hostPrefix = process.env.SOAJS_NX_HOSTPREFIX || "controllerProxy";
 var controllerPort = process.env.SOAJS_NX_CONTROLLERPORT || "4000";
 
+var hostIp = process.env.SOAJS_NX_HOSTIP || null;
+
+var nginxLocation = process.env.SOAJS_NX_LOC || "/etc/nginx";
+var setupType = process.env.SOAJS_NX_SETUPTYPE || "ubuntu"; //ubuntu | mac | local
+
+var dashboardRoot= process.env.SOAJS_NX_DASHBOARDROOT || "/opt/soajs/dashboard";
+
 var upstreamName = "soajs.controller";
 
 var lib = {
     "writeUpstream": function (param, cb) {
+        console.log("writing upstream.conf in " + param.loc);
         var wstream = fs.createWriteStream(param.loc + 'upstream.conf');
         wstream.write("upstream " + upstreamName + " {\n");
         for (var i = 1; i <= nbController; i++) {
             var s = "000" + i;
             s = s.substr(s.length-2);
-            wstream.write("  server "+hostPrefix+s+":"+controllerPort+";\n");
+            var ip = (hostIp || hostPrefix+s);
+            wstream.write("  server "+ip+":"+controllerPort+";\n");
         }
         wstream.write("}\n");
         wstream.end();
@@ -46,7 +55,7 @@ var lib = {
         wstream.write("  server_name  "+dashDomain+";\n");
         wstream.write("  client_max_body_size 100m;\n");
         wstream.write("  location / {\n");
-        wstream.write("    root   /opt/soajs/dashboard;\n");
+        wstream.write("    root  " + dashboardRoot + ";\n");
         wstream.write("    sendfile       off;\n");
         wstream.write("    index  index.html index.htm;\n");
         wstream.write("  }\n");
@@ -56,14 +65,14 @@ var lib = {
     }
 };
 
-lib.writeUpstream({"loc": "/etc/nginx/conf.d/"},function(err){
+lib.writeUpstream({"loc": nginxLocation + ((setupType === 'mac') ? "/servers/" : ( setupType ==='ubuntu') ? "/conf.d/" : "/nginx/") },function(err){
     console.log ("NGINX UPSTREAM DONE.");
 });
-lib.writeApiConf ({"loc": "/etc/nginx/sites-enabled/"},function(err){
+lib.writeApiConf ({"loc": nginxLocation + ((setupType === 'mac') ? "/servers/" : ( setupType ==='ubuntu') ? "/sites-enabled/" : "/nginx/") },function(err){
     console.log ("NGINX API CONF DONE.");
 });
 if (dashDomain) {
-    lib.writeDashConf({"loc": "/etc/nginx/sites-enabled/"}, function (err) {
+    lib.writeDashConf({"loc": nginxLocation + ((setupType === 'mac') ? "/servers/" : ( setupType ==='ubuntu') ? "/sites-enabled/" : "/nginx/") }, function (err) {
         console.log("NGINX DASH CONF DONE.");
     });
 }
