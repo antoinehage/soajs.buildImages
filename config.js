@@ -8,7 +8,7 @@ module.exports = {
     "localSrcDir": "/opt/soajs/node_modules/",
 
     "imagePrefix": {
-        "core": "antoinehage/"
+        "core": "soajsorg/"
     },
 
     "dockerTemnplates": {
