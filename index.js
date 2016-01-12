@@ -41,14 +41,20 @@ service.init(function () {
             if (socket)
                 docker = new Docker({socketPath: '/var/run/docker.sock'});
             else {
+                var dockerHost = process.env.DOCKER_HOST;
+                var anchor = dockerHost.lastIndexOf(":");
+
                 docker = new Docker({
-                    host: '192.168.59.103',
-                    port: 2376,
-                    ca: fs.readFileSync('certs/ca.pem'),
-                    cert: fs.readFileSync('certs/cert.pem'),
-                    key: fs.readFileSync('certs/key.pem')
+                    host: dockerHost.substr(anchor-14, 14),
+                    port: dockerHost.substr(anchor),
+                    ca: fs.readFileSync(process.env.DOCKER_CERT_PATH+'/ca.pem'),
+                    cert: fs.readFileSync(process.env.DOCKER_CERT_PATH+'/cert.pem'),
+                    key: fs.readFileSync(process.env.DOCKER_CERT_PATH+'/key.pem')
                 });
             }
+            console.log(process.env.DOCKER_MACHINE_NAME);
+            console.log(docker);
+
             return docker;
         },
         writeFiles: function (param, cb) {
