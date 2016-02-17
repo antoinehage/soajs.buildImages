@@ -6,7 +6,7 @@ var controllerNb = process.env.SOAJS_NX_CONTROLLER_NB || 1;
 var nxApiDomain = process.env.SOAJS_NX_API_DOMAIN || "api.soajs.org";
 var nxApiPort = process.env.SOAJS_NX_API_PORT || "80";
 
-var nxSiteDomain = process.env.SOAJS_NX_SITE_DOMAIN || "dashboard.soajs.org";
+var nxSiteDomain = process.env.SOAJS_NX_SITE_DOMAIN;
 var nxSitePort = process.env.SOAJS_NX_SITE_PORT || "80";
 var nxSitePath = process.env.SOAJS_NX_SITE_PATH || "/opt/soajs/dashboard";
 
@@ -20,9 +20,9 @@ var lib = {
         wstream.write("upstream " + param.upstreamName + " {\n");
         for (var i = 1; i <= param.count; i++) {
             if (process.env[param.ipEnvName + i])
-                wstream.write("  server " + param.ipEnvName + i + ":" + param.port + ";\n");
+                wstream.write("  server " + process.env[param.ipEnvName] + i + ":" + param.port + ";\n");
             else
-                console.log("Unable to find environment variable SOAJS_NX_CONTROLLER_" + i);
+                console.log("Unable to find environment variable " + param.ipEnvName + i);
         }
         wstream.write("}\n");
         wstream.end();
@@ -84,13 +84,13 @@ lib.writeApiConf({
     console.log("NGINX API CONF DONE.");
 });
 
-if (dashDomain) {
+if (nxSiteDomain) {
     lib.writeDashConf({
         "loc": nxLocation + ((nxOs === 'mac') ? "/servers/" : ( nxOs === 'ubuntu') ? "/sites-enabled/" : "/nginx/"),
         "confFileName": "dash.conf",
-        "domain" : nxSiteDomain,
-        "port" : nxSitePort,
-        "path" : nxSitePath
+        "domain": nxSiteDomain,
+        "port": nxSitePort,
+        "path": nxSitePath
     }, function (err) {
         console.log("NGINX DASH CONF DONE.");
     });
