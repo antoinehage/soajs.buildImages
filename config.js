@@ -17,7 +17,9 @@ module.exports = {
             "maintainer": 'MAINTAINER SOAJS Team <team@soajs.org>',
             "body": [
                 'RUN apt-get update && apt-get install -y nginx nodejs && ln -s /usr/bin/nodejs /usr/bin/node && mkdir -p /opt/soajs/FILES',
+                'ADD ./FILES /opt/soajs/FILES/',
                 'RUN echo "daemon off;" >> /etc/nginx/nginx.conf',
+                'ENV NODE_ENV=production',
                 'EXPOSE #SERVICEPORT#',
                 'CMD ["/bin/bash"]']
         },
