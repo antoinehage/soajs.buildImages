@@ -1,13 +1,16 @@
 #!/bin/bash
 
 service=$1
-
+IP_SUBNET=$3
+SET_SOAJS_SRVIP=$2
 function serviceSuccess()
 {
     echo "service config preparation done successfully"
 
-    export SOAJS_SRVIP=$(/sbin/ip route|awk '/10.0.0.0/ {print $9}')
-    echo $SOAJS_SRVIP
+    if [ ${SET_SOAJS_SRVIP} == "on" ]; then
+        export SOAJS_SRVIP=$(/sbin/ip route|awk '/${IP_SUBNET}/ {print $9}')
+        echo $SOAJS_SRVIP
+    fi
     echo $SOAJS_ENV
     echo $SOAJS_PROFILE
 
