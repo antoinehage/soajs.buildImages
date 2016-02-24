@@ -27,6 +27,6 @@ function serviceFailure()
     echo "service config preparation failed"
 }
 
-node /opt/soajs/FILES/profiles/index.js &
+node /opt/soajs/FILES/deployer/profile.js &
 b=$!
 wait $b && serviceSuccess || serviceFailure
