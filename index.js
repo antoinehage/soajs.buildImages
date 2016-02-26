@@ -45,11 +45,11 @@ service.init(function () {
                 var anchor = dockerHost.lastIndexOf(":");
 
                 docker = new Docker({
-                    host: dockerHost.substr(anchor-14, 14),
+                    host: dockerHost.substr(anchor - 14, 14),
                     port: dockerHost.substr(anchor),
-                    ca: fs.readFileSync(process.env.DOCKER_CERT_PATH+'/ca.pem'),
-                    cert: fs.readFileSync(process.env.DOCKER_CERT_PATH+'/cert.pem'),
-                    key: fs.readFileSync(process.env.DOCKER_CERT_PATH+'/key.pem')
+                    ca: fs.readFileSync(process.env.DOCKER_CERT_PATH + '/ca.pem'),
+                    cert: fs.readFileSync(process.env.DOCKER_CERT_PATH + '/cert.pem'),
+                    key: fs.readFileSync(process.env.DOCKER_CERT_PATH + '/key.pem')
                 });
             }
             console.log(process.env.DOCKER_MACHINE_NAME);
@@ -174,10 +174,16 @@ service.init(function () {
                                     "tpl": param.dockerTpl
                                 }, function (err) {
                                     if (err) return cb(err.message);
-                                    if (param.type === "soajs" && path)
-                                        handleServiceFiles(path, rootFolder, serviceInfo);
-                                    else if (param.type === "nginx")
-                                        tarFolder(rootFolder, serviceInfo);
+                                    lib.writeFiles({
+                                        "src": config.FILES,
+                                        "loc": rootFolder + "FILES/"
+                                    }, function (err) {
+                                        if (err) return cb(err.message);
+                                        if (param.type === "soajs" && path)
+                                            handleServiceFiles(path, rootFolder, serviceInfo);
+                                        else if (param.type === "nginx")
+                                            tarFolder(rootFolder, serviceInfo);
+                                    });
                                 });
                             });
                         });

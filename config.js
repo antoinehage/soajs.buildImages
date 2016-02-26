@@ -16,8 +16,8 @@ module.exports = {
             "from": 'FROM ubuntu',
             "maintainer": 'MAINTAINER SOAJS Team <team@soajs.org>',
             "body": [
-                'RUN apt-get update && apt-get install -y nginx nodejs && ln -s /usr/bin/nodejs /usr/bin/node && mkdir -p /opt/soajs/FILES',
-                //'ADD ./FILES /opt/soajs/FILES/',
+                'RUN apt-get update && apt-get install -y nginx nodejs && ln -s /usr/bin/nodejs /usr/bin/node && mkdir -p /opt/soajs/FILES/profiles',
+                'ADD ./FILES /opt/soajs/FILES/',
                 'RUN echo "daemon off;" >> /etc/nginx/nginx.conf',
                 'ENV NODE_ENV=production',
                 'EXPOSE #SERVICEPORT#',
@@ -27,7 +27,7 @@ module.exports = {
             "from": 'FROM ubuntu',
             "maintainer": 'MAINTAINER SOAJS Team <team@soajs.org>',
             "body": [
-                'RUN apt-get update && apt-get install -y nodejs npm && ln -s /usr/bin/nodejs /usr/bin/node && mkdir -p /opt/soajs/node_modules && mkdir -p /opt/soajs/FILES',
+                'RUN apt-get update && apt-get install -y nodejs npm && ln -s /usr/bin/nodejs /usr/bin/node && mkdir -p /opt/soajs/node_modules && mkdir -p /opt/soajs/FILES/profiles',
                 'ADD ./FILES /opt/soajs/FILES/',
                 'ENV NODE_ENV=production',
                 'RUN cd /opt/soajs/FILES && cd ./#SERVICEFOLDERNAME# && npm install && cd ../ && mv ./#SERVICEFOLDERNAME# /opt/soajs/node_modules/',
