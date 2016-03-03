@@ -30,7 +30,7 @@ var lib = {
                     wstream.write('        },\n');
             }
             else
-                console.log("Unable to find environment variable " + param.ipEnvName + i);
+                console.log("ERROR: Unable to find environment variable " + param.ipEnvName + i);
         }
 
         wstream.write('    ],\n');
@@ -75,7 +75,7 @@ var lib = {
                     wstream.write('        },\n');
             }
             else
-                console.log("Unable to find environment variable " + param.ipEnvName + i);
+                console.log("ERROR: Unable to find environment variable " + param.ipEnvName + i);
         }
 
         wstream.write('    ],\n');
@@ -129,6 +129,6 @@ if (mongoNb === 1) {
         console.log("PROFILE REPLICA DONE.");
     });
 } else {
-    console.log("PROFILE CREATION FAILED. Environment variable SOAJS_MONGO_NB must be integer [" + mongoNb + "]");
+    console.log("ERROR: PROFILE CREATION FAILED. Environment variable SOAJS_MONGO_NB must be integer [" + mongoNb + "]");
 }
 
