@@ -38,7 +38,7 @@ function serviceSuccess()
         popd
         node ${DEPLOY_FOLDER}${SOAJS_GIT_REPO}${WHAT_TO_RUN}
     else
-        echo "unable to find environment variable SOAJS_GIT_REPO or SOAJS_GIT_OWNER. nothing to deploy"
+        echo "ERROR: unable to find environment variable SOAJS_GIT_REPO or SOAJS_GIT_OWNER. nothing to deploy"
     fi
 }
 function serviceFailure()
