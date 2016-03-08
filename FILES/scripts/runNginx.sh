@@ -1,6 +1,6 @@
 #!/bin/bash
 
-[ ${SOAJS_NX_SITE_PATH} ] && nxSitePath=${SOAJS_NX_SITE_PATH} || nxSitePath="/opt/soajs/dashboard"
+[ ${SOAJS_NX_SITE_PATH} ] && nxSitePath=${SOAJS_NX_SITE_PATH} || nxSitePath="/opt/soajs/site"
 [ ${SOAJS_GIT_BRANCH} ] && BRANCH=${SOAJS_GIT_BRANCH} || BRANCH="master"
 [ ${SOAJS_GIT_DASHBOARD_BRANCH} ] && dashboardDeployment=1 || dashboardDeployment=0
 function nxSuccess()
