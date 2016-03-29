@@ -1,8 +1,9 @@
 #!/bin/bash
 
-WHAT_TO_RUN=$1
-IP_SUBNET=$3
-SET_SOAJS_SRVIP=$2
+[ ${1} ] && WHAT_TO_RUN=${1} || WHAT_TO_RUN='/.'
+[ ${2} ] && SET_SOAJS_SRVIP=${2} || SET_SOAJS_SRVIP='off'
+[ ${3} ] && IP_SUBNET=${3} || IP_SUBNET='10.0.0.0'
+
 DEPLOY_FOLDER="/opt/soajs/node_modules/"
 [ ${SOAJS_GIT_BRANCH} ] && BRANCH=${SOAJS_GIT_BRANCH} || BRANCH="master"
 
