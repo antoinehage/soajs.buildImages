@@ -35,12 +35,15 @@ function serviceSuccess()
         fi
         popd > /dev/null 2>&1
 
-        echo $'\n- SOAJS Deployer starting service ... '
-        echo "    -->    ${DEPLOY_FOLDER}${SOAJS_GIT_REPO}${WHAT_TO_RUN}"
 
+        echo $'\n- SOAJS Deployer installing dependencies ... '
         pushd ${DEPLOY_FOLDER}${SOAJS_GIT_REPO} > /dev/null 2>&1
         npm install > /dev/null 2>&1
+        npm ls
         popd > /dev/null 2>&1
+
+        echo $'\n- SOAJS Deployer starting service ... '
+        echo "    -->    ${DEPLOY_FOLDER}${SOAJS_GIT_REPO}${WHAT_TO_RUN}"
         node ${DEPLOY_FOLDER}${SOAJS_GIT_REPO}${WHAT_TO_RUN}
     else
         echo "ERROR: unable to find environment variable SOAJS_GIT_REPO or SOAJS_GIT_OWNER. nothing to deploy"
