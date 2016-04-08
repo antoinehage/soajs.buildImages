@@ -283,7 +283,7 @@ service.init(function () {
             type: "nginx",
             serviceInfo: {
                 "name": "nginx",
-                "ports": "80 8080 8081 8082 8083"
+                "ports": "80 443"
             },
             log: req.soajs.log,
             deleteFolder: req.query.delete || null

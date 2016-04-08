@@ -3,6 +3,34 @@
 [ ${SOAJS_NX_SITE_PATH} ] && nxSitePath=${SOAJS_NX_SITE_PATH} || nxSitePath="/opt/soajs/site"
 [ ${SOAJS_GIT_BRANCH} ] && BRANCH=${SOAJS_GIT_BRANCH} || BRANCH="master"
 [ ${SOAJS_GIT_DASHBOARD_BRANCH} ] && dashboardDeployment=1 || dashboardDeployment=0
+[ ${SOAJS_GIT_SOURCE} ] && SOURCE=${SOAJS_GIT_SOURCE} || SOURCE="github"
+
+function clone()
+{
+    local _REPO=${1}
+    local _OWNER=${2}
+    local _BRANCH=${3}
+    local _SOURCE=${4}
+    local _TOKEN=${5}
+
+    if [ ${_TOKEN} ]; then
+        echo "- Deploying from ${_SOURCE} private repo"
+        if [ ${_SOURCE} == "github" ]; then
+            git clone -b ${_BRANCH} https://${_TOKEN}@github.com/${_OWNER}/${_REPO}.git
+        elif [ ${_SOURCE} == "bitbucket" ]; then
+            git clone -b ${_BRANCH} https://x-token-auth:${_TOKEN}@bitbucket.org/${_OWNER}/${_REPO}.git
+        fi
+    else
+        echo "- Deploying from ${_SOURCE} public repo"
+        if [ ${_SOURCE} == "github" ]; then
+            git clone -b ${_BRANCH} https://github.com/${_OWNER}/${_REPO}.git
+        elif [ ${_SOURCE} == "bitbucket" ]; then
+            git clone -b ${_BRANCH} https://bitbucket.org/${_OWNER}/${_REPO}.git
+        fi
+    fi
+
+}
+
 function nxSuccess()
 {
     echo $'\n- SOAJS Deployer preparing nginx ... '
@@ -14,28 +42,23 @@ function nxSuccess()
     pushd ${nxSitePath}"_tmp" > /dev/null 2>&1
 
     if [ ${dashboardDeployment} == 1 ]; then
-        git clone -b ${SOAJS_GIT_DASHBOARD_BRANCH} https://github.com/soajs/soajs.dashboard.git
+        clone "soajs.dashboard" "soajs" ${SOAJS_GIT_DASHBOARD_BRANCH} ${SOURCE}
         cp -Rf ${nxSitePath}"_tmp/"soajs.dashboard/ui/*  ${nxSitePath}"/"
         echo "    ... deployed dashboard UI"
     fi
 
     if [ ${SOAJS_GIT_REPO} ] && [ ${SOAJS_GIT_OWNER} ]; then
-        if [ ${SOAJS_GIT_TOKEN} ]; then
-            echo "- Deploying from github private repo"
-            git clone -b ${BRANCH} https://${SOAJS_GIT_TOKEN}@github.com/${SOAJS_GIT_OWNER}/${SOAJS_GIT_REPO}.git
-            cp -Rf ${nxSitePath}"_tmp/"${SOAJS_GIT_REPO}/*  ${nxSitePath}"/"
-        else
-            echo "- Deploying from github public repo"
-            git clone -b ${BRANCH} https://github.com/${SOAJS_GIT_OWNER}/${SOAJS_GIT_REPO}.git
-            cp -Rf ${nxSitePath}"_tmp/"${SOAJS_GIT_REPO}/*  ${nxSitePath}"/"
-        fi
-    else
+        clone ${SOAJS_GIT_REPO} ${SOAJS_GIT_OWNER} ${BRANCH} ${SOURCE} ${SOAJS_GIT_TOKEN}
+        cp -Rf ${nxSitePath}"_tmp/"${SOAJS_GIT_REPO}/*  ${nxSitePath}"/"
+     else
         echo "- No additional custom site UI to deploy"
     fi
+
     popd > /dev/null 2>&1
+
     rm -Rf ${nxSitePath}"_tmp"
 
-        echo $'\n- SOAJS Deployer starting nginx ... '
+    echo $'\n- SOAJS Deployer starting nginx ... '
     service nginx start
 }
 function nxFailure()
