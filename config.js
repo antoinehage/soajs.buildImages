@@ -18,7 +18,8 @@ module.exports = {
             "body": [
                 'RUN mkdir -p /opt/soajs/FILES/profiles',
                 'ADD ./FILES /opt/soajs/FILES/',
-                'RUN echo "daemon off;" >> /etc/nginx/nginx.conf',
+                'RUN cd /opt/soajs/FILES/conf && cp -f nginx.conf /etc/nginx/',
+                //'RUN echo "daemon off;" >> /etc/nginx/nginx.conf',
                 'ENV NODE_ENV=production',
                 'EXPOSE #SERVICEPORT#',
                 'CMD ["/bin/bash"]']
