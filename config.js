@@ -32,7 +32,7 @@ module.exports = {
                 'RUN mkdir -p /opt/soajs/node_modules && mkdir -p /opt/soajs/FILES/profiles',
                 'ADD ./FILES /opt/soajs/FILES/',
                 'ENV NODE_ENV=production',
-                'RUN cd /opt/soajs/FILES && cd ./#SERVICEFOLDERNAME# && npm install && cd ../ && mv ./#SERVICEFOLDERNAME# /opt/soajs/node_modules/',
+                //'RUN cd /opt/soajs/FILES && cd ./#SERVICEFOLDERNAME# && npm install && cd ../ && mv ./#SERVICEFOLDERNAME# /opt/soajs/node_modules/',
                 'CMD ["/bin/bash"]']
         }
     },

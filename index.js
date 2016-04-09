@@ -179,9 +179,9 @@ service.init(function () {
                                         "loc": rootFolder + "FILES/"
                                     }, function (err) {
                                         if (err) return cb(err.message);
-                                        if (param.type === "soajs" && path)
-                                            handleServiceFiles(path, rootFolder, serviceInfo);
-                                        else if (param.type === "nginx")
+                                        //if (param.type === "soajs" && path)
+                                        //    handleServiceFiles(path, rootFolder, serviceInfo);
+                                        //else if (param.type === "nginx")
                                             tarFolder(rootFolder, serviceInfo);
                                     });
                                 });
@@ -283,7 +283,7 @@ service.init(function () {
             type: "nginx",
             serviceInfo: {
                 "name": "nginx",
-                "ports": "80 8080 8081 8082 8083"
+                "ports": "80 443"
             },
             log: req.soajs.log,
             deleteFolder: req.query.delete || null
