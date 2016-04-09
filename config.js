@@ -16,7 +16,6 @@ module.exports = {
             "from": 'FROM soajsorg/basenginx',
             "maintainer": 'MAINTAINER SOAJS Team <team@soajs.org>',
             "body": [
-                //'RUN apt-get update && apt-get install -y nginx nodejs git && ln -s /usr/bin/nodejs /usr/bin/node && mkdir -p /opt/soajs/FILES/profiles',
                 'RUN mkdir -p /opt/soajs/FILES/profiles',
                 'ADD ./FILES /opt/soajs/FILES/',
                 'RUN echo "daemon off;" >> /etc/nginx/nginx.conf',
@@ -28,11 +27,9 @@ module.exports = {
             "from": 'FROM soajsorg/baseservice',
             "maintainer": 'MAINTAINER SOAJS Team <team@soajs.org>',
             "body": [
-                //'RUN apt-get update && apt-get install -y nodejs npm git && ln -s /usr/bin/nodejs /usr/bin/node && mkdir -p /opt/soajs/node_modules && mkdir -p /opt/soajs/FILES/profiles',
                 'RUN mkdir -p /opt/soajs/node_modules && mkdir -p /opt/soajs/FILES/profiles',
                 'ADD ./FILES /opt/soajs/FILES/',
                 'ENV NODE_ENV=production',
-                //'RUN cd /opt/soajs/FILES && cd ./#SERVICEFOLDERNAME# && npm install && cd ../ && mv ./#SERVICEFOLDERNAME# /opt/soajs/node_modules/',
                 'CMD ["/bin/bash"]']
         }
     },
