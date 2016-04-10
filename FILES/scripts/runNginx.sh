@@ -27,12 +27,7 @@ function nxSuccess()
             echo "- Deploying from github public repo"
             git clone -b ${BRANCH} https://github.com/${SOAJS_GIT_OWNER}/${SOAJS_GIT_REPO}.git
         fi
-
-        if [ -d "${nxSitePath}_tmp/${SOAJS_GIT_REPO}/ui" ]; then
-            cp -Rf ${nxSitePath}"_tmp/"${SOAJS_GIT_REPO}/ui/*  ${nxSitePath}"/"
-        else
-            cp -Rf ${nxSitePath}"_tmp/"${SOAJS_GIT_REPO}/*  ${nxSitePath}"/"
-        fi
+         cp -Rf ${nxSitePath}"_tmp/"${SOAJS_GIT_REPO}/*  ${nxSitePath}"/"
     else
         echo "- No additional custom site UI to deploy"
     fi
