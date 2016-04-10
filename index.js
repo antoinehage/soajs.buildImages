@@ -254,6 +254,7 @@ service.init(function () {
                 servicePath: params.servicePath,
                 dockerTpl: config.dockerTemnplates.service,
                 type: "service",
+                socket: params.socket,
                 log: params.log,
                 deleteFolder: params.deleteFolder || null
             }, cb);
@@ -268,6 +269,7 @@ service.init(function () {
             serviceInfo: {
                 "name": "soajs"
             },
+            socket: req.query.socket || null,
             log: req.soajs.log,
             deleteFolder: req.query.delete || null
         }, function (err, data) {
@@ -285,6 +287,7 @@ service.init(function () {
                 "name": "nginx",
                 "ports": "80 443"
             },
+            socket: req.query.socket || null,
             log: req.soajs.log,
             deleteFolder: req.query.delete || null
         }, function (err, data) {
