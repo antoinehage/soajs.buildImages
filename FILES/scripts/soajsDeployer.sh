@@ -90,7 +90,7 @@ function serviceSuccess() {
     echo "- Service environment variables:"
     if [ ${SET_SOAJS_SRVIP} == 1 ]; then
         export SOAJS_SRVIP=$(/sbin/ip route|awk '/'${IP_SUBNET}'/ {print $9}')
-        echo $SOAJS_SRVIP
+        echo "    SOAJS_SRVIP="$SOAJS_SRVIP
     fi
     echo "    SOAJS_ENV="$SOAJS_ENV
     echo "    SOAJS_PROFILE="$SOAJS_PROFILE
