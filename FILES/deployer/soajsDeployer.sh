@@ -181,6 +181,7 @@ if [ $# -eq 0 ] ; then
 	exit 1
 fi
 
+EXEC_CMD=0
 DEPLOY_TYPE=0
 SET_SOAJS_SRVIP=0
 IP_SUBNET='10.0.0.0'
