@@ -61,6 +61,7 @@ function nxFetchCode(){
     popd > /dev/null 2>&1
     rm -Rf ${nxSitePath}"_tmp"
 
+    echo $'- SOAJS Deployer fetching code ... DONE'
 }
 function nxSuccess() {
     echo "- Nginx config preparation done successfully"
