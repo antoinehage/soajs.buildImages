@@ -19,6 +19,31 @@ function HELP() {
 
 }
 
+function clone() {
+    local _REPO=${1}
+    local _OWNER=${2}
+    local _BRANCH=${3}
+    local _SOURCE=${4}
+    local _TOKEN=${5}
+
+    if [ ${_TOKEN} ]; then
+        echo "- Deploying from ${_SOURCE} private repo"
+        if [ ${_SOURCE} == "github" ]; then
+            git clone -b ${_BRANCH} https://${_TOKEN}@github.com/${_OWNER}/${_REPO}.git
+        elif [ ${_SOURCE} == "bitbucket" ]; then
+            git clone -b ${_BRANCH} https://x-token-auth:${_TOKEN}@bitbucket.org/${_OWNER}/${_REPO}.git
+        fi
+    else
+        echo "- Deploying from ${_SOURCE} public repo"
+        if [ ${_SOURCE} == "github" ]; then
+            git clone -b ${_BRANCH} https://github.com/${_OWNER}/${_REPO}.git
+        elif [ ${_SOURCE} == "bitbucket" ]; then
+            git clone -b ${_BRANCH} https://bitbucket.org/${_OWNER}/${_REPO}.git
+        fi
+    fi
+
+}
+
 function nxFetchCode(){
     echo $'\n- SOAJS Deployer fetching the needed code ... '
 
@@ -41,23 +66,20 @@ function nxFetchCode(){
     pushd ${nxSitePath}"_tmp" > /dev/null 2>&1
 
     if [ ${dashboardDeployment} == 1 ]; then
-        git clone -b ${SOAJS_GIT_DASHBOARD_BRANCH} https://github.com/soajs/soajs.dashboard.git
+        clone "soajs.dashboard" "soajs" ${SOAJS_GIT_DASHBOARD_BRANCH} ${SOURCE}
         cp -Rf ${nxSitePath}"_tmp/"soajs.dashboard/ui/*  ${nxSitePath}"/"
         echo "    ... deployed dashboard UI"
     fi
 
+
     if [ ${SOAJS_GIT_REPO} ] && [ ${SOAJS_GIT_OWNER} ]; then
-        if [ ${SOAJS_GIT_TOKEN} ]; then
-            echo "- Deploying from github private repo"
-            git clone -b ${BRANCH} https://${SOAJS_GIT_TOKEN}@github.com/${SOAJS_GIT_OWNER}/${SOAJS_GIT_REPO}.git
-        else
-            echo "- Deploying from github public repo"
-            git clone -b ${BRANCH} https://github.com/${SOAJS_GIT_OWNER}/${SOAJS_GIT_REPO}.git
-        fi
-         cp -Rf ${nxSitePath}"_tmp/"${SOAJS_GIT_REPO}/*  ${nxSitePath}"/"
-    else
-        echo "- No additional custom site UI to deploy"
+        clone ${SOAJS_GIT_REPO} ${SOAJS_GIT_OWNER} ${BRANCH} ${SOURCE} ${SOAJS_GIT_TOKEN}
+        cp -Rf ${nxSitePath}"_tmp/"${SOAJS_GIT_REPO}/*  ${nxSitePath}"/"
+        echo "    ... deployed custom site UI"
+     else
+        echo "- No custom site UI to deploy"
     fi
+
     popd > /dev/null 2>&1
     rm -Rf ${nxSitePath}"_tmp"
 
@@ -106,13 +128,7 @@ function serviceSuccess() {
 
     if [ ${SOAJS_GIT_REPO} ] && [ ${SOAJS_GIT_OWNER} ]; then
         pushd ${DEPLOY_FOLDER} > /dev/null 2>&1
-        if [ ${SOAJS_GIT_TOKEN} ]; then
-            echo "- Deploy from github private repo"
-            git clone -b ${BRANCH} https://${SOAJS_GIT_TOKEN}@github.com/${SOAJS_GIT_OWNER}/${SOAJS_GIT_REPO}.git
-        else
-            echo "- Deploy from github public repo"
-            git clone -b ${BRANCH} https://github.com/${SOAJS_GIT_OWNER}/${SOAJS_GIT_REPO}.git
-        fi
+        clone ${SOAJS_GIT_REPO} ${SOAJS_GIT_OWNER} ${BRANCH} ${SOURCE} ${SOAJS_GIT_TOKEN}
         popd > /dev/null 2>&1
 
         echo $'\n- SOAJS Deployer installing dependencies ... '
@@ -170,8 +186,9 @@ SET_SOAJS_SRVIP=0
 IP_SUBNET='10.0.0.0'
 MAIN="/."
 DEPLOY_FOLDER="/opt/soajs/node_modules/"
+SOURCE="github"
 
-while getopts T:X:M:PS OPT; do
+while getopts T:X:M:PSG: OPT; do
 	case "${OPT}" in
         T)
             if [ ${OPTARG} == "nginx" ]; then
@@ -179,7 +196,9 @@ while getopts T:X:M:PS OPT; do
             elif [ ${OPTARG} == "service" ]; then
                 DEPLOY_TYPE=2
             else
-                echo "-T: Unkown deployment type!!!"
+                echo "-T: Unkown deployment type, it should be [nginx] or [service]."
+                HELP
+                exit 1
             fi
 			;;
 		X)
@@ -188,7 +207,9 @@ while getopts T:X:M:PS OPT; do
             elif [ ${OPTARG} == "redeploy" ]; then
                 EXEC_CMD=2
             else
-                echo "-X: Unkown exec command!!!"
+                echo "-X: Unkown exec command, it should be [deploy] or [redeploy]."
+                HELP
+                exit 1
             fi
 		    ;;
 		M)
@@ -202,6 +223,15 @@ while getopts T:X:M:PS OPT; do
 		S)
 		    if [ -n "${OPTARG}" ]; then
 		        IP_SUBNET=${OPTARG}
+		    fi
+		    ;;
+		G)
+		    if [ ${OPTARG} == "github" ] || [ ${OPTARG} == "bitbucket" ]; then
+		        SOURCE=${OPTARG}
+		    else
+		        echo "-G: Unkown GIT source, only [github] and [bitbucket] are supported."
+                HELP
+                exit 1
 		    fi
 		    ;;
 		\?)
