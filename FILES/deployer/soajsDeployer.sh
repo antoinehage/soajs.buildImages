@@ -98,7 +98,7 @@ function nxFailure() {
 function deployNginx() {
     echo $'\n- SOAJS Deployer - Deploying nginx ...'
     echo $'\n- SOAJS Deployer building the needed nginx configuration ... '
-    node /opt/soajs/FILES/deployer/nginx.js &
+    node ./nginx.js &
     b=$!
     wait $b && nxSuccess || nxFailure
 }
@@ -151,7 +151,7 @@ function serviceFailure() {
 function deployService() {
     echo $'\n- SOAJS Deployer - Deploying service ...'
     echo $'\n- SOAJS Deployer building the needed PROFILE ... '
-    node /opt/soajs/FILES/deployer/profile.js &
+    node ./profile.js &
     b=$!
     wait $b && serviceSuccess || serviceFailure
 
