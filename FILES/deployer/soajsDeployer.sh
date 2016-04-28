@@ -44,6 +44,7 @@ function clone() {
 
 }
 
+# ------ NGINX BEGIN
 function nxFetchCode(){
     echo $'\n- SOAJS Deployer fetching the needed code ... '
 
@@ -61,23 +62,31 @@ function nxFetchCode(){
     fi
 
     mkdir -p ${nxSitePath}
-    mkdir -p ${nxSitePath}"_tmp"
+    mkdir -p ${nxSitePath}"_tmp/_temp_site"
 
     pushd ${nxSitePath}"_tmp" > /dev/null 2>&1
 
+    local copySite=0
+
     if [ ${dashboardDeployment} == 1 ]; then
         clone "soajs.dashboard" "soajs" ${SOAJS_GIT_DASHBOARD_BRANCH} ${SOURCE}
-        cp -Rf ${nxSitePath}"_tmp/"soajs.dashboard/ui/*  ${nxSitePath}"/"
+        cp -Rf ${nxSitePath}"_tmp/soajs.dashboard/ui/*" ${nxSitePath}"_tmp/_temp_site/"
+        copySite=1
         echo "    ... deployed dashboard UI"
     fi
 
-
     if [ ${SOAJS_GIT_REPO} ] && [ ${SOAJS_GIT_OWNER} ]; then
         clone ${SOAJS_GIT_REPO} ${SOAJS_GIT_OWNER} ${BRANCH} ${SOURCE} ${SOAJS_GIT_TOKEN}
-        cp -Rf ${nxSitePath}"_tmp/"${SOAJS_GIT_REPO}/*  ${nxSitePath}"/"
+        cp -Rf ${nxSitePath}"_tmp/"${SOAJS_GIT_REPO}"/*" ${nxSitePath}"_tmp/_temp_site/"
+        copySite=1
         echo "    ... deployed custom site UI"
      else
         echo "- No custom site UI to deploy"
+    fi
+
+    if [ ${copySite} == 1 ]; then
+        rm -Rf ${nxSitePath}"/*"
+        cp -Rf ${nxSitePath}"_tmp/_temp_site/*" ${nxSitePath}"/"
     fi
 
     popd > /dev/null 2>&1
@@ -87,55 +96,58 @@ function nxFetchCode(){
 }
 function nxSuccess() {
     echo "- Nginx config preparation done successfully"
-    nxFetchCode
+    if [ ${RE_RUN} == 0 ]; then
+        nxFetchCode
+    fi
     echo $'\n- SOAJS Deployer starting nginx ... '
     service nginx start
 }
 function nxFailure() {
     echo "ERROR: nginx config preparation failed"
 }
-
 function deployNginx() {
     echo $'\n- SOAJS Deployer - Deploying nginx ...'
     echo $'\n- SOAJS Deployer building the needed nginx configuration ... '
     node ./nginx.js &
-    b=$!
+    local b=$!
     wait $b && nxSuccess || nxFailure
 }
 function reDeployNginx() {
     echo $'\n- SOAJS Deployer - reDeploying nginx ...'
     nxFetchCode
 }
+# ------ NGINX END
 
-function serviceSuccess() {
-    echo $'\n- SOAJS Deployer preparing service ... '
-    echo "- Service environment variables:"
-    if [ ${SET_SOAJS_SRVIP} == 1 ]; then
-        export SOAJS_SRVIP=$(/sbin/ip route|awk '/'${IP_SUBNET}'/ {print $9}')
-        echo "    SOAJS_SRVIP="$SOAJS_SRVIP
-    fi
-    echo "    SOAJS_ENV="$SOAJS_ENV
-    echo "    SOAJS_PROFILE="$SOAJS_PROFILE
-    if [ -n "$SOAJS_GC_NAME" ]; then
-        echo "    SOAJS_GC_VERSION="$SOAJS_GC_VERSION
-        echo "    SOAJS_GC_NAME="$SOAJS_GC_NAME
-    fi
-
-    local BRANCH="master"
-    if [ -n ${SOAJS_GIT_BRANCH} ]; then
-        BRANCH=${SOAJS_GIT_BRANCH}
-    fi
-
+# ------ SERVICE BEGIN
+function serviceDependencies() {
+    echo $'\n- SOAJS Deployer installing dependencies ... '
+    pushd ${DEPLOY_FOLDER}${SOAJS_GIT_REPO} > /dev/null 2>&1
+    npm install > /dev/null 2>&1
+    npm ls
+    popd > /dev/null 2>&1
+}
+function serviceCodePull() {
+    echo $'\n- SOAJS Deployer - reDeploying service ...'
+    pushd ${DEPLOY_FOLDER}${SOAJS_GIT_REPO} > /dev/null 2>&1
+    echo $'\- Pulling new code ... '
+    git pull
+    popd > /dev/null 2>&1
+}
+function serviceCode() {
     if [ ${SOAJS_GIT_REPO} ] && [ ${SOAJS_GIT_OWNER} ]; then
-        pushd ${DEPLOY_FOLDER} > /dev/null 2>&1
-        clone ${SOAJS_GIT_REPO} ${SOAJS_GIT_OWNER} ${BRANCH} ${SOURCE} ${SOAJS_GIT_TOKEN}
-        popd > /dev/null 2>&1
+        if [ ${RE_RUN} == 0 ]; then
+            pushd ${DEPLOY_FOLDER} > /dev/null 2>&1
+            local BRANCH="master"
+            if [ -n ${SOAJS_GIT_BRANCH} ]; then
+                BRANCH=${SOAJS_GIT_BRANCH}
+            fi
+            clone ${SOAJS_GIT_REPO} ${SOAJS_GIT_OWNER} ${BRANCH} ${SOURCE} ${SOAJS_GIT_TOKEN}
+            popd > /dev/null 2>&1
+        else
+            serviceCodePull
+        fi
 
-        echo $'\n- SOAJS Deployer installing dependencies ... '
-        pushd ${DEPLOY_FOLDER}${SOAJS_GIT_REPO} > /dev/null 2>&1
-        npm install > /dev/null 2>&1
-        npm ls
-        popd > /dev/null 2>&1
+        serviceDependencies
 
         echo $'\n- SOAJS Deployer starting service ... '
         echo "    -->    ${DEPLOY_FOLDER}${SOAJS_GIT_REPO}${MAIN}"
@@ -144,29 +156,44 @@ function serviceSuccess() {
         echo "ERROR: unable to find environment variable SOAJS_GIT_REPO or SOAJS_GIT_OWNER. nothing to deploy"
     fi
 }
+function serviceEnv() {
+    echo $'\n- SOAJS Deployer preparing service ... '
+    echo "- Service environment variables:"
+    if [ ${SET_SOAJS_SRVIP} == 1 ]; then
+        if [ ${RE_RUN} == 0 ]; then
+            export SOAJS_SRVIP=$(/sbin/ip route|awk '/'${IP_SUBNET}'/ {print $9}')
+        fi
+        echo "    SOAJS_SRVIP="$SOAJS_SRVIP
+    fi
+    echo "    SOAJS_ENV="$SOAJS_ENV
+    echo "    SOAJS_PROFILE="$SOAJS_PROFILE
+    if [ -n "$SOAJS_GC_NAME" ]; then
+        echo "    SOAJS_GC_VERSION="$SOAJS_GC_VERSION
+        echo "    SOAJS_GC_NAME="$SOAJS_GC_NAME
+    fi
+    serviceCode
+}
 function serviceFailure() {
     echo "ERROR: service config preparation failed .... exiting :( !"
 }
-
 function deployService() {
     echo $'\n- SOAJS Deployer - Deploying service ...'
     echo $'\n- SOAJS Deployer building the needed PROFILE ... '
     node ./profile.js &
-    b=$!
-    wait $b && serviceSuccess || serviceFailure
+    local b=$!
+    wait $b && serviceEnv || serviceFailure
 
 }
 function reDeployService() {
-    echo $'\n- SOAJS Deployer - reDeploying service ...'
-    pushd ${DEPLOY_FOLDER}${SOAJS_GIT_REPO} > /dev/null 2>&1
-    echo $'\- Pulling new code ... '
-    git pull
-    echo $'\- Installing dependencies ... '
-    npm install > /dev/null 2>&1
-    npm ls
-    popd > /dev/null 2>&1
+    serviceEnv
+    if [ ${SOAJS_GIT_REPO} ] && [ ${SOAJS_GIT_OWNER} ]; then
+        serviceCodePull
+        serviceDependencies
+    else
+        echo "ERROR: unable to find environment variable SOAJS_GIT_REPO or SOAJS_GIT_OWNER. nothing to re-deploy"
+    fi
 }
-
+# ------ SERVICE END
 
 # DEPLOY_TYPE
 #   1 -> nginx
@@ -188,6 +215,7 @@ IP_SUBNET='10.0.0.0'
 MAIN="/."
 DEPLOY_FOLDER="/opt/soajs/node_modules/"
 SOURCE="github"
+RE_RUN=0
 
 while getopts T:X:M:PSG: OPT; do
 	case "${OPT}" in
@@ -241,6 +269,10 @@ while getopts T:X:M:PSG: OPT; do
 		;;
 	esac
 done
+
+if [ -n ${SOAJS_DEPLOYER_RE_RUN} ] && [ ${SOAJS_DEPLOYER_RE_RUN} == 1 ]; then
+    RE_RUN=1
+fi
 
 if [ ${DEPLOY_TYPE} == 1 ] && [ ${EXEC_CMD} == 1 ]; then
     deployNginx
