@@ -109,7 +109,7 @@ function nxRedeploySuccess() {
     nginx -s reload
 }
 function nxFailure() {
-    echo "ERROR: nginx config preparation failed"
+    echo "ERROR: nginx deployer failed .... exiting :( !"
 }
 function deployNginx() {
     echo $'\n- SOAJS Deployer - Deploying nginx ...'
@@ -186,7 +186,7 @@ function serviceEnv() {
     serviceCode
 }
 function serviceFailure() {
-    echo "ERROR: service config preparation failed .... exiting :( !"
+    echo "ERROR: service deployer failed .... exiting :( !"
 }
 function deployService() {
     echo $'\n- SOAJS Deployer - Deploying service ...'
