@@ -16,7 +16,7 @@ function HELP() {
     echo '  -M		(optional): Main file if not [ /. ] for service to run'
     echo '  -P		(optional): Set SOAJS_SRVIP'
     echo '  -S		(optional): The IP_SUBNET to be used to fetch the container IP to set SOAJS_SRVIP'
-
+    echo '  -c		(optional): Works for nginx redeploy to rebuild nginx config files'
 }
 
 function clone() {
@@ -94,13 +94,19 @@ function nxFetchCode(){
 
     echo $'- SOAJS Deployer fetching code ... DONE'
 }
-function nxSuccess() {
+function nxDeploySuccess() {
     echo "- Nginx config preparation done successfully"
     if [ ${RE_RUN} == 0 ]; then
         nxFetchCode
     fi
     echo $'\n- SOAJS Deployer starting nginx ... '
     service nginx start
+}
+function nxRedeploySuccess() {
+    echo "- Nginx config preparation done successfully"
+    nxFetchCode
+    echo $'\n- SOAJS Deployer reloading nginx ... '
+    service nginx -s reload
 }
 function nxFailure() {
     echo "ERROR: nginx config preparation failed"
@@ -110,11 +116,17 @@ function deployNginx() {
     echo $'\n- SOAJS Deployer building the needed nginx configuration ... '
     node ./nginx.js &
     local b=$!
-    wait $b && nxSuccess || nxFailure
+    wait $b && nxDeploySuccess || nxFailure
 }
 function reDeployNginx() {
     echo $'\n- SOAJS Deployer - reDeploying nginx ...'
-    nxFetchCode
+    if [ ${REBUILD_NX_CONF} == 0 ]; then
+        nxFetchCode
+    else
+        node ./nginx.js &
+        local b=$!
+        wait $b && nxRedeploySuccess || nxFailure
+    fi
 }
 # ------ NGINX END
 
@@ -216,8 +228,8 @@ MAIN="/."
 DEPLOY_FOLDER="/opt/soajs/node_modules/"
 SOURCE="github"
 RE_RUN=0
-
-while getopts T:X:M:PSG: OPT; do
+REBUILD_NX_CONF=0
+while getopts T:X:M:PSG:c OPT; do
 	case "${OPT}" in
         T)
             if [ ${OPTARG} == "nginx" ]; then
@@ -262,6 +274,9 @@ while getopts T:X:M:PSG: OPT; do
                 HELP
                 exit 1
 		    fi
+		    ;;
+		c)
+		    REBUILD_NX_CONF=1
 		    ;;
 		\?)
 			HELP

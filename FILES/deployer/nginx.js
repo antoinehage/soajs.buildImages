@@ -4,11 +4,13 @@ var fs = require('fs');
 
 var controllerNb = process.env.SOAJS_NX_CONTROLLER_NB || 1;
 var nxApiDomain = process.env.SOAJS_NX_API_DOMAIN || "api.soajs.org";
-var nxApiPort = process.env.SOAJS_NX_API_PORT || "80";
+var httpsApi = (process.env.SOAJS_NX_API_HTTPS && (process.env.SOAJS_NX_API_HTTPS == 1 ? true : false)) || false;
+var httpApiRedirect = (httpsApi && process.env.SOAJS_NX_API_HTTP_REDIRECT && (process.env.SOAJS_NX_API_HTTP_REDIRECT == 1 ? true : false)) || false;
 
 var nxSiteDomain = process.env.SOAJS_NX_SITE_DOMAIN;
-var nxSitePort = process.env.SOAJS_NX_SITE_PORT || "80";
 var nxSitePath = process.env.SOAJS_NX_SITE_PATH || "/opt/soajs/site";
+var httpsSite = (process.env.SOAJS_NX_SITE_HTTPS && (process.env.SOAJS_NX_SITE_HTTPS == 1 ? true : false)) || false;
+var httpSiteRedirect = (httpsSite && process.env.SOAJS_NX_SITE_HTTP_REDIRECT && (process.env.SOAJS_NX_SITE_HTTP_REDIRECT == 1 ? true : false)) || false;
 
 var nxOs = process.env.SOAJS_NX_OS || "ubuntu";
 var nxLocation = process.env.SOAJS_NX_LOC || "/etc/nginx";
@@ -28,13 +30,14 @@ var lib = {
         wstream.end();
         return cb(null);
     },
-    "writeApiConf": function (param, cb) {
-        console.log("writing api conf in " + param.loc + " " + param.confFileName);
-        var wstream = fs.createWriteStream(param.loc + param.confFileName);
-        wstream.write("server {\n");
-        wstream.write("  listen       " + param.port + ";\n");
-        wstream.write("  server_name  " + param.domain + ";\n");
-        wstream.write("  client_max_body_size 100m;\n");
+    "writeStaticLocation": function (param, wstream) {
+        wstream.write("  location / {\n");
+        wstream.write("    root  " + param.path + ";\n");
+        wstream.write("    sendfile       off;\n");
+        wstream.write("    index  index.html index.htm;\n");
+        wstream.write("  }\n");
+    },
+    "writeProxyLocation": function (param, wstream) {
         wstream.write("  location / {\n");
         wstream.write("    proxy_pass 		    http://" + param.upstreamName + ";\n");
         wstream.write("    proxy_set_header   	X-Forwarded-Proto 	    $scheme;\n");
@@ -42,22 +45,78 @@ var lib = {
         wstream.write("    proxy_set_header   	X-NginX-Proxy     	    true;\n");
         wstream.write("    proxy_set_header   	Connection        	    \"\";\n");
         wstream.write("  }\n");
+    },
+    "writeServerRedirect": function (param, wstream) {
+        wstream.write("server {\n");
+        wstream.write("  listen       " + param.port + ";\n");
+        wstream.write("  server_name  " + param.domain + ";\n");
+        wstream.write("  client_max_body_size 100m;\n");
+        wstream.write("  rewrite ^/(.*) https://" + param.domain + "/$1 permanent;\n");
         wstream.write("}\n");
+    },
+    "writeServerSSL": function (wstream) {
+        wstream.write("  ssl_certificate         /etc/nginx/ssl/domainname-chained.crt;\n");
+        wstream.write("  ssl_certificate_key     /etc/nginx/ssl/domainname-chained.key;\n");
+        wstream.write("  include " + nxLocation + "/ssl/ssl.conf;\n");
+    },
+    "writeServer": function (param, wstream) {
+        wstream.write("server {\n");
+        wstream.write("  listen       " + param.port + ";\n");
+        wstream.write("  server_name  " + param.domain + ";\n");
+        wstream.write("  client_max_body_size 100m;\n");
+        if (param.https)
+            lib.writeServerSSL(wstream);
+        if (param.location == "proxy")
+            lib.writeProxyLocation(param, wstream);
+        else if (param.location == "static")
+            lib.writeStaticLocation(param, wstream);
+        wstream.write("}\n");
+    },
+
+    "writeApiConf": function (param, cb) {
+        console.log("writing api conf in " + param.loc + " " + param.confFileName);
+        var wstream = fs.createWriteStream(param.loc + param.confFileName);
+
+        param.location = "proxy";
+
+        if (httpsApi) {
+            if (httpApiRedirect) {
+                param.port = "80";
+                lib.writeServerRedirect(param, wstream);
+            }
+            param.https = true;
+            param.port = "443 ssl";
+            lib.writeServer(param, wstream);
+        }
+        else if (!httpApiRedirect){
+            param.port = "80";
+            lib.writeServer(param, wstream);
+        }
+
         wstream.end();
         return cb(null);
     },
+
     "writeSiteConf": function (param, cb) {
         console.log("writing site conf in " + param.loc + " " + param.confFileName);
         var wstream = fs.createWriteStream(param.loc + param.confFileName);
-        wstream.write("server {\n");
-        wstream.write("  server_name  " + param.domain + ";\n");
-        wstream.write("  client_max_body_size 100m;\n");
-        wstream.write("  location / {\n");
-        wstream.write("    root  " + param.path + ";\n");
-        wstream.write("    sendfile       off;\n");
-        wstream.write("    index  index.html index.htm;\n");
-        wstream.write("  }\n");
-        wstream.write("}\n");
+
+        param.location = "static";
+
+        if (httpsSite) {
+            if (httpSiteRedirect) {
+                param.port = "80";
+                lib.writeServerRedirect(param, wstream);
+            }
+            param.https = true;
+            param.port = "443 ssl";
+            lib.writeServer(param, wstream);
+        }
+        else if (!httpSiteRedirect){
+            param.port = "80";
+            lib.writeServer(param, wstream);
+        }
+
         wstream.end();
         return cb(null);
     }
@@ -76,7 +135,6 @@ lib.writeUpstream({
 lib.writeApiConf({
     "loc": nxLocation + ((nxOs === 'mac') ? "/servers/" : ( nxOs === 'ubuntu') ? "/sites-enabled/" : "/nginx/"),
     "confFileName": "api.conf",
-    "port": nxApiPort,
     "domain": nxApiDomain,
     "upstreamName": "soajs.controller"
 }, function (err) {
@@ -88,7 +146,6 @@ if (nxSiteDomain) {
         "loc": nxLocation + ((nxOs === 'mac') ? "/servers/" : ( nxOs === 'ubuntu') ? "/sites-enabled/" : "/nginx/"),
         "confFileName": "site.conf",
         "domain": nxSiteDomain,
-        "port": nxSitePort,
         "path": nxSitePath
     }, function (err) {
         console.log("NGINX DASH CONF DONE.");

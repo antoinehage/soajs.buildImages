@@ -16,10 +16,9 @@ module.exports = {
             "from": 'FROM soajsorg/basenginx',
             "maintainer": 'MAINTAINER SOAJS Team <team@soajs.org>',
             "body": [
-                'RUN mkdir -p /opt/soajs/FILES/profiles',
+                'RUN mkdir -p /opt/soajs/FILES/profiles && mkdir -p /etc/nginx/ssl',
                 'ADD ./FILES /opt/soajs/FILES/',
-                'RUN cd /opt/soajs/FILES/conf && cp -f nginx.conf /etc/nginx/',
-                //'RUN echo "daemon off;" >> /etc/nginx/nginx.conf',
+                'RUN cd /opt/soajs/FILES/conf && cp -f nginx.conf /etc/nginx/ cp -f ssl.conf /etc/nginx/ssl/',
                 'ENV NODE_ENV=production',
                 'EXPOSE #SERVICEPORT#',
                 'CMD ["/bin/bash"]']
