@@ -49,15 +49,15 @@ function nxFetchCode(){
     echo $'\n- SOAJS Deployer fetching the needed code ... '
 
     local nxSitePath="/opt/soajs/site"
-    if [ -n ${SOAJS_NX_SITE_PATH} ]; then
+    if [ -n "${SOAJS_NX_SITE_PATH}" ]; then
         nxSitePath=${SOAJS_NX_SITE_PATH}
     fi
     local BRANCH="master"
-    if [ -n ${SOAJS_GIT_BRANCH} ]; then
+    if [ -n "${SOAJS_GIT_BRANCH}" ]; then
         BRANCH=${SOAJS_GIT_BRANCH}
     fi
     local dashboardDeployment=0
-    if [ -n ${SOAJS_GIT_DASHBOARD_BRANCH} ]; then
+    if [ -n "${SOAJS_GIT_DASHBOARD_BRANCH}" ]; then
         dashboardDeployment=1
     fi
 
@@ -70,14 +70,14 @@ function nxFetchCode(){
 
     if [ ${dashboardDeployment} == 1 ]; then
         clone "soajs.dashboard" "soajs" ${SOAJS_GIT_DASHBOARD_BRANCH} ${SOURCE}
-        cp -Rf ${nxSitePath}"_tmp/soajs.dashboard/ui/*" ${nxSitePath}"_tmp/_temp_site/"
+        cp -Rf ${nxSitePath}_tmp/soajs.dashboard/ui/* ${nxSitePath}_tmp/_temp_site/
         copySite=1
         echo "    ... deployed dashboard UI"
     fi
 
     if [ ${SOAJS_GIT_REPO} ] && [ ${SOAJS_GIT_OWNER} ]; then
         clone ${SOAJS_GIT_REPO} ${SOAJS_GIT_OWNER} ${BRANCH} ${SOURCE} ${SOAJS_GIT_TOKEN}
-        cp -Rf ${nxSitePath}"_tmp/"${SOAJS_GIT_REPO}"/*" ${nxSitePath}"_tmp/_temp_site/"
+        cp -Rf ${nxSitePath}_tmp/${SOAJS_GIT_REPO}/* ${nxSitePath}_tmp/_temp_site/
         copySite=1
         echo "    ... deployed custom site UI"
      else
@@ -86,7 +86,7 @@ function nxFetchCode(){
 
     if [ ${copySite} == 1 ]; then
         rm -Rf ${nxSitePath}"/*"
-        cp -Rf ${nxSitePath}"_tmp/_temp_site/*" ${nxSitePath}"/"
+        cp -Rf ${nxSitePath}_tmp/_temp_site/* ${nxSitePath}/
     fi
 
     popd > /dev/null 2>&1
@@ -106,7 +106,7 @@ function nxRedeploySuccess() {
     echo "- Nginx config preparation done successfully"
     nxFetchCode
     echo $'\n- SOAJS Deployer reloading nginx ... '
-    service nginx -s reload
+    nginx -s reload
 }
 function nxFailure() {
     echo "ERROR: nginx config preparation failed"
@@ -150,7 +150,7 @@ function serviceCode() {
         if [ ${RE_RUN} == 0 ]; then
             pushd ${DEPLOY_FOLDER} > /dev/null 2>&1
             local BRANCH="master"
-            if [ -n ${SOAJS_GIT_BRANCH} ]; then
+            if [ -n "${SOAJS_GIT_BRANCH}" ]; then
                 BRANCH=${SOAJS_GIT_BRANCH}
             fi
             clone ${SOAJS_GIT_REPO} ${SOAJS_GIT_OWNER} ${BRANCH} ${SOURCE} ${SOAJS_GIT_TOKEN}
@@ -179,7 +179,7 @@ function serviceEnv() {
     fi
     echo "    SOAJS_ENV="$SOAJS_ENV
     echo "    SOAJS_PROFILE="$SOAJS_PROFILE
-    if [ -n "$SOAJS_GC_NAME" ]; then
+    if [ -n "${SOAJS_GC_NAME}" ]; then
         echo "    SOAJS_GC_VERSION="$SOAJS_GC_VERSION
         echo "    SOAJS_GC_NAME="$SOAJS_GC_NAME
     fi
