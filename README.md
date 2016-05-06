@@ -21,9 +21,9 @@ $ curl -X GET http://127.0.0.1:4100/buildNginx
 ```
 
 
-**Environment variables**
+### Environment variables
 
-#### ======================== NGINX
+#### NGINX
 ENV Variable | Description | Default | Example
 --- | --- | --- | ---
 SOAJS_NX_CONTROLLER_NB | This is a integer | [1] | 
@@ -37,7 +37,7 @@ SOAJS_NX_SITE_HTTPS | This is to turn on or off HTTPS: [0 - 1] | [0] |
 SOAJS_NX_SITE_HTTP_REDIRECT | This is to redirect HTTP to HTTPS: [0 - 1] | [0] | 
 SOAJS_NX_OS | The OS. Default [ubuntu] |  | 
 
-#### ======================== MONGO
+#### MONGO
 ENV Variable | Description | Default | Example
 --- | --- | --- | ---
 SOAJS_MONGO_RSNAME | This is the name of mongo replica | [rs_soajs] | 
@@ -45,7 +45,7 @@ SOAJS_MONGO_NB | This is the number of Mongo instance(s) | [1]
 SOAJS_MONGO_IP_N | This is the IP for every Mongo instance(s) |  | SOAJS_MONGO_IP_1
 SOAJS_MONGO_PORT_N | This is the port for evert Mongo instance(s) | [27017] | SOAJS_MONGO_PORT_1
 
-#### ======================== GITHUB
+#### GITHUB
 ENV Variable | Description | Default | Example
 --- | --- | --- | ---
 SOAJS_GIT_OWNER | This is the GIT account owner name |  | 
