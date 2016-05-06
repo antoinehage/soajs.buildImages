@@ -23,33 +23,33 @@ $ curl -X GET http://127.0.0.1:4100/buildNginx
 
 **Environment variables**
 
-======================== NGINX
-SOAJS_NX_CONTROLLER_NB          This is a integer. Default is [1]
-SOAJS_NX_CONTROLLER_IP_N        This is the IP for every controller. ie: SOAJS_NX_CONTROLLER_IP_1
+#### ======================== NGINX
+ENV Variable | Description | Default | Example
+--- | --- | --- | ---
+SOAJS_NX_CONTROLLER_NB | This is a integer | Default is [1] | 
+SOAJS_NX_CONTROLLER_IP_N | This is the IP for every controller |  | ie: SOAJS_NX_CONTROLLER_IP_1
+SOAJS_NX_API_DOMAIN | This is the domain for API | Default [api.soajs.org] | 
+SOAJS_NX_API_HTTPS | This is to turn on or off HTTPS: [0 || 1] | Default [0] | 
+SOAJS_NX_API_HTTP_REDIRECT | This is to redirect HTTP to HTTPS: [0 || 1] | Default [0] | 
+SOAJS_NX_SITE_DOMAIN | This is the domain for API |  | 
+SOAJS_NX_SITE_PATH | This is the path where to deploy the static content | Default [/opt/soajs/site] | 
+SOAJS_NX_SITE_HTTPS | This is to turn on or off HTTPS: [0 || 1] | Default [0] | 
+SOAJS_NX_SITE_HTTP_REDIRECT | This is to redirect HTTP to HTTPS: [0 || 1] | Default [0] | 
+SOAJS_NX_OS | The OS. Default [ubuntu] |  | 
 
-SOAJS_NX_API_DOMAIN             This is the domain for API. Default [api.soajs.org]
-SOAJS_NX_API_HTTPS              This is to turn on or off HTTPS: [0 || 1] . Default [0]
-SOAJS_NX_API_HTTP_REDIRECT      This is to redirect HTTP to HTTPS: [0 || 1] . Default [0]
+#### ======================== MONGO
+ENV Variable | Description | Default | Example
+--- | --- | --- | ---
+SOAJS_MONGO_RSNAME | This is the name of mongo replica | Default [rs_soajs] | 
+SOAJS_MONGO_NB | This is the number of Mongo instance(s) | Default is [1]
+SOAJS_MONGO_IP_N | This is the IP for every Mongo instance(s) |  | ie: SOAJS_MONGO_IP_1
+SOAJS_MONGO_PORT_N | This is the port for evert Mongo instance(s) | Default [27017] | ie: SOAJS_MONGO_PORT_1
 
-SOAJS_NX_SITE_DOMAIN            This is the domain for API.
-SOAJS_NX_SITE_PATH              This is the path where to deploy the static content. Default [/opt/soajs/site]
-SOAJS_NX_SITE_HTTPS             This is to turn on or off HTTPS: [0 || 1] . Default [0]
-SOAJS_NX_SITE_HTTP_REDIRECT     This is to redirect HTTP to HTTPS: [0 || 1] . Default [0]
-
-SOAJS_NX_OS                     The OS. Default [ubuntu]
-
-
-======================== MONGO
-SOAJS_MONGO_RSNAME              This is the name of mongo replica. Default [rs_soajs]
-
-SOAJS_MONGO_NB                  This is the number of Mongo instance(s). Default is [1]
-SOAJS_MONGO_IP_N                This is the IP for every Mongo instance(s). ie: SOAJS_MONGO_IP_1
-SOAJS_MONGO_PORT_N              This is the port for evert Mongo instance(s). ie: SOAJS_MONGO_PORT_1. Default [27017]
-
-======================== GITHUB
-SOAJS_GIT_OWNER                 This is the GIT account owner name.
-SOAJS_GIT_REPO                  This is the GIT repo name
-SOAJS_GIT_BRANCH                This the GIT repo branch. Default [master]
-SOAJS_GIT_TOKEN                 This is the GIT account token.
-
-SOAJS_GIT_DASHBOARD_BRANCH      This is the GIT repo branch for soajs.dashboard. Default [ master]
+#### ======================== GITHUB
+ENV Variable | Description | Default | Example
+--- | --- | --- | ---
+SOAJS_GIT_OWNER | This is the GIT account owner name |  | 
+SOAJS_GIT_REPO | This is the GIT repo name |  | 
+SOAJS_GIT_BRANCH | This the GIT repo branch | Default [master] | 
+SOAJS_GIT_TOKEN | This is the GIT account token |  | 
+SOAJS_GIT_DASHBOARD_BRANCH | This is the GIT repo branch for soajs.dashboard | Default [ master] | 
