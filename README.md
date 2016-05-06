@@ -25,7 +25,7 @@ $ curl -X GET http://127.0.0.1:4100/buildNginx
 
 #### NGINX
 ENV Variable | Description | Default | Example
---- | --- | --- | ---
+--- | ----- | :---: | ---
 SOAJS_NX_CONTROLLER_NB | This is a integer | [1] | 
 SOAJS_NX_CONTROLLER_IP_N | This is the IP for every controller |  | SOAJS_NX_CONTROLLER_IP_1
 SOAJS_NX_API_DOMAIN | This is the domain for API | [api.soajs.org] | 
@@ -39,7 +39,7 @@ SOAJS_NX_OS | The OS. Default [ubuntu] |  |
 
 #### MONGO
 ENV Variable | Description | Default | Example
---- | --- | --- | ---
+--- | ----- | :---: | ---
 SOAJS_MONGO_RSNAME | This is the name of mongo replica | [rs_soajs] | 
 SOAJS_MONGO_NB | This is the number of Mongo instance(s) | [1]
 SOAJS_MONGO_IP_N | This is the IP for every Mongo instance(s) |  | SOAJS_MONGO_IP_1
@@ -47,7 +47,7 @@ SOAJS_MONGO_PORT_N | This is the port for evert Mongo instance(s) | [27017] | SO
 
 #### GITHUB
 ENV Variable | Description | Default | Example
---- | --- | --- | ---
+--- | ----- | :---: | ---
 SOAJS_GIT_OWNER | This is the GIT account owner name |  | 
 SOAJS_GIT_REPO | This is the GIT repo name |  | 
 SOAJS_GIT_BRANCH | This the GIT repo branch | [master] | 
