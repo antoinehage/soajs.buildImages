@@ -13,6 +13,7 @@ function HELP() {
     echo 'OPTIONS:'
     echo '  -T		(required): Deployment type: nginx || service'
     echo '  -X		(required): Exec command: deploy || redeploy'
+    echo '  -G		(optional): The GIT server source: gitbuh || bitbucket. Default [github]'
     echo '  -M		(optional): works with type [service]. Main file if not [ /. ] for service to run'
     echo '  -P		(optional): Works with type [service]. Set SOAJS_SRVIP'
     echo '  -S		(optional): Works with type [service]. The IP_SUBNET to be used to fetch the container IP to set SOAJS_SRVIP'
@@ -124,6 +125,13 @@ function reDeployNginx() {
         node ./nginx.js &
         local b=$!
         wait $b && nxRedeploySuccess || nxFailure
+    fi
+}
+function persistNginxEnvs() {
+    node ./nginxEnvsPersist.js
+    if [ -f "/opt/soajs/FILES/nginxEnvsPersist.sh" ]; then
+        chmod 777 /opt/soajs/FILES/nginxEnvsPersist.sh
+        /opt/soajs/FILES/nginxEnvsPersist.sh
     fi
 }
 # ------ NGINX END
@@ -283,8 +291,10 @@ while getopts T:X:M:PSG:c OPT; do
 done
 
 if [ ${DEPLOY_TYPE} == 1 ] && [ ${EXEC_CMD} == 1 ]; then
+    persistNginxEnvs
     deployNginx
 elif [ ${DEPLOY_TYPE} == 1 ] && [ ${EXEC_CMD} == 2 ]; then
+    persistNginxEnvs
     reDeployNginx
 elif [ ${DEPLOY_TYPE} == 2 ] && [ ${EXEC_CMD} == 1 ]; then
     deployService

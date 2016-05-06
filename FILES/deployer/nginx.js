@@ -55,8 +55,8 @@ var lib = {
         wstream.write("}\n");
     },
     "writeServerSSL": function (wstream) {
-        wstream.write("  ssl_certificate         /etc/nginx/ssl/domainname-chained.crt;\n");
-        wstream.write("  ssl_certificate_key     /etc/nginx/ssl/domainname-chained.key;\n");
+        wstream.write("  ssl_certificate         " + nxLocation + "/ssl/domainname-chained.crt;\n");
+        wstream.write("  ssl_certificate_key     " + nxLocation + "/ssl/domainname-chained.key;\n");
         wstream.write("  include " + nxLocation + "/ssl/ssl.conf;\n");
     },
     "writeServer": function (param, wstream) {
