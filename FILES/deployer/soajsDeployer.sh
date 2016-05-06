@@ -13,10 +13,10 @@ function HELP() {
     echo 'OPTIONS:'
     echo '  -T		(required): Deployment type: nginx || service'
     echo '  -X		(required): Exec command: deploy || redeploy'
-    echo '  -M		(optional): Main file if not [ /. ] for service to run'
-    echo '  -P		(optional): Set SOAJS_SRVIP'
-    echo '  -S		(optional): The IP_SUBNET to be used to fetch the container IP to set SOAJS_SRVIP'
-    echo '  -c		(optional): Works for nginx redeploy to rebuild nginx config files'
+    echo '  -M		(optional): works with type [service]. Main file if not [ /. ] for service to run'
+    echo '  -P		(optional): Works with type [service]. Set SOAJS_SRVIP'
+    echo '  -S		(optional): Works with type [service]. The IP_SUBNET to be used to fetch the container IP to set SOAJS_SRVIP'
+    echo '  -c		(optional): Works with type [nginx] redeploy to rebuild nginx config files'
 }
 
 function clone() {
@@ -96,9 +96,7 @@ function nxFetchCode(){
 }
 function nxDeploySuccess() {
     echo "- Nginx config preparation done successfully"
-    if [ ${RE_RUN} == 0 ]; then
-        nxFetchCode
-    fi
+    nxFetchCode
     echo $'\n- SOAJS Deployer starting nginx ... '
     service nginx start
 }
@@ -147,7 +145,7 @@ function serviceCodePull() {
 }
 function serviceCode() {
     if [ ${SOAJS_GIT_REPO} ] && [ ${SOAJS_GIT_OWNER} ]; then
-        if [ ${RE_RUN} == 0 ]; then
+        if [ ! -d "${DEPLOY_FOLDER}${SOAJS_GIT_REPO}" ]; then
             pushd ${DEPLOY_FOLDER} > /dev/null 2>&1
             local BRANCH="master"
             if [ -n "${SOAJS_GIT_BRANCH}" ]; then
@@ -172,7 +170,7 @@ function serviceEnv() {
     echo $'\n- SOAJS Deployer preparing service ... '
     echo "- Service environment variables:"
     if [ ${SET_SOAJS_SRVIP} == 1 ]; then
-        if [ ${RE_RUN} == 0 ]; then
+        if [ -z "${SOAJS_SRVIP}" ]; then
             export SOAJS_SRVIP=$(/sbin/ip route|awk '/'${IP_SUBNET}'/ {print $9}')
         fi
         echo "    SOAJS_SRVIP="$SOAJS_SRVIP
@@ -227,7 +225,6 @@ IP_SUBNET='10.0.0.0'
 MAIN="/."
 DEPLOY_FOLDER="/opt/soajs/node_modules/"
 SOURCE="github"
-RE_RUN=0
 REBUILD_NX_CONF=0
 while getopts T:X:M:PSG:c OPT; do
 	case "${OPT}" in
@@ -284,10 +281,6 @@ while getopts T:X:M:PSG:c OPT; do
 		;;
 	esac
 done
-
-if [ -n ${SOAJS_DEPLOYER_RE_RUN} ] && [ ${SOAJS_DEPLOYER_RE_RUN} == 1 ]; then
-    RE_RUN=1
-fi
 
 if [ ${DEPLOY_TYPE} == 1 ] && [ ${EXEC_CMD} == 1 ]; then
     deployNginx

@@ -23,9 +23,6 @@ $ curl -X GET http://127.0.0.1:4100/buildNginx
 
 **Environment variables**
 
-======================== DEPLOYER
-SOAJS_DEPLOYER_RE_RUN
-
 ======================== NGINX
 SOAJS_NX_CONTROLLER_NB
 SOAJS_NX_CONTROLLER_IP_N
