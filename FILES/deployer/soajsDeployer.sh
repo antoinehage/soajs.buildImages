@@ -127,8 +127,10 @@ function reDeployNginx() {
         wait $b && nxRedeploySuccess || nxFailure
     fi
 }
-function persistNginxEnvs() {
+function persistNginxEnvsBuild() {
     node ./nginxEnvsPersist.js
+}
+function persistNginxEnvsExec() {
     if [ -f "/opt/soajs/FILES/nginxEnvsPersist.sh" ]; then
         chmod 777 /opt/soajs/FILES/nginxEnvsPersist.sh
         /opt/soajs/FILES/nginxEnvsPersist.sh
@@ -291,10 +293,11 @@ while getopts T:X:M:PSG:c OPT; do
 done
 
 if [ ${DEPLOY_TYPE} == 1 ] && [ ${EXEC_CMD} == 1 ]; then
-    persistNginxEnvs
+    persistNginxEnvsExec
     deployNginx
 elif [ ${DEPLOY_TYPE} == 1 ] && [ ${EXEC_CMD} == 2 ]; then
-    persistNginxEnvs
+    persistNginxEnvsBuild
+    persistNginxEnvsExec
     reDeployNginx
 elif [ ${DEPLOY_TYPE} == 2 ] && [ ${EXEC_CMD} == 1 ]; then
     deployService
