@@ -205,7 +205,6 @@ function deployService() {
 
 }
 function reDeployService() {
-    serviceEnv
     if [ ${SOAJS_GIT_REPO} ] && [ ${SOAJS_GIT_OWNER} ]; then
         serviceCodePull
         serviceDependencies
