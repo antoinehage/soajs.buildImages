@@ -149,7 +149,12 @@ function serviceDependencies() {
 function serviceCodePull() {
     echo $'\n- SOAJS Deployer - reDeploying service ...'
     pushd ${DEPLOY_FOLDER}${SOAJS_GIT_REPO} > /dev/null 2>&1
+    local BRANCH="master"
+    if [ -n "${SOAJS_GIT_BRANCH}" ]; then
+        BRANCH=${SOAJS_GIT_BRANCH}
+    fi
     echo $'\- Pulling new code ... '
+    git checkout ${BRANCH}
     git pull
     popd > /dev/null 2>&1
 }
