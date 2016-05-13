@@ -112,6 +112,16 @@ function nxFailure() {
 }
 function deployNginx() {
     echo $'\n- SOAJS Deployer - Deploying nginx ...'
+
+    echo $'\n- SOAJS Deployer building pem file ...'
+    local nginxPath="/etc/nginx"
+    if [ -n "${SOAJS_NX_LOC}" ]; then
+        nginxPath=${SOAJS_NX_LOC}
+    fi
+    if [ ! -f "${nginxPath}/ssl/dhparam2048.pem" ]; then
+        openssl dhparam -outform pem -out ${nginxPath}ssl/dhparam2048.pem 2048
+    fi
+
     echo $'\n- SOAJS Deployer building the needed nginx configuration ... '
     node ./nginx.js &
     local b=$!

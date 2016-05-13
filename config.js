@@ -18,7 +18,7 @@ module.exports = {
             "body": [
                 'RUN mkdir -p /opt/soajs/FILES/profiles && mkdir -p /etc/nginx/ssl',
                 'ADD ./FILES /opt/soajs/FILES/',
-                'RUN cd /opt/soajs/FILES/conf && cp -f nginx.conf /etc/nginx/ && cp -f ssl.conf /etc/nginx/ssl/ && openssl dhparam -outform pem -out /etc/nginx/ssl/dhparam2048.pem 2048',
+                'RUN cd /opt/soajs/FILES/conf && cp -f nginx.conf /etc/nginx/ && cp -f ssl.conf /etc/nginx/ssl/',
                 'ENV NODE_ENV=production',
                 'EXPOSE #SERVICEPORT#',
                 'CMD ["/bin/bash"]']
