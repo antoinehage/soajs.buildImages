@@ -119,7 +119,7 @@ function deployNginx() {
         nginxPath=${SOAJS_NX_LOC}
     fi
     if [ ! -f "${nginxPath}/ssl/dhparam2048.pem" ]; then
-        openssl dhparam -outform pem -out ${nginxPath}ssl/dhparam2048.pem 2048
+        openssl dhparam -outform pem -out ${nginxPath}/ssl/dhparam2048.pem 2048
     fi
 
     echo $'\n- SOAJS Deployer building the needed nginx configuration ... '
