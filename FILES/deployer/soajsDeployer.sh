@@ -77,7 +77,7 @@ function nxFetchCode(){
     fi
 
     if [ ${SOAJS_GIT_REPO} ] && [ ${SOAJS_GIT_OWNER} ]; then
-        clone ${SOAJS_GIT_REPO} ${SOAJS_GIT_OWNER} ${BRANCH} ${SOURCE} ${SOAJS_GIT_TOKEN}
+        clone ${SOAJS_GIT_REPO} ${SOAJS_GIT_OWNER} ${SOAJS_GIT_BRANCH} ${SOURCE} ${SOAJS_GIT_TOKEN}
         cp -Rf ${nxSitePath}_tmp/${SOAJS_GIT_REPO}/* ${nxSitePath}_tmp/_temp_site/
         copySite=1
         echo "    ... deployed custom site UI"
