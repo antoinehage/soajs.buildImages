@@ -22,8 +22,8 @@ var lib = {
         for (var i = 1; i <= param.count; i++) {
             if (process.env[param.ipEnvName + i]) {
                 wstream.write('        {\n');
-                wstream.write('                 "host": "'+process.env[param.ipEnvName + i]+'",\n');
-                wstream.write('                 "port": '+(process.env[param.portEnvName + i] || param.portDefault)+'\n');
+                wstream.write('                 "host": "' + process.env[param.ipEnvName + i] + '",\n');
+                wstream.write('                 "port": ' + (process.env[param.portEnvName + i] || param.portDefault) + '\n');
                 if (i === param.count)
                     wstream.write('        }\n');
                 else
@@ -79,7 +79,16 @@ var lib = {
         }
 
         wstream.write('    ],\n');
-        wstream.write('    "credentials": null,\n');
+
+        if (process.env.SOAJS_MONGO_USERNAME && process.env.SOAJS_MONGO_PASSWORD) {
+            wstream.write('    "credentials": {\n');
+            wstream.write('        "username": ' + process.env.SOAJS_MONGO_USERNAME + ',\n');
+            wstream.write('        "password": ' + process.env.SOAJS_MONGO_PASSWORD + ',\n');
+            wstream.write('    "},\n');
+        }
+        else
+            wstream.write('    "credentials": null,\n');
+
         wstream.write('    "URLParam": {\n');
         wstream.write('        "connectTimeoutMS": 0,\n');
         wstream.write('        "socketTimeoutMS": 0,\n');

@@ -44,6 +44,8 @@ SOAJS_MONGO_RSNAME | This is the name of mongo replica | [rs_soajs] |
 SOAJS_MONGO_NB | This is the number of Mongo instance(s) | [1]
 SOAJS_MONGO_IP_N | This is the IP for every Mongo instance(s) |  | SOAJS_MONGO_IP_1
 SOAJS_MONGO_PORT_N | This is the port for evert Mongo instance(s) | [27017] | SOAJS_MONGO_PORT_1
+SOAJS_MONGO_USERNAME | This is the username for credentials |  | 
+SOAJS_MONGO_PASSWORD | This is the password for credentials |  | 
 
 #### GITHUB
 ENV Variable | Description | Default | Example
