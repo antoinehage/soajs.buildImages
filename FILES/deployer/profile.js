@@ -77,7 +77,6 @@ var lib = {
         for (var i = 1; i <= param.count; i++) {
             if (process.env[param.ipEnvName + i]) {
                 wstream.write('        {\n');
-                // wstream.write("  server " + process.env[param.ipEnvName + i] + ":" + (process.env[param.portEnvName + i] || param.portDefault) + ";\n");
                 wstream.write('                 "host": "' + process.env[param.ipEnvName + i] + '",\n');
                 wstream.write('                 "port": ' + (process.env[param.portEnvName + i] || param.portDefault) + '\n');
                 if (i === param.count)
