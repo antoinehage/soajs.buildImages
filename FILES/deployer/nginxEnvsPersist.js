@@ -24,7 +24,9 @@ wstream.write("export SOAJS_DEPLOYER_AUTO_PERSIST_NX=1\n");
 for (var i = 0; i < envs.length; i++) {
     if (process.env[envs[i]])
         wstream.write("export " + envs[i] + "=" + process.env[envs[i]] + "\n");
-    if (process.env.SOAJS_NX_CONTROLLER_NB) {
+}
+if (process.env.SOAJS_NX_CONTROLLER_NB) {
+    for (var i = 1; i <= process.env.SOAJS_NX_CONTROLLER_NB; i++) {
         if (process.env["SOAJS_NX_CONTROLLER_IP_" + i])
             wstream.write("export SOAJS_NX_CONTROLLER_IP_" + i + "=" + process.env["SOAJS_NX_CONTROLLER_IP_" + i] + "\n");
     }

@@ -227,6 +227,15 @@ function reDeployService() {
         echo "ERROR: unable to find environment variable SOAJS_GIT_REPO or SOAJS_GIT_OWNER. nothing to re-deploy"
     fi
 }
+function persistServiceEnvsBuild() {
+    node ./serviceEnvsPersist.js
+}
+function persistServiceEnvsExec() {
+    if [ -f "/opt/soajs/FILES/serviceEnvsPersist.sh" ]; then
+        chmod 777 /opt/soajs/FILES/serviceEnvsPersist.sh
+        /opt/soajs/FILES/serviceEnvsPersist.sh
+    fi
+}
 # ------ SERVICE END
 
 # DEPLOY_TYPE
@@ -314,8 +323,11 @@ elif [ ${DEPLOY_TYPE} == 1 ] && [ ${EXEC_CMD} == 2 ]; then
     persistNginxEnvsExec
     reDeployNginx
 elif [ ${DEPLOY_TYPE} == 2 ] && [ ${EXEC_CMD} == 1 ]; then
+    persistServiceEnvsExec
     deployService
 elif [ ${DEPLOY_TYPE} == 2 ] && [ ${EXEC_CMD} == 2 ]; then
+    persistServiceEnvsBuild
+    persistServiceEnvsExec
     reDeployService
 else
     HELP
