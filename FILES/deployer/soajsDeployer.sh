@@ -17,7 +17,7 @@ function HELP() {
     echo '  -M		(optional): works with type [service]. Main file if not [ /. ] for service to run'
     echo '  -P		(optional): Works with type [service]. Set SOAJS_SRVIP'
     echo '  -S		(optional): Works with type [service]. The IP_SUBNET to be used to fetch the container IP to set SOAJS_SRVIP'
-    echo '  -c		(optional): Works with type [nginx] redeploy to rebuild nginx config files'
+    echo '  -c		(optional): Works with redeploy. For [nginx] to rebuild nginx config files. For [service] to rebuild profile'
 }
 
 function clone() {
@@ -214,12 +214,15 @@ function serviceFailure() {
 function deployService() {
     echo $'\n- SOAJS Deployer - Deploying service ...'
     echo $'\n- SOAJS Deployer building the needed PROFILE ... '
-    node ./profile.js &
+    node ./profile.js
     local b=$!
     wait $b && serviceEnv || serviceFailure
 
 }
 function reDeployService() {
+    if [ ${REBUILD_SERVICE_PROFILE} == 1 ]; then
+        node ./profile.js &
+    fi
     if [ ${SOAJS_GIT_REPO} ] && [ ${SOAJS_GIT_OWNER} ]; then
         serviceCodePull
         serviceDependencies
@@ -259,6 +262,7 @@ MAIN="/."
 DEPLOY_FOLDER="/opt/soajs/node_modules/"
 SOURCE="github"
 REBUILD_NX_CONF=0
+REBUILD_SERVICE_PROFILE=0
 while getopts T:X:M:PSG:c OPT; do
 	case "${OPT}" in
         T)
@@ -307,6 +311,7 @@ while getopts T:X:M:PSG:c OPT; do
 		    ;;
 		c)
 		    REBUILD_NX_CONF=1
+		    REBUILD_SERVICE_PROFILE=1
 		    ;;
 		\?)
 			HELP
