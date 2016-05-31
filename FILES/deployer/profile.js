@@ -39,7 +39,7 @@ var lib = {
             wstream.write('    "credentials": {\n');
             wstream.write('        "username": "' + process.env.SOAJS_MONGO_USERNAME + '",\n');
             wstream.write('        "password": "' + process.env.SOAJS_MONGO_PASSWORD + '"\n');
-            wstream.write('    "},\n');
+            wstream.write('    },\n');
         }
         else
             wstream.write('    "credentials": null,\n');
@@ -94,7 +94,7 @@ var lib = {
             wstream.write('    "credentials": {\n');
             wstream.write('        "username": "' + process.env.SOAJS_MONGO_USERNAME + '",\n');
             wstream.write('        "password": "' + process.env.SOAJS_MONGO_PASSWORD + '"\n');
-            wstream.write('    "},\n');
+            wstream.write('    },\n');
         }
         else
             wstream.write('    "credentials": null,\n');
