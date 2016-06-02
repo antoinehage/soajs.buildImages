@@ -49,6 +49,7 @@ var lib = {
         wstream.write('        "socketTimeoutMS": 0,\n');
         wstream.write('        "maxPoolSize": 5,\n');
         wstream.write('        "wtimeoutMS": 0,\n');
+        wstream.write('        "ssl": "prefer",\n');
         wstream.write('        "slaveOk": true\n');
         wstream.write('    },\n');
         wstream.write('    "extraParam": {\n');
@@ -56,8 +57,7 @@ var lib = {
         wstream.write('            "native_parser": true\n');
         wstream.write('       },\n');
         wstream.write('       "server": {\n');
-        wstream.write('            "auto_reconnect": true,\n');
-        wstream.write('            "ssl": "prefer"\n');
+        wstream.write('            "auto_reconnect": true\n');
         wstream.write('        }\n');
         wstream.write('    }\n');
         wstream.write('};\n');
@@ -105,6 +105,7 @@ var lib = {
         wstream.write('        "socketTimeoutMS": 0,\n');
         wstream.write('        "maxPoolSize": 5,\n');
         wstream.write('        "wtimeoutMS": 0,\n');
+        wstream.write('        "ssl": "prefer",\n');
         wstream.write('        "slaveOk": true\n');
         wstream.write('    },\n');
         wstream.write('    "extraParam": {\n');
@@ -114,7 +115,6 @@ var lib = {
         wstream.write('       },\n');
         wstream.write('       "server": {\n');
         wstream.write('            "ha": true,\n');
-        wstream.write('            "ssl": "prefer",\n');
         wstream.write('            "readPreference": "secondaryPreferred",\n');
         wstream.write('            "rs_name": "' + param.rsName + '"\n');
         wstream.write('        }\n');
