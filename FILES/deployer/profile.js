@@ -49,7 +49,7 @@ var lib = {
         wstream.write('        "socketTimeoutMS": 0,\n');
         wstream.write('        "maxPoolSize": 5,\n');
         wstream.write('        "wtimeoutMS": 0,\n');
-        wstream.write('        "ssl": "prefer",\n');
+        wstream.write('        "ssl": ' + param.ssl + ',\n');
         wstream.write('        "slaveOk": true\n');
         wstream.write('    },\n');
         wstream.write('    "extraParam": {\n');
@@ -105,7 +105,7 @@ var lib = {
         wstream.write('        "socketTimeoutMS": 0,\n');
         wstream.write('        "maxPoolSize": 5,\n');
         wstream.write('        "wtimeoutMS": 0,\n');
-        wstream.write('        "ssl": "prefer",\n');
+        wstream.write('        "ssl": ' + param.ssl + ',\n');
         wstream.write('        "slaveOk": true\n');
         wstream.write('    },\n');
         wstream.write('    "extraParam": {\n');
@@ -133,7 +133,8 @@ if (mongoNb === 1) {
         "count": mongoNb,
         "ipEnvName": "SOAJS_MONGO_IP_",
         "portEnvName": "SOAJS_MONGO_PORT_",
-        "portDefault": 27017
+        "portDefault": 27017,
+        "ssl": process.env.SOAJS_MONGO_SSL || false
     }, function (err) {
         console.log("PROFILE SINGLE DONE.");
     });
@@ -145,6 +146,7 @@ if (mongoNb === 1) {
         "ipEnvName": "SOAJS_MONGO_IP_",
         "portEnvName": "SOAJS_MONGO_PORT_",
         "portDefault": 27017,
+        "ssl": process.env.SOAJS_MONGO_SSL || false,
         "rsName": mongoRsName
     }, function (err) {
         console.log("PROFILE REPLICA DONE.");

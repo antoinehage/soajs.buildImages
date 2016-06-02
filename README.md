@@ -46,6 +46,7 @@ SOAJS_MONGO_IP_N | This is the IP for every Mongo instance(s) |  | SOAJS_MONGO_I
 SOAJS_MONGO_PORT_N | This is the port for evert Mongo instance(s) | [27017] | SOAJS_MONGO_PORT_1
 SOAJS_MONGO_USERNAME | This is the username for credentials |  | 
 SOAJS_MONGO_PASSWORD | This is the password for credentials |  | 
+SOAJS_MONGO_SSL | This is to turn on SSL | [false] | 
 
 #### GITHUB
 ENV Variable | Description | Default | Example
