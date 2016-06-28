@@ -15,6 +15,7 @@ function HELP() {
     echo '  -X		(required): Exec command: deploy || redeploy'
     echo '  -G		(optional): The GIT server source: gitbuh || bitbucket. Default [github]'
     echo '  -M		(optional): works with type [service]. Main file if not [ /. ] for service to run'
+    echo '  -L		(optional): works with type [service]. Try to use the SOAJS package within the image'
     echo '  -P		(optional): Works with type [service]. Set SOAJS_SRVIP'
     echo '  -S		(optional): Works with type [service]. The IP_SUBNET to be used to fetch the container IP to set SOAJS_SRVIP'
     echo '  -c		(optional): Works with redeploy. For [nginx] to rebuild nginx config files. For [service] to rebuild profile'
@@ -152,6 +153,12 @@ function persistNginxEnvsExec() {
 function serviceDependencies() {
     echo $'\n- SOAJS Deployer installing dependencies ... '
     pushd ${DEPLOY_FOLDER}${SOAJS_GIT_REPO} > /dev/null 2>&1
+    if [ ${USE_SOAJS_LOCAL} == 1 ] && [ ! -d "${DEPLOY_FOLDER}${SOAJS_GIT_REPO}/node_modules/soajs" ] && [ -d "/opt/soajs/FILES/soajs" ]; then
+        echo $'    Copying local SOAJS package ...'
+        mkdir -p ${DEPLOY_FOLDER}${SOAJS_GIT_REPO}/node_modules
+        cp -Rf /opt/soajs/FILES/soajs ${DEPLOY_FOLDER}${SOAJS_GIT_REPO}/node_modules/
+    fi
+    #npm install
     npm install > /dev/null 2>&1
     npm ls
     popd > /dev/null 2>&1
@@ -257,13 +264,14 @@ fi
 EXEC_CMD=0
 DEPLOY_TYPE=0
 SET_SOAJS_SRVIP=0
+USE_SOAJS_LOCAL=0
 IP_SUBNET='10.0.0.0'
 MAIN="/."
 DEPLOY_FOLDER="/opt/soajs/node_modules/"
 SOURCE="github"
 REBUILD_NX_CONF=0
 REBUILD_SERVICE_PROFILE=0
-while getopts T:X:M:PSG:c OPT; do
+while getopts T:X:M:PLSG:c OPT; do
 	case "${OPT}" in
         T)
             if [ ${OPTARG} == "nginx" ]; then
@@ -299,6 +307,9 @@ while getopts T:X:M:PSG:c OPT; do
 		    if [ -n "${OPTARG}" ]; then
 		        IP_SUBNET=${OPTARG}
 		    fi
+		    ;;
+		L)
+		    USE_SOAJS_LOCAL=1
 		    ;;
 		G)
 		    if [ ${OPTARG} == "github" ] || [ ${OPTARG} == "bitbucket" ]; then

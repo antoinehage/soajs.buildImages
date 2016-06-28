@@ -179,9 +179,9 @@ service.init(function () {
                                         "loc": rootFolder + "FILES/"
                                     }, function (err) {
                                         if (err) return cb(err.message);
-                                        //if (param.type === "soajs" && path)
-                                        //    handleServiceFiles(path, rootFolder, serviceInfo);
-                                        //else if (param.type === "nginx")
+                                        if (param.type === "soajs" && path)
+                                            handleServiceFiles(path, rootFolder, serviceInfo);
+                                        else if (param.type === "nginx")
                                             tarFolder(rootFolder, serviceInfo);
                                     });
                                 });
