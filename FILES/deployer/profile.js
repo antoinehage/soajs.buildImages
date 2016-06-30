@@ -47,7 +47,6 @@ var lib = {
         wstream.write('    "URLParam": {\n');
         wstream.write('        "connectTimeoutMS": 0,\n');
         wstream.write('        "socketTimeoutMS": 0,\n');
-        wstream.write('        "maxPoolSize": 5,\n');
         wstream.write('        "wtimeoutMS": 0,\n');
         wstream.write('        "ssl": ' + param.ssl + ',\n');
         wstream.write('        "slaveOk": true\n');
