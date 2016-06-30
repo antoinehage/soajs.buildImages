@@ -19,6 +19,7 @@ function HELP() {
     echo '  -P		(optional): Works with type [service]. Set SOAJS_SRVIP'
     echo '  -S		(optional): Works with type [service]. The IP_SUBNET to be used to fetch the container IP to set SOAJS_SRVIP'
     echo '  -c		(optional): Works with redeploy. For [nginx] to rebuild nginx config files. For [service] to rebuild profile'
+    echo '  -s		(optional): Works with deploy. For [nginx]  to add pem file to support SSL'
 }
 
 function clone() {
@@ -114,15 +115,18 @@ function nxFailure() {
 function deployNginx() {
     echo $'\n- SOAJS Deployer - Deploying nginx ...'
 
-    echo $'\n- SOAJS Deployer building pem file ...'
-    local nginxPath="/etc/nginx"
-    if [ -n "${SOAJS_NX_LOC}" ]; then
-        nginxPath=${SOAJS_NX_LOC}
+    if [ ${PEM_FILE} == 1 ]; then
+        echo $'\n- SOAJS Deployer building pem file ...'
+        local nginxPath="/etc/nginx"
+        if [ -n "${SOAJS_NX_LOC}" ]; then
+            nginxPath=${SOAJS_NX_LOC}
+        fi
+        if [ ! -f "${nginxPath}/ssl/dhparam2048.pem" ]; then
+            openssl dhparam -outform pem -out ${nginxPath}/ssl/dhparam2048.pem 2048
+        fi
+    else
+        echo $'\n- SOAJS Deployer skipped pem file. SSL is NOT supported in this container'
     fi
-    if [ ! -f "${nginxPath}/ssl/dhparam2048.pem" ]; then
-        openssl dhparam -outform pem -out ${nginxPath}/ssl/dhparam2048.pem 2048
-    fi
-
     echo $'\n- SOAJS Deployer building the needed nginx configuration ... '
     node ./nginx.js &
     local b=$!
@@ -267,11 +271,12 @@ SET_SOAJS_SRVIP=0
 USE_SOAJS_LOCAL=0
 IP_SUBNET='10.0.0.0'
 MAIN="/."
+PEM_FILE=0
 DEPLOY_FOLDER="/opt/soajs/node_modules/"
 SOURCE="github"
 REBUILD_NX_CONF=0
 REBUILD_SERVICE_PROFILE=0
-while getopts T:X:M:PLSG:c OPT; do
+while getopts T:X:M:PLSsG:c OPT; do
 	case "${OPT}" in
         T)
             if [ ${OPTARG} == "nginx" ]; then
@@ -302,6 +307,9 @@ while getopts T:X:M:PLSG:c OPT; do
 		    ;;
 		P)
 		    SET_SOAJS_SRVIP=1
+		    ;;
+		s)
+		    PEM_FILE=1
 		    ;;
 		S)
 		    if [ -n "${OPTARG}" ]; then

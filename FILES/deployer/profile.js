@@ -54,10 +54,13 @@ var lib = {
         wstream.write('    },\n');
         wstream.write('    "extraParam": {\n');
         wstream.write('        "db": {\n');
-        wstream.write('            "native_parser": true\n');
+        wstream.write('            "native_parser": true,\n');
+        wstream.write('            "bufferMaxEntries": 0\n');
         wstream.write('       },\n');
         wstream.write('       "server": {\n');
-        wstream.write('            "auto_reconnect": true\n');
+        wstream.write('            "socketOptions": {\n');
+        wstream.write('                 "autoReconnect": false\n');
+        wstream.write('            }\n');
         wstream.write('        }\n');
         wstream.write('    }\n');
         wstream.write('};\n');
