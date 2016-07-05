@@ -57,9 +57,9 @@ var lib = {
         wstream.write('            "bufferMaxEntries": 0\n');
         wstream.write('       },\n');
         wstream.write('       "server": {\n');
-        wstream.write('            "socketOptions": {\n');
-        wstream.write('                 "autoReconnect": false\n');
-        wstream.write('            }\n');
+        //wstream.write('            "socketOptions": {\n');
+        //wstream.write('                 "autoReconnect": false\n');
+        //wstream.write('            }\n');
         wstream.write('        }\n');
         wstream.write('    }\n');
         wstream.write('};\n');
