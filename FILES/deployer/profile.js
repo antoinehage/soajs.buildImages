@@ -113,9 +113,10 @@ var lib = {
         wstream.write('    "extraParam": {\n');
         wstream.write('        "db": {\n');
         wstream.write('            "native_parser": true,\n');
-        wstream.write('            "w": "majority"\n');
+        wstream.write('            "w": "majority,"\n');
+        wstream.write('            "bufferMaxEntries": 0\n');
         wstream.write('       },\n');
-        wstream.write('       "server": {\n');
+        wstream.write('       "replSet": {\n');
         wstream.write('            "ha": true,\n');
         wstream.write('            "readPreference": "secondaryPreferred",\n');
         wstream.write('            "rs_name": "' + param.rsName + '"\n');
