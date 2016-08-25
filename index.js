@@ -296,5 +296,22 @@ service.init(function () {
             return res.status(200).send(data);
         });
     });
+    service.get("/buildLogstash", function (req, res) {
+        lib.createImage({
+            imagePrefix: config.imagePrefix.core,
+            dockerTpl: config.dockerTemnplates.logstash,
+            type: "logstash",
+            serviceInfo: {
+                "name": "logstash"
+            },
+            socket: req.query.socket || null,
+            log: req.soajs.log,
+            deleteFolder: req.query.delete || null
+        }, function (err, data) {
+            if (err)
+                return res.jsonp(req.soajs.buildResponse({"code": 401, "msg": err}));
+            return res.status(200).send(data);
+        });
+    });
     service.start();
 });

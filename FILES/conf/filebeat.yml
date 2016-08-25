@@ -1,0 +1,15 @@
+output:
+  logstash:
+    enabled: true
+    hosts:
+      - logstash:12201
+    timeout: 15
+    index: nginx-access
+
+filebeat:
+  prospectors:
+    -
+      paths:
+        - "/var/log/nginx/*.log"
+      document_type: nginx-access
+      

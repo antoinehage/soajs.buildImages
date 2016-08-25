@@ -114,10 +114,10 @@ function nxFailure() {
 }
 function deployNginx() {
     echo $'\n- SOAJS Deployer - Deploying nginx ...'
+    local nginxPath="/etc/nginx"
 
     if [ ${PEM_FILE} == 1 ]; then
         echo $'\n- SOAJS Deployer building pem file ...'
-        local nginxPath="/etc/nginx"
         if [ -n "${SOAJS_NX_LOC}" ]; then
             nginxPath=${SOAJS_NX_LOC}
         fi
@@ -129,6 +129,7 @@ function deployNginx() {
     fi
     echo $'\n- SOAJS Deployer building the needed nginx configuration ... '
     node ./nginx.js &
+    sed -i 's/%SOAJS_ENV%/'${SOAJS_ENV}'/g' ${nginxPath}/nginx.conf
     local b=$!
     wait $b && nxDeploySuccess || nxFailure
 }
@@ -179,6 +180,11 @@ function serviceCodePull() {
     git pull
     popd > /dev/null 2>&1
 }
+function serviceRun() {
+    echo $'\n- SOAJS Deployer starting service ... '
+    echo "    -->    ${DEPLOY_FOLDER}${SOAJS_GIT_REPO}${MAIN}"
+    node ${DEPLOY_FOLDER}${SOAJS_GIT_REPO}${MAIN} 2>&1 | tee /var/log/service/${SOAJS_GIT_REPO}_logs.log
+}
 function serviceCode() {
     if [ ${SOAJS_GIT_REPO} ] && [ ${SOAJS_GIT_OWNER} ]; then
         if [ ! -d "${DEPLOY_FOLDER}${SOAJS_GIT_REPO}" ]; then
@@ -195,9 +201,8 @@ function serviceCode() {
 
         serviceDependencies
 
-        echo $'\n- SOAJS Deployer starting service ... '
-        echo "    -->    ${DEPLOY_FOLDER}${SOAJS_GIT_REPO}${MAIN}"
-        node ${DEPLOY_FOLDER}${SOAJS_GIT_REPO}${MAIN}
+        mkdir -p /var/log/service/
+        serviceRun
     else
         echo "ERROR: unable to find environment variable SOAJS_GIT_REPO or SOAJS_GIT_OWNER. nothing to deploy"
     fi
@@ -220,7 +225,19 @@ function serviceEnv() {
     serviceCode
 }
 function serviceFailure() {
-    echo "ERROR: service deployer failed .... exiting :( !"
+    if [ "${SERVICE_RUN_ATTEMPTS}" -lt "${SERVICE_RUN_MAX_ATTEMPTS}" ]; then
+        ((SERVICE_RUN_ATTEMPTS++))
+
+        echo
+        echo "WARNING: service failed, restarting ..."
+        echo "    -->    Restart attempt number: ${SERVICE_RUN_ATTEMPTS} out of ${SERVICE_RUN_MAX_ATTEMPTS}"
+
+        serviceRun || serviceFailure
+    else
+        echo
+        echo "FATAL: max number of restart attempts reached"
+        echo "FATAL: service deployer failed .... exiting :( !"
+    fi
 }
 function deployService() {
     echo $'\n- SOAJS Deployer - Deploying service ...'
@@ -264,6 +281,9 @@ if [ $# -eq 0 ] ; then
 	HELP
 	exit 1
 fi
+
+SERVICE_RUN_ATTEMPTS=0
+SERVICE_RUN_MAX_ATTEMPTS=5
 
 EXEC_CMD=0
 DEPLOY_TYPE=0
