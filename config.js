@@ -23,6 +23,7 @@ module.exports = {
                 'RUN curl -L -O https://download.elastic.co/beats/filebeat/filebeat_1.2.3_amd64.deb && dpkg -i filebeat_1.2.3_amd64.deb',
                 'RUN curl -L -O https://download.elastic.co/beats/topbeat/topbeat_1.2.3_amd64.deb && dpkg -i topbeat_1.2.3_amd64.deb',
                 'ADD ./FILES/conf/filebeat.yml /etc/filebeat/',
+                'ADD ./FILES/conf/topbeat.yml /etc/topbeat/',
                 'ENV NODE_ENV=production',
                 'EXPOSE #SERVICEPORT#',
                 'CMD ["/bin/bash"]']
