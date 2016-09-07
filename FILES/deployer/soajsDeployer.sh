@@ -20,6 +20,16 @@ function HELP() {
     echo '  -S		(optional): Works with type [service]. The IP_SUBNET to be used to fetch the container IP to set SOAJS_SRVIP'
     echo '  -c		(optional): Works with redeploy. For [nginx] to rebuild nginx config files. For [service] to rebuild profile'
     echo '  -s		(optional): Works with deploy. For [nginx]  to add pem file to support SSL'
+    echo '  -g		(optional): Works with type [nginx] to update maxmind geo data. In case of redeploy, -g only works if -c is set'
+}
+
+function program_is_installed(){
+  # set to 1 initially
+  local return_=1
+  # set to 0 if not found
+  type $1 >/dev/null 2>&1 || { local return_=0; }
+  # return value
+  echo "$return_"
 }
 
 function clone() {
@@ -97,15 +107,62 @@ function nxFetchCode(){
 
     echo $'- SOAJS Deployer fetching code ... DONE'
 }
+function updateGeo(){
+    if [ ${GEO_UPDATE} == 1 ]; then
+        echo $'\n- SOAJS Deployer updating GEO data ... '
+        local GEO_LOC="/opt/soajs/FILES/"
+
+        mkdir -p ${GEO_LOC}geoip/
+
+        pushd ${GEO_LOC}geoip/
+
+        if [ -f "GeoIP.dat.gz" ]; then
+                rm -f "GeoIP.dat.gz"
+        fi
+        if [ -f "GeoLiteCity.dat.gz" ]; then
+                rm -f "GeoLiteCity.dat.gz"
+        fi
+
+        local _WGET=$(program_is_installed wget)
+        if [ ${_WGET} == 1 ]; then
+            wget http://geolite.maxmind.com/download/geoip/database/GeoLiteCountry/GeoIP.dat.gz
+            wget http://geolite.maxmind.com/download/geoip/database/GeoLiteCity.dat.gz
+
+            if [ -f "GeoIP.dat.gz" ]; then
+                if [ -f "GeoIP.dat" ]; then
+                    rm -f "GeoIP.dat"
+                fi
+                gunzip GeoIP.dat.gz
+                echo "Updated GeoIP"
+            else
+                echo "Unable to update GeoIP :("
+            fi
+            if [ -f "GeoLiteCity.dat.gz" ]; then
+                if [ -f "GeoLiteCity.dat" ]; then
+                    rm -f "GeoLiteCity.dat"
+                fi
+                gunzip GeoLiteCity.dat.gz
+                echo "Updated GeoLiteCity"
+            else
+                echo "Unable to update GeoLiteCity :("
+            fi
+        else
+            echo "Unable to update GeoIP && GeoLiteCity. [wget] is not installed!"
+        fi
+        popd
+    fi
+}
 function nxDeploySuccess() {
     echo "- Nginx config preparation done successfully"
     nxFetchCode
+    updateGeo
     echo $'\n- SOAJS Deployer starting nginx ... '
     service nginx start
 }
 function nxRedeploySuccess() {
     echo "- Nginx config preparation done successfully"
     nxFetchCode
+    updateGeo
     echo $'\n- SOAJS Deployer reloading nginx ... '
     nginx -s reload
 }
@@ -180,6 +237,7 @@ function serviceCodePull() {
     popd > /dev/null 2>&1
 }
 function serviceCode() {
+    local return_=0
     if [ ${SOAJS_GIT_REPO} ] && [ ${SOAJS_GIT_OWNER} ]; then
         if [ ! -d "${DEPLOY_FOLDER}${SOAJS_GIT_REPO}" ]; then
             pushd ${DEPLOY_FOLDER} > /dev/null 2>&1
@@ -195,12 +253,13 @@ function serviceCode() {
 
         serviceDependencies
 
-        echo $'\n- SOAJS Deployer starting service ... '
-        echo "    -->    ${DEPLOY_FOLDER}${SOAJS_GIT_REPO}${MAIN}"
-        node ${DEPLOY_FOLDER}${SOAJS_GIT_REPO}${MAIN}
+        local return_=1
     else
+        local return_=0
         echo "ERROR: unable to find environment variable SOAJS_GIT_REPO or SOAJS_GIT_OWNER. nothing to deploy"
     fi
+
+    echo "$return_"
 }
 function serviceEnv() {
     echo $'\n- SOAJS Deployer preparing service ... '
@@ -217,7 +276,13 @@ function serviceEnv() {
         echo "    SOAJS_GC_VERSION="$SOAJS_GC_VERSION
         echo "    SOAJS_GC_NAME="$SOAJS_GC_NAME
     fi
-    serviceCode
+
+    local SERVICE_CODE=$(serviceCode)
+    if [ ${SERVICE_CODE} == 1 ]; then
+        echo $'\n- SOAJS Deployer starting service ... '
+        echo "    -->    ${DEPLOY_FOLDER}${SOAJS_GIT_REPO}${MAIN}"
+        node ${DEPLOY_FOLDER}${SOAJS_GIT_REPO}${MAIN}
+    fi
 }
 function serviceFailure() {
     echo "ERROR: service deployer failed .... exiting :( !"
@@ -225,20 +290,17 @@ function serviceFailure() {
 function deployService() {
     echo $'\n- SOAJS Deployer - Deploying service ...'
     echo $'\n- SOAJS Deployer building the needed PROFILE ... '
-    node ./profile.js
+    node ./profile.js &
     local b=$!
     wait $b && serviceEnv || serviceFailure
-
 }
 function reDeployService() {
     if [ ${REBUILD_SERVICE_PROFILE} == 1 ]; then
         node ./profile.js &
-    fi
-    if [ ${SOAJS_GIT_REPO} ] && [ ${SOAJS_GIT_OWNER} ]; then
-        serviceCodePull
-        serviceDependencies
+        local b=$!
+        wait $b && serviceCode || serviceFailure
     else
-        echo "ERROR: unable to find environment variable SOAJS_GIT_REPO or SOAJS_GIT_OWNER. nothing to re-deploy"
+        serviceCode
     fi
 }
 function persistServiceEnvsBuild() {
@@ -272,11 +334,12 @@ USE_SOAJS_LOCAL=0
 IP_SUBNET='10.0.0.0'
 MAIN="/."
 PEM_FILE=0
+GEO_UPDATE=0
 DEPLOY_FOLDER="/opt/soajs/node_modules/"
 SOURCE="github"
 REBUILD_NX_CONF=0
 REBUILD_SERVICE_PROFILE=0
-while getopts T:X:M:PLSsG:c OPT; do
+while getopts T:X:M:PLSG:csg OPT; do
 	case "${OPT}" in
         T)
             if [ ${OPTARG} == "nginx" ]; then
@@ -310,6 +373,9 @@ while getopts T:X:M:PLSsG:c OPT; do
 		    ;;
 		s)
 		    PEM_FILE=1
+		    ;;
+		g)
+		    GEO_UPDATE=1
 		    ;;
 		S)
 		    if [ -n "${OPTARG}" ]; then
