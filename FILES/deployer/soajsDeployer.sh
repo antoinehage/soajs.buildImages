@@ -211,7 +211,7 @@ function serviceEnv() {
     echo $'\n- SOAJS Deployer preparing service ... '
     echo "- Service environment variables:"
     if [ ${SET_SOAJS_SRVIP} == 1 ]; then
-        if [ -z "${SOAJS_SRVIP}" ]; then
+        if [ -z "${SOAJS_SRVIP}" && -z "${SOAJS_DEPLOY_HA}" ]; then
             export SOAJS_SRVIP=$(/sbin/ip route|awk '/'${IP_SUBNET}'/ {print $9}')
         fi
         echo "    SOAJS_SRVIP="$SOAJS_SRVIP
