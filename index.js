@@ -181,7 +181,7 @@ service.init(function () {
                                         if (err) return cb(err.message);
                                         if (param.type === "soajs" && path)
                                             handleServiceFiles(path, rootFolder, serviceInfo);
-                                        else if (param.type === "nginx")
+                                        else if (param.type === "nginx" || param.type === 'logstash')
                                             tarFolder(rootFolder, serviceInfo);
                                     });
                                 });
