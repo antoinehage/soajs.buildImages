@@ -45,23 +45,12 @@ var lib = {
             wstream.write('    "credentials": null,\n');
 
         wstream.write('    "URLParam": {\n');
-        wstream.write('        "connectTimeoutMS": 0,\n');
-        wstream.write('        "socketTimeoutMS": 0,\n');
-        wstream.write('        "maxPoolSize": 2,\n');
-        wstream.write('        "wtimeoutMS": 0,\n');
-        wstream.write('        "ssl": ' + param.ssl + ',\n');
-        wstream.write('        "slaveOk": true\n');
+        wstream.write('        "maxPoolSize": 2\n');
         wstream.write('    },\n');
         wstream.write('    "extraParam": {\n');
         wstream.write('        "db": {\n');
-        wstream.write('            "native_parser": true,\n');
         wstream.write('            "bufferMaxEntries": 0\n');
-        wstream.write('       },\n');
-        wstream.write('       "server": {\n');
-        //wstream.write('            "socketOptions": {\n');
-        //wstream.write('                 "autoReconnect": false\n');
-        //wstream.write('            }\n');
-        wstream.write('        }\n');
+        wstream.write('       }\n');
         wstream.write('    }\n');
         wstream.write('};\n');
 
@@ -104,23 +93,18 @@ var lib = {
             wstream.write('    "credentials": null,\n');
 
         wstream.write('    "URLParam": {\n');
-        wstream.write('        "connectTimeoutMS": 0,\n');
-        wstream.write('        "socketTimeoutMS": 0,\n');
         wstream.write('        "maxPoolSize": 2,\n');
-        wstream.write('        "wtimeoutMS": 0,\n');
-        wstream.write('        "ssl": ' + param.ssl + ',\n');
-        wstream.write('        "slaveOk": true\n');
+        wstream.write('        "readPreference": "secondaryPreferred",\n');
+        wstream.write('        "replicaSet": "' + param.rsName + '",\n');
+        wstream.write('        "w": "majority,"\n');
+        wstream.write('        "ha": true\n');
         wstream.write('    },\n');
         wstream.write('    "extraParam": {\n');
         wstream.write('        "db": {\n');
-        wstream.write('            "native_parser": true,\n');
-        wstream.write('            "w": "majority,"\n');
         wstream.write('            "bufferMaxEntries": 0\n');
         wstream.write('       },\n');
         wstream.write('       "replSet": {\n');
-        wstream.write('            "ha": true,\n');
-        wstream.write('            "readPreference": "secondaryPreferred",\n');
-        wstream.write('            "rs_name": "' + param.rsName + '"\n');
+        wstream.write('            "ha": true\n');
         wstream.write('        }\n');
         wstream.write('    }\n');
         wstream.write('};\n');
