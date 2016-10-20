@@ -13,7 +13,8 @@ function HELP() {
     echo 'OPTIONS:'
     echo '  -T		(required): Deployment type: nginx || service'
     echo '  -X		(required): Exec command: deploy || redeploy'
-    echo '  -G		(optional): The GIT server source: gitbuh || bitbucket. Default [github]'
+    echo '  -g		(optional): The GIT server source: github || bitbucket. Default [github]'
+    echo '  -G		(optional): The GIT server domain name. Default [github.com]'
     echo '  -M		(optional): works with type [service]. Main file if not [ /. ] for service to run'
     echo '  -L		(optional): works with type [service]. Try to use the SOAJS package within the image'
     echo '  -P		(optional): Works with type [service]. Set SOAJS_SRVIP'
@@ -27,21 +28,27 @@ function clone() {
     local _OWNER=${2}
     local _BRANCH=${3}
     local _SOURCE=${4}
-    local _TOKEN=${5}
+    local _SOURCE_DOMAIN=${5}
+    local _TOKEN=${6}
 
     if [ ${_TOKEN} ]; then
         echo "- Deploying from ${_SOURCE} private repo"
         if [ ${_SOURCE} == "github" ]; then
-            git clone -b ${_BRANCH} https://${_TOKEN}@github.com/${_OWNER}/${_REPO}.git
+            git clone -b ${_BRANCH} https://${_TOKEN}@${_SOURCE_DOMAIN}/${_OWNER}/${_REPO}.git
         elif [ ${_SOURCE} == "bitbucket" ]; then
-            git clone -b ${_BRANCH} https://x-token-auth:${_TOKEN}@bitbucket.org/${_OWNER}/${_REPO}.git
+            if [ ${_SOURCE_DOMAIN} == "bitbucket.org" ]; then
+                git clone -b ${_BRANCH} https://x-token-auth:${_TOKEN}@${_SOURCE_DOMAIN}/${_OWNER}/${_REPO}.git
+            else
+                #enterprise bitbucket uses basic auth for now; token in this case is username:password
+                git clone -b ${_BRANCH} https://${_TOKEN}@${_SOURCE_DOMAIN}/scm/${_OWNER}/${_REPO}.git
+            fi
         fi
     else
         echo "- Deploying from ${_SOURCE} public repo"
         if [ ${_SOURCE} == "github" ]; then
-            git clone -b ${_BRANCH} https://github.com/${_OWNER}/${_REPO}.git
+            git clone -b ${_BRANCH} https://${SOURCE_DOMAIN}/${_OWNER}/${_REPO}.git
         elif [ ${_SOURCE} == "bitbucket" ]; then
-            git clone -b ${_BRANCH} https://bitbucket.org/${_OWNER}/${_REPO}.git
+            git clone -b ${_BRANCH} https://${SOURCE_DOMAIN}/${_OWNER}/${_REPO}.git
         fi
     fi
 
@@ -72,14 +79,14 @@ function nxFetchCode(){
     local copySite=0
 
     if [ ${dashboardDeployment} == 1 ]; then
-        clone "soajs.dashboard" "soajs" ${SOAJS_GIT_DASHBOARD_BRANCH} ${SOURCE}
+        clone "soajs.dashboard" "soajs" ${SOAJS_GIT_DASHBOARD_BRANCH} ${SOURCE} ${SOURCE_DOMAIN}
         cp -Rf ${nxSitePath}_tmp/soajs.dashboard/ui/* ${nxSitePath}_tmp/_temp_site/
         copySite=1
         echo "    ... deployed dashboard UI"
     fi
 
     if [ ${SOAJS_GIT_REPO} ] && [ ${SOAJS_GIT_OWNER} ]; then
-        clone ${SOAJS_GIT_REPO} ${SOAJS_GIT_OWNER} ${BRANCH} ${SOURCE} ${SOAJS_GIT_TOKEN}
+        clone ${SOAJS_GIT_REPO} ${SOAJS_GIT_OWNER} ${BRANCH} ${SOURCE} ${SOURCE_DOMAIN} ${SOAJS_GIT_TOKEN}
         cp -Rf ${nxSitePath}_tmp/${SOAJS_GIT_REPO}/* ${nxSitePath}_tmp/_temp_site/
         copySite=1
         echo "    ... deployed custom site UI"
@@ -193,7 +200,7 @@ function serviceCode() {
             if [ -n "${SOAJS_GIT_BRANCH}" ]; then
                 BRANCH=${SOAJS_GIT_BRANCH}
             fi
-            clone ${SOAJS_GIT_REPO} ${SOAJS_GIT_OWNER} ${BRANCH} ${SOURCE} ${SOAJS_GIT_TOKEN}
+            clone ${SOAJS_GIT_REPO} ${SOAJS_GIT_OWNER} ${BRANCH} ${SOURCE} ${SOURCE_DOMAIN} ${SOAJS_GIT_TOKEN}
             popd > /dev/null 2>&1
         else
             serviceCodePull
@@ -294,9 +301,10 @@ MAIN="/."
 PEM_FILE=0
 DEPLOY_FOLDER="/opt/soajs/node_modules/"
 SOURCE="github"
+SOURCE_DOMAIN="github.com"
 REBUILD_NX_CONF=0
 REBUILD_SERVICE_PROFILE=0
-while getopts T:X:M:PLSsG:c OPT; do
+while getopts T:X:M:PLSsg:G:c OPT; do
 	case "${OPT}" in
         T)
             if [ ${OPTARG} == "nginx" ]; then
@@ -339,15 +347,18 @@ while getopts T:X:M:PLSsG:c OPT; do
 		L)
 		    USE_SOAJS_LOCAL=1
 		    ;;
-		G)
+		g)
 		    if [ ${OPTARG} == "github" ] || [ ${OPTARG} == "bitbucket" ]; then
 		        SOURCE=${OPTARG}
 		    else
-		        echo "-G: Unkown GIT source, only [github] and [bitbucket] are supported."
+		        echo "-g: Unkown GIT source, only [github] and [bitbucket] are supported."
                 HELP
                 exit 1
 		    fi
 		    ;;
+        G)
+            SOURCE_DOMAIN=${OPTARG}
+            ;;
 		c)
 		    REBUILD_NX_CONF=1
 		    REBUILD_SERVICE_PROFILE=1
