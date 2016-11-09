@@ -20,8 +20,8 @@ module.exports = {
                 'ADD ./FILES /opt/soajs/FILES/',
                 'RUN cd /opt/soajs/FILES/conf && cp -f nginx.conf /etc/nginx/ && cp -f ssl.conf /etc/nginx/ssl/',
                 'RUN apt-get update && apt-get install curl',
-                'RUN curl -L -O https://download.elastic.co/beats/filebeat/filebeat_1.2.3_amd64.deb && dpkg -i filebeat_1.2.3_amd64.deb',
-                'RUN curl -L -O https://download.elastic.co/beats/topbeat/topbeat_1.2.3_amd64.deb && dpkg -i topbeat_1.2.3_amd64.deb',
+                'RUN curl -L -O https://download.elastic.co/beats/filebeat/filebeat_1.3.1_amd64.deb && dpkg -i filebeat_1.3.1_amd64.deb',
+                'RUN curl -L -O https://download.elastic.co/beats/topbeat/topbeat_1.3.1_amd64.deb && dpkg -i topbeat_1.3.1_amd64.deb',
                 'ADD ./FILES/conf/filebeat.yml /etc/filebeat/',
                 'ADD ./FILES/conf/topbeat.yml /etc/topbeat/',
                 'ENV NODE_ENV=production',
@@ -39,7 +39,7 @@ module.exports = {
                 'CMD ["/bin/bash"]']
         },
         "logstash": {
-            "from": 'FROM logstash',
+            "from": 'FROM logstash:2.4.0',
             "maintainer": 'MAINTAINER SOAJS Team <team@soajs.org>',
             "body": [
                 'Add ./FILES/conf/logstash.conf /conf/logstash.conf',
