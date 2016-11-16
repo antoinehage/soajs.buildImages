@@ -4,6 +4,7 @@ var fs = require('fs');
 var mongoNb = process.env.SOAJS_MONGO_NB || 1;
 mongoNb = parseInt(mongoNb);
 var mongoRsName = process.env.SOAJS_MONGO_RSNAME || "rs_soajs";
+var mongoPrefix = process.env.SOAJS_MONGO_PREFIX || "";
 
 var profileLocation = process.env.SOAJS_PROFILE_LOC || "/opt/soajs/FILES/profiles/";
 
@@ -16,7 +17,7 @@ var lib = {
         wstream.write('\'use strict\';\n');
         wstream.write('module.exports = {\n');
         wstream.write('    "name": "core_provision",\n');
-        wstream.write('    "prefix": "",\n');
+        wstream.write('    "prefix": "' + mongoPrefix + '",\n');
         wstream.write('    "servers": [\n');
 
         for (var i = 1; i <= param.count; i++) {
@@ -64,7 +65,7 @@ var lib = {
         wstream.write('\'use strict\';\n');
         wstream.write('module.exports = {\n');
         wstream.write('    "name": "core_provision",\n');
-        wstream.write('    "prefix": "",\n');
+        wstream.write('    "prefix": "' + mongoPrefix + '",\n');
         wstream.write('    "servers": [\n');
 
         for (var i = 1; i <= param.count; i++) {
