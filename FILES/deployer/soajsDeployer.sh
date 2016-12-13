@@ -107,6 +107,9 @@ function nxFetchCode(){
 function nxDeploySuccess() {
     echo "- Nginx config preparation done successfully"
     nxFetchCode
+
+    containerInfo
+
     echo $'\n- SOAJS Deployer starting nginx ... '
     service nginx start
 }
@@ -209,6 +212,7 @@ function serviceCode() {
         serviceDependencies
 
         mkdir -p /var/log/service/
+        containerInfo
         serviceRun
     else
         echo "ERROR: unable to find environment variable SOAJS_GIT_REPO or SOAJS_GIT_OWNER. nothing to deploy"
@@ -275,6 +279,21 @@ function persistServiceEnvsExec() {
     fi
 }
 # ------ SERVICE END
+
+# ------ COMMON FUNCTIONS START
+function containerInfo() {
+    if [ ${SOAJS_DEPLOY_HA} ] && [ ${SOAJS_DEPLOY_HA} == 'swarm' ]; then
+        # Inspect container, export swarm task name and container ip address
+        local CONTAINER_RECORD=$(curl -s --unix-socket /var/run/docker.sock http:/containers/${HOSTNAME}/json)
+        export SOAJS_HA_IP=$(echo ${CONTAINER_RECORD} | node ./container.js 'ip')
+        export SOAJS_HA_NAME=$(echo ${CONTAINER_RECORD} | node ./container.js 'name')
+    fi
+
+    echo 'SOAJS Deployer - Container Info:'
+    echo '      SOAJS_HA_IP: '${SOAJS_HA_IP}
+    echo '      SOAJS_HA_NAME: '${SOAJS_HA_NAME}
+}
+# ------ COMMON FUNCTIONS END
 
 # DEPLOY_TYPE
 #   1 -> nginx
