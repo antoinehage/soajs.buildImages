@@ -79,7 +79,7 @@ function nxFetchCode(){
     local copySite=0
 
     if [ ${dashboardDeployment} == 1 ]; then
-        clone "soajs.dashboard" "soajs" ${SOAJS_GIT_DASHBOARD_BRANCH} ${SOURCE} ${SOURCE_DOMAIN}
+        clone "soajs.dashboard" "soajs" ${SOAJS_GIT_DASHBOARD_BRANCH} "github" "github.com"
         cp -Rf ${nxSitePath}_tmp/soajs.dashboard/ui/* ${nxSitePath}_tmp/_temp_site/
         copySite=1
         echo "    ... deployed dashboard UI"
