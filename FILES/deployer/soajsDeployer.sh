@@ -46,9 +46,9 @@ function clone() {
     else
         echo "- Deploying from ${_SOURCE} public repo"
         if [ ${_SOURCE} == "github" ]; then
-            git clone -b ${_BRANCH} https://${SOURCE_DOMAIN}/${_OWNER}/${_REPO}.git
+            git clone -b ${_BRANCH} https://${_SOURCE_DOMAIN}/${_OWNER}/${_REPO}.git
         elif [ ${_SOURCE} == "bitbucket" ]; then
-            git clone -b ${_BRANCH} https://${SOURCE_DOMAIN}/${_OWNER}/${_REPO}.git
+            git clone -b ${_BRANCH} https://${_SOURCE_DOMAIN}/${_OWNER}/${_REPO}.git
         fi
     fi
 
