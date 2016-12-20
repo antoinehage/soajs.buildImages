@@ -79,7 +79,7 @@ function nxFetchCode(){
     local copySite=0
 
     if [ ${dashboardDeployment} == 1 ]; then
-        clone "soajs.dashboard" "soajs" ${SOAJS_GIT_DASHBOARD_BRANCH} ${SOURCE} ${SOURCE_DOMAIN}
+        clone "soajs.dashboard" "soajs" ${SOAJS_GIT_DASHBOARD_BRANCH} "github" "github.com"
         cp -Rf ${nxSitePath}_tmp/soajs.dashboard/ui/* ${nxSitePath}_tmp/_temp_site/
         copySite=1
         echo "    ... deployed dashboard UI"
@@ -193,7 +193,10 @@ function serviceCodePull() {
 function serviceRun() {
     echo $'\n- SOAJS Deployer starting service ... '
     echo "    -->    ${DEPLOY_FOLDER}${SOAJS_GIT_REPO}${MAIN}"
-    node ${DEPLOY_FOLDER}${SOAJS_GIT_REPO}${MAIN} 2>&1 | tee /var/log/service/${SOAJS_GIT_REPO}_logs.log
+
+    local SOAJS_GIT_REPO_CLEAN=$(echo ${SOAJS_GIT_REPO} | sed -e 's/[\\/\*\?"<>\|,\.]/-/g')
+    local SOAJS_HA_NAME_CLEAN=$(echo ${SOAJS_GIT_REPO} | sed -e 's/[\\/\*\?"<>\|,\.]/-/g')
+    node ${DEPLOY_FOLDER}${SOAJS_GIT_REPO}${MAIN} 2>&1 | tee /var/log/soajs/${SOAJS_ENV}_${SOAJS_GIT_REPO_CLEAN}_${SOAJS_HA_NAME_CLEAN}_service.log
 }
 function serviceCode() {
     if [ ${SOAJS_GIT_REPO} ] && [ ${SOAJS_GIT_OWNER} ]; then
