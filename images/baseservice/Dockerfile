@@ -1,4 +1,5 @@
 FROM soajsorg/base
 MAINTAINER SOAJS Team <team@soajs.org>
-RUN apt-get install --fix-missing -y npm
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get install --fix-missing -y npm postfix
 CMD ["/bin/bash"]
