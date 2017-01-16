@@ -108,8 +108,6 @@ function nxDeploySuccess() {
     echo "- Nginx config preparation done successfully"
     nxFetchCode
 
-    containerInfo
-
     echo $'\n- SOAJS Deployer starting nginx ... '
     service nginx start
 }
@@ -139,7 +137,15 @@ function deployNginx() {
     fi
     echo $'\n- SOAJS Deployer building the needed nginx configuration ... '
     node ./nginx.js &
+
+    containerInfo
+    startFilebeat
+
+    #TODO: merge all clean calls into one function
+    local SOAJS_HA_NAME_CLEAN=$(echo ${SOAJS_HA_NAME} | sed -e 's/[\\/\*\?"<>\|,\.-]/_/g' | awk '{print tolower($0)}')
     sed -i 's/%SOAJS_ENV%/'${SOAJS_ENV}'/g' ${nginxPath}/nginx.conf
+    sed -i 's/%SOAJS_HA_NAME%/'${SOAJS_HA_NAME_CLEAN}'/g' ${nginxPath}/nginx.conf
+
     local b=$!
     wait $b && nxDeploySuccess || nxFailure
 }
@@ -194,9 +200,10 @@ function serviceRun() {
     echo $'\n- SOAJS Deployer starting service ... '
     echo "    -->    ${DEPLOY_FOLDER}${SOAJS_GIT_REPO}${MAIN}"
 
-    local SOAJS_GIT_REPO_CLEAN=$(echo ${SOAJS_GIT_REPO} | sed -e 's/[\\/\*\?"<>\|,\.]/-/g')
-    local SOAJS_HA_NAME_CLEAN=$(echo ${SOAJS_GIT_REPO} | sed -e 's/[\\/\*\?"<>\|,\.]/-/g')
-    node ${DEPLOY_FOLDER}${SOAJS_GIT_REPO}${MAIN} 2>&1 | tee /var/log/soajs/${SOAJS_ENV}_${SOAJS_GIT_REPO_CLEAN}_${SOAJS_HA_NAME_CLEAN}_service.log
+    #TODO: merge all clean calls into one function
+    local SOAJS_GIT_REPO_CLEAN=$(echo ${SOAJS_GIT_REPO} | sed -e 's/[\\/\*\?"<>\|,\.-]/_/g' | awk '{print tolower($0)}')
+    local SOAJS_HA_NAME_CLEAN=$(echo ${SOAJS_HA_NAME} | sed -e 's/[\\/\*\?"<>\|,\.-]/_/g' | awk '{print tolower($0)}')
+    node ${DEPLOY_FOLDER}${SOAJS_GIT_REPO}${MAIN} 2>&1 | tee /var/log/soajs/${SOAJS_ENV}-${SOAJS_GIT_REPO_CLEAN}-${SOAJS_HA_NAME_CLEAN}-service.log
 }
 function serviceCode() {
     if [ ${SOAJS_GIT_REPO} ] && [ ${SOAJS_GIT_OWNER} ]; then
@@ -215,7 +222,10 @@ function serviceCode() {
         serviceDependencies
 
         mkdir -p /var/log/service/
+
         containerInfo
+        startFilebeat
+
         serviceRun
     else
         echo "ERROR: unable to find environment variable SOAJS_GIT_REPO or SOAJS_GIT_OWNER. nothing to deploy"
@@ -295,6 +305,21 @@ function containerInfo() {
     echo 'SOAJS Deployer - Container Info:'
     echo '      SOAJS_HA_IP: '${SOAJS_HA_IP}
     echo '      SOAJS_HA_NAME: '${SOAJS_HA_NAME}
+}
+
+function startFilebeat() {
+    echo 'SOAJS Deployer Starting Topbeat ...'
+
+    if [ ${DEPLOY_TYPE} == 1 ]; then
+        export SOAJS_SERVICE_NAME='nginx'
+    else
+        export SOAJS_SERVICE_NAME=$(echo ${SOAJS_GIT_REPO} | sed -e 's/[\\/\*\?"<>\|,\.-]/_/g' | awk '{print tolower($0)}')
+    fi
+
+    export SOAJS_HA_NAME_CLEAN=$(echo ${SOAJS_HA_NAME} | sed -e 's/[\\/\*\?"<>\|,\.-]/_/g' | awk '{print tolower($0)}')
+
+    topbeat -e -c /etc/topbeat/topbeat.yml &
+    disown
 }
 # ------ COMMON FUNCTIONS END
 

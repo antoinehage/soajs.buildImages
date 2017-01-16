@@ -1,3 +1,3 @@
 #!/bin/bash
 
-docker build -t soajsorg/base .
+docker build -t soajsorg/base . --no-cache

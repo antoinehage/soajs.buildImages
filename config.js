@@ -8,7 +8,7 @@ module.exports = {
     "localSrcDir": "/opt/soajs/node_modules/",
 
     "imagePrefix": {
-        "core": "soajsorg/"
+        "core": "soajstest/"
     },
 
     "dockerTemnplates": {
@@ -19,10 +19,8 @@ module.exports = {
                 'RUN mkdir -p /opt/soajs/FILES/profiles && mkdir -p /etc/nginx/ssl',
                 'ADD ./FILES /opt/soajs/FILES/',
                 'RUN cd /opt/soajs/FILES/conf && cp -f nginx.conf /etc/nginx/ && cp -f ssl.conf /etc/nginx/ssl/',
-                // 'RUN curl -L -O https://download.elastic.co/beats/filebeat/filebeat_1.3.1_amd64.deb && dpkg -i filebeat_1.3.1_amd64.deb',
-                // 'RUN curl -L -O https://download.elastic.co/beats/topbeat/topbeat_1.3.1_amd64.deb && dpkg -i topbeat_1.3.1_amd64.deb',
-                // 'ADD ./FILES/conf/filebeat.yml /etc/filebeat/',
-                // 'ADD ./FILES/conf/topbeat.yml /etc/topbeat/',
+                'RUN curl -L -O https://download.elastic.co/beats/topbeat/topbeat_1.3.1_amd64.deb && dpkg -i topbeat_1.3.1_amd64.deb',
+                'ADD ./FILES/conf/topbeat.yml /etc/topbeat/',
                 'ENV NODE_ENV=production',
                 'EXPOSE #SERVICEPORT#',
                 'CMD ["/bin/bash"]']
@@ -34,6 +32,8 @@ module.exports = {
                 'RUN mkdir -p /opt/soajs/node_modules && mkdir -p /opt/soajs/FILES/profiles',
                 'ADD ./FILES /opt/soajs/FILES/',
                 'ENV NODE_ENV=production',
+                'RUN curl -L -O https://download.elastic.co/beats/topbeat/topbeat_1.3.1_amd64.deb && dpkg -i topbeat_1.3.1_amd64.deb',
+                'ADD ./FILES/conf/topbeat.yml /etc/topbeat/',
                 'RUN cd /opt/soajs/FILES/soajs && npm install',
                 'CMD ["/bin/bash"]']
         },
