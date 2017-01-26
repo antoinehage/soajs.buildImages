@@ -13,4 +13,6 @@ output:
 
   elasticsearch:
     hosts: ["elasticsearch:9200"]
-    index: topbeat-${SOAJS_SERVICE_NAME:MISSING}-${SOAJS_ENV}-${SOAJS_HA_NAME_CLEAN:MISSING}
+    index: topbeat-${SOAJS_SERVICE_NAME:missing}-${SOAJS_ENV}-${SOAJS_HA_NAME_CLEAN:missing}
+shipper:
+  name: ${SOAJS_HA_NAME_CLEAN:missing}
