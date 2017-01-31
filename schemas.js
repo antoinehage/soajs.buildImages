@@ -71,6 +71,8 @@ var config = {
 };
 
 var versionNbr = "^(\\*|[0-9]+(\\.(\\*|[0-9]+))+|[0-9]+(\\.[0-9]+)+(\\-[a-z]+(\\.[0-9]+(\\.)*)*))$";
+var gitLink = "^(git((:\\/\\/)|(\\+ssh:\\/\\/)|(\\+http(s)?:\\/\\/))(.+)\\.git#(.+))$";
+
 var pckg = {
 	"type": "object",
 	"required": true,
@@ -121,18 +123,36 @@ var pckg = {
 			"type": "object",
 			"required": false,
 			"additionalProperties": {
-				"type": "string",
-				"required": true,
-				"pattern": versionNbr
+				"oneOf":[
+					{
+						"type": "string",
+						"required": true,
+						"pattern": versionNbr
+					},
+					{
+						"type": "string",
+						"required": true,
+						"pattern": gitLink
+					}
+				]
 			}
 		},
 		"dependencies": {
 			"type": "object",
 			"required": true,
 			"additionalProperties": {
-				"type": "string",
-				"required": true,
-				"pattern": versionNbr
+				"oneOf": [
+					{
+						"type": "string",
+						"required": true,
+						"pattern": versionNbr
+					},
+					{
+						"type": "string",
+						"required": true,
+						"pattern": gitLink
+					}
+				]
 			}
 		}
 
