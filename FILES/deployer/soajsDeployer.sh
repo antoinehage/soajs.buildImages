@@ -138,7 +138,6 @@ function deployNginx() {
     echo $'\n- SOAJS Deployer building the needed nginx configuration ... '
     node ./nginx.js &
 
-    containerInfo
     startFilebeat
 
     #TODO: merge all clean calls into one function
@@ -221,9 +220,6 @@ function serviceCode() {
 
         serviceDependencies
 
-        mkdir -p /var/log/service/
-
-        containerInfo
         startFilebeat
 
         serviceRun
@@ -294,19 +290,6 @@ function persistServiceEnvsExec() {
 # ------ SERVICE END
 
 # ------ COMMON FUNCTIONS START
-function containerInfo() {
-    if [ ${SOAJS_DEPLOY_HA} ] && [ ${SOAJS_DEPLOY_HA} == 'swarm' ]; then
-        # Inspect container, export swarm task name and container ip address
-        local CONTAINER_RECORD=$(curl -s --unix-socket /var/run/docker.sock http:/containers/${HOSTNAME}/json)
-        export SOAJS_HA_IP=$(echo ${CONTAINER_RECORD} | node ./container.js 'ip')
-        export SOAJS_HA_NAME=$(echo ${CONTAINER_RECORD} | node ./container.js 'name')
-    fi
-
-    echo 'SOAJS Deployer - Container Info:'
-    echo '      SOAJS_HA_IP: '${SOAJS_HA_IP}
-    echo '      SOAJS_HA_NAME: '${SOAJS_HA_NAME}
-}
-
 function startFilebeat() {
     echo 'SOAJS Deployer Starting Topbeat ...'
 
