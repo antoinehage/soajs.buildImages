@@ -108,6 +108,8 @@ function nxDeploySuccess() {
     echo "- Nginx config preparation done successfully"
     nxFetchCode
 
+    startFilebeat
+
     echo $'\n- SOAJS Deployer starting nginx ... '
     service nginx start
 }
@@ -137,8 +139,6 @@ function deployNginx() {
     fi
     echo $'\n- SOAJS Deployer building the needed nginx configuration ... '
     node ./nginx.js &
-
-    startFilebeat
 
     #TODO: merge all clean calls into one function
     local SOAJS_HA_NAME_CLEAN=$(echo ${SOAJS_HA_NAME} | sed -e 's/[\\/\*\?"<>\|,\.-]/_/g' | awk '{print tolower($0)}')
@@ -213,7 +213,8 @@ function serviceCode() {
                 BRANCH=${SOAJS_GIT_BRANCH}
             fi
             clone ${SOAJS_GIT_REPO} ${SOAJS_GIT_OWNER} ${BRANCH} ${SOURCE} ${SOURCE_DOMAIN} ${SOAJS_GIT_TOKEN}
-            popd > /dev/null 2>&1
+            # popd > /dev/null 2>&1
+            popd
         else
             serviceCodePull
         fi
