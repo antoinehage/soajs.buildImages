@@ -262,7 +262,7 @@ service.init(function () {
     };
     service.get("/buildSoajs", function (req, res) {
         lib.createImage({
-            imagePrefix: req.query.imagePrefix + "/" || config.imagePrefix.core,
+            imagePrefix: (req.query.imagePrefix ? req.query.imagePrefix + "/" : config.imagePrefix.core),
             servicePath: config.localSrcDir + "soajs",
             dockerTpl: config.dockerTemnplates.soajs,
             type: "soajs",
@@ -280,7 +280,7 @@ service.init(function () {
     });
     service.get("/buildNginx", function (req, res) {
         lib.createImage({
-            imagePrefix: req.query.imagePrefix + "/" || config.imagePrefix.core,
+            imagePrefix: (req.query.imagePrefix ? req.query.imagePrefix + "/" : config.imagePrefix.core),
             dockerTpl: config.dockerTemnplates.nginx,
             type: "nginx",
             serviceInfo: {
