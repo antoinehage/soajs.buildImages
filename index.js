@@ -1,4 +1,7 @@
 'use strict';
+process.env.SOAJS_SOLO = true;
+process.env.SOAJS_SRVIP = "localhost";
+
 var soajs = require('soajs');
 var config = require('./config.js');
 var Docker = require('dockerode');
