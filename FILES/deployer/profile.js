@@ -97,7 +97,7 @@ var lib = {
         wstream.write('        "maxPoolSize": 2,\n');
         wstream.write('        "readPreference": "secondaryPreferred",\n');
         wstream.write('        "replicaSet": "' + param.rsName + '",\n');
-        wstream.write('        "w": "majority,"\n');
+        wstream.write('        "w": "majority",\n');
         wstream.write('        "ha": true\n');
         wstream.write('    },\n');
         wstream.write('    "extraParam": {\n');
