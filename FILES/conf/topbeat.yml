@@ -11,8 +11,8 @@ input:
 
 output:
 
-  elasticsearch:
-    hosts: ["elasticsearch:9200"]
+  logstash:
+    hosts: [${SOAJS_LOGSTASH_ADDRESS:dashboard-logstash:12201}]
     index: topbeat-${SOAJS_SERVICE_NAME:missing}-${SOAJS_ENV}-${SOAJS_HA_NAME_CLEAN:missing}
 shipper:
   name: ${SOAJS_HA_NAME_CLEAN:missing}

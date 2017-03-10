@@ -44,6 +44,19 @@ module.exports = {
                 'Add ./FILES/conf/logstash.conf /conf/logstash.conf',
                 'RUN chown logstash:logstash /conf/logstash.conf',
                 'CMD ["/bin/bash"]']
+        },
+        "filebeat": {
+            "from": "FROM ubuntu:16.04",
+            "maintainer": "MAINTAINER SOAJS Team <team@soajs.org>",
+            "body": [
+                'RUN apt-get update && apt-get install -y curl',
+                'RUN cd /opt/ && \\',
+                    'curl -o filebeat.deb https://download.elastic.co/beats/filebeat/filebeat_1.3.1_amd64.deb && \\',
+                    'dpkg -i filebeat.deb && \\',
+                    'rm filebeat.deb',
+                'ADD ./FILES/conf/filebeat.yml /etc/filebeat/filebeat.yml',
+                'CMD ["/bin/bash"]'
+            ]
         }
     },
 

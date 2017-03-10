@@ -184,7 +184,7 @@ service.init(function () {
                                         if (err) return cb(err.message);
                                         if (param.type === "soajs" && path)
                                             handleServiceFiles(path, rootFolder, serviceInfo);
-                                        else if (param.type === "nginx" || param.type === 'logstash')
+                                        else if (param.type === "nginx" || param.type === 'logstash' || param.type === 'filebeat')
                                             tarFolder(rootFolder, serviceInfo);
                                     });
                                 });
@@ -301,11 +301,28 @@ service.init(function () {
     });
     service.get("/buildLogstash", function (req, res) {
         lib.createImage({
-            imagePrefix: config.imagePrefix.core,
+            imagePrefix: (req.query.imagePrefix ? req.query.imagePrefix + "/" : config.imagePrefix.core),
             dockerTpl: config.dockerTemnplates.logstash,
             type: "logstash",
             serviceInfo: {
                 "name": "logstash"
+            },
+            socket: req.query.socket || null,
+            log: req.soajs.log,
+            deleteFolder: req.query.delete || null
+        }, function (err, data) {
+            if (err)
+                return res.jsonp(req.soajs.buildResponse({"code": 401, "msg": err}));
+            return res.status(200).send(data);
+        });
+    });
+    service.get("/buildFilebeat", function (req, res) {
+        lib.createImage({
+            imagePrefix: (req.query.imagePrefix ? req.query.imagePrefix + "/" : config.imagePrefix.core),
+            dockerTpl: config.dockerTemnplates.filebeat,
+            type: "filebeat",
+            serviceInfo: {
+                "name": "filebeat"
             },
             socket: req.query.socket || null,
             log: req.soajs.log,

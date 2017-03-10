@@ -108,7 +108,7 @@ function nxDeploySuccess() {
     echo "- Nginx config preparation done successfully"
     nxFetchCode
 
-    startFilebeat
+    startTopbeat
 
     echo $'\n- SOAJS Deployer starting nginx ... '
     service nginx start
@@ -141,7 +141,7 @@ function deployNginx() {
     node ./nginx.js &
 
     #TODO: merge all clean calls into one function
-    local SOAJS_HA_NAME_CLEAN=$(echo ${SOAJS_HA_NAME} | sed -e 's/[\\/\*\?"<>\|,\.-]/_/g' | awk '{print tolower($0)}')
+    local SOAJS_HA_NAME_CLEAN=$(echo ${SOAJS_HA_NAME} | cut -d "." -f 1,2 | sed -e 's/[\\/\*\?"<>\|,\.-]/_/g' | awk '{print tolower($0)}')
     sed -i 's/%SOAJS_ENV%/'${SOAJS_ENV}'/g' ${nginxPath}/nginx.conf
     sed -i 's/%SOAJS_HA_NAME%/'${SOAJS_HA_NAME_CLEAN}'/g' ${nginxPath}/nginx.conf
 
@@ -201,7 +201,7 @@ function serviceRun() {
 
     #TODO: merge all clean calls into one function
     local SOAJS_GIT_REPO_CLEAN=$(echo ${SOAJS_GIT_REPO} | sed -e 's/[\\/\*\?"<>\|,\.-]/_/g' | awk '{print tolower($0)}')
-    local SOAJS_HA_NAME_CLEAN=$(echo ${SOAJS_HA_NAME} | sed -e 's/[\\/\*\?"<>\|,\.-]/_/g' | awk '{print tolower($0)}')
+    local SOAJS_HA_NAME_CLEAN=$(echo ${SOAJS_HA_NAME} | cut -d "." -f 1,2 | sed -e 's/[\\/\*\?"<>\|,\.-]/_/g' | awk '{print tolower($0)}')
     node ${DEPLOY_FOLDER}${SOAJS_GIT_REPO}${MAIN} 2>&1 | tee /var/log/soajs/${SOAJS_ENV}-${SOAJS_GIT_REPO_CLEAN}-${SOAJS_HA_NAME_CLEAN}-service.log
 }
 function serviceCode() {
@@ -221,7 +221,7 @@ function serviceCode() {
 
         serviceDependencies
 
-        startFilebeat
+        startTopbeat
 
         serviceRun
     else
@@ -291,7 +291,7 @@ function persistServiceEnvsExec() {
 # ------ SERVICE END
 
 # ------ COMMON FUNCTIONS START
-function startFilebeat() {
+function startTopbeat() {
     echo 'SOAJS Deployer Starting Topbeat ...'
 
     if [ ${DEPLOY_TYPE} == 1 ]; then
@@ -300,7 +300,7 @@ function startFilebeat() {
         export SOAJS_SERVICE_NAME=$(echo ${SOAJS_GIT_REPO} | sed -e 's/[\\/\*\?"<>\|,\.-]/_/g' | awk '{print tolower($0)}')
     fi
 
-    export SOAJS_HA_NAME_CLEAN=$(echo ${SOAJS_HA_NAME} | sed -e 's/[\\/\*\?"<>\|,\.-]/_/g' | awk '{print tolower($0)}')
+    export SOAJS_HA_NAME_CLEAN=$(echo ${SOAJS_HA_NAME} | cut -d "." -f 1,2 | sed -e 's/[\\/\*\?"<>\|,\.-]/_/g' | awk '{print tolower($0)}')
 
     topbeat -e -c /etc/topbeat/topbeat.yml &
     disown
