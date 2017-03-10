@@ -94,10 +94,12 @@ var lib = {
             wstream.write('    "credentials": null,\n');
 
         wstream.write('    "URLParam": {\n');
+        if (process.env.SOAJS_MONGO_AUTH_DB)
+            wstream.write('        "authSource": "' + process.env.SOAJS_MONGO_AUTH_DB + '",\n');
         wstream.write('        "maxPoolSize": 2,\n');
         wstream.write('        "readPreference": "secondaryPreferred",\n');
         wstream.write('        "replicaSet": "' + param.rsName + '",\n');
-        wstream.write('        "w": "majority,"\n');
+        wstream.write('        "w": "majority",\n');
         wstream.write('        "ha": true\n');
         wstream.write('    },\n');
         wstream.write('    "extraParam": {\n');
