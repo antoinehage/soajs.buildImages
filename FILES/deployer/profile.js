@@ -44,13 +44,18 @@ var lib = {
         }
         else
             wstream.write('    "credentials": null,\n');
-
+	    
         wstream.write('    "URLParam": {\n');
+	    if (process.env.SOAJS_MONGO_AUTH_DB)
+		    wstream.write('        "authSource": "' + process.env.SOAJS_MONGO_AUTH_DB + '",\n');
         wstream.write('        "maxPoolSize": 2\n');
         wstream.write('    },\n');
         wstream.write('    "extraParam": {\n');
         wstream.write('        "db": {\n');
         wstream.write('            "bufferMaxEntries": 0\n');
+        wstream.write('       },\n');
+        wstream.write('        "server": {\n');
+        wstream.write('            "auto_reconnect": true\n');
         wstream.write('       }\n');
         wstream.write('    }\n');
         wstream.write('};\n');
@@ -100,15 +105,20 @@ var lib = {
         wstream.write('        "readPreference": "secondaryPreferred",\n');
         wstream.write('        "replicaSet": "' + param.rsName + '",\n');
         wstream.write('        "w": "majority",\n');
-        wstream.write('        "ha": true\n');
+        wstream.write('        "ha": true,\n');
+        wstream.write('        "slaveOk": true\n');
         wstream.write('    },\n');
         wstream.write('    "extraParam": {\n');
         wstream.write('        "db": {\n');
+        wstream.write('            "native_parser": true,\n');
         wstream.write('            "bufferMaxEntries": 0\n');
         wstream.write('       },\n');
         wstream.write('       "replSet": {\n');
         wstream.write('            "ha": true\n');
-        wstream.write('        }\n');
+        wstream.write('        },\n');
+	    wstream.write('       "server": {\n');
+	    wstream.write('            "auto_reconnect": true\n');
+	    wstream.write('        }\n');
         wstream.write('    }\n');
         wstream.write('};\n');
 
