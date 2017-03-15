@@ -8,122 +8,140 @@ var mongoPrefix = process.env.SOAJS_MONGO_PREFIX || "";
 
 var profileLocation = process.env.SOAJS_PROFILE_LOC || "/opt/soajs/FILES/profiles/";
 
-
 var lib = {
+	/**
+	 * functions that updates the servers array list in the cluster configuration
+	 * @param {Object} param
+	 * @param {Object} profile
+	 * @returns {Object} profile
+	 */
+	"updateServersList": function(param, profile){
+		for (var i = 1; i <= param.count; i++) {
+			if (process.env[param.ipEnvName + i]) {
+				profile.servers.push({
+					"host": process.env[param.ipEnvName + i],
+					"port": process.env[param.portEnvName + i] || param.portDefault
+				});
+			}
+			else
+				console.log("ERROR: Unable to find environment variable " + param.ipEnvName + i);
+		}
+		return profile;
+	},
+	
+	/**
+	 * function that sets the credentials and authSource value if provided as env variables in the cluster configuration
+	 * @param {Object} profile
+	 * @returns {Object} profile
+	 */
+	"updatedCredentials": function(profile){
+		if (process.env.SOAJS_MONGO_USERNAME && process.env.SOAJS_MONGO_PASSWORD) {
+			profile.credentials ={
+				"username": process.env.SOAJS_MONGO_USERNAME,
+				"password": process.env.SOAJS_MONGO_PASSWORD
+			};
+			if (process.env.SOAJS_MONGO_AUTH_DB){
+				profile.URLParam.authSource = process.env.SOAJS_MONGO_AUTH_DB;
+			}
+		}
+		return profile;
+	},
+	
+	/**
+	 * function that writes a profile file from the generated cluster configuration
+	 * @param {Object} param
+	 * @param {Object} profile
+	 * @param {Function} cb
+	 */
+	"writeProfile": function(param, profile, cb){
+		var profileData = "'use strict';\n";
+		profileData += 'module.exports = ' + JSON.stringify(profile, null, 2) + ';';
+		fs.writeFile(param.loc + param.profileFileName, profileData, "utf8", cb);
+	},
+	
+	/**
+	 * function that generates a single instance profile
+	 * @param {Object} param
+	 * @param {Function} cb
+	 */
     "writeSingle": function (param, cb) {
         console.log("writing single profile @" + param.loc);
-        var wstream = fs.createWriteStream(param.loc + param.profileFileName);
-
-        wstream.write('\'use strict\';\n');
-        wstream.write('module.exports = {\n');
-        wstream.write('    "name": "core_provision",\n');
-        wstream.write('    "prefix": "' + mongoPrefix + '",\n');
-        wstream.write('    "servers": [\n');
-
-        for (var i = 1; i <= param.count; i++) {
-            if (process.env[param.ipEnvName + i]) {
-                wstream.write('        {\n');
-                wstream.write('                 "host": "' + process.env[param.ipEnvName + i] + '",\n');
-                wstream.write('                 "port": ' + (process.env[param.portEnvName + i] || param.portDefault) + '\n');
-                if (i === param.count)
-                    wstream.write('        }\n');
-                else
-                    wstream.write('        },\n');
-            }
-            else
-                console.log("ERROR: Unable to find environment variable " + param.ipEnvName + i);
-        }
-
-        wstream.write('    ],\n');
-
-        if (process.env.SOAJS_MONGO_USERNAME && process.env.SOAJS_MONGO_PASSWORD) {
-            wstream.write('    "credentials": {\n');
-            wstream.write('        "username": "' + process.env.SOAJS_MONGO_USERNAME + '",\n');
-            wstream.write('        "password": "' + process.env.SOAJS_MONGO_PASSWORD + '"\n');
-            wstream.write('    },\n');
-        }
-        else
-            wstream.write('    "credentials": null,\n');
+        var profile = {
+        	"name": "core_provision",
+        	"prefix": mongoPrefix,
+	        "servers":[],
+	        "credentials": null,
+	        "URLParam": {
+		        "maxPoolSize": 2
+	        },
+	        "extraParam": {
+		        "db": {
+			        "bufferMaxEntries": 0
+		        },
+		        "server": {
+			        "poolSize": 2,
+			        "socketOptions": {
+				        "autoReconnect": true
+			        }
+		        }
+	        }
+        };
+	
+	    /**
+	     * add the server's informaition
+	     */
+	    profile = lib.updateServersList(param, profile);
 	    
-        wstream.write('    "URLParam": {\n');
-	    if (process.env.SOAJS_MONGO_AUTH_DB)
-		    wstream.write('        "authSource": "' + process.env.SOAJS_MONGO_AUTH_DB + '",\n');
-        wstream.write('        "maxPoolSize": 2\n');
-        wstream.write('    },\n');
-        wstream.write('    "extraParam": {\n');
-        wstream.write('        "db": {\n');
-        wstream.write('            "bufferMaxEntries": 0\n');
-        wstream.write('       },\n');
-        wstream.write('        "server": {\n');
-        wstream.write('            "auto_reconnect": true\n');
-        wstream.write('       }\n');
-        wstream.write('    }\n');
-        wstream.write('};\n');
-
-        wstream.end();
-        return cb(null);
+	    /**
+	     * add the credentials information if any
+	     */
+	    profile = lib.updatedCredentials(profile);
+	
+	    lib.writeProfile(param, profile, cb);
     },
-    "writeReplica": function (param, cb) {
+	
+	/**
+	 * function that generates a replica set profile
+	 * @param {Object} param
+	 * @param {Function} cb
+	 */
+	"writeReplica": function (param, cb) {
         console.log("writing replica profile @" + param.loc);
-        var wstream = fs.createWriteStream(param.loc + param.profileFileName);
-
-        wstream.write('\'use strict\';\n');
-        wstream.write('module.exports = {\n');
-        wstream.write('    "name": "core_provision",\n');
-        wstream.write('    "prefix": "' + mongoPrefix + '",\n');
-        wstream.write('    "servers": [\n');
-
-        for (var i = 1; i <= param.count; i++) {
-            if (process.env[param.ipEnvName + i]) {
-                wstream.write('        {\n');
-                wstream.write('                 "host": "' + process.env[param.ipEnvName + i] + '",\n');
-                wstream.write('                 "port": ' + (process.env[param.portEnvName + i] || param.portDefault) + '\n');
-                if (i === param.count)
-                    wstream.write('        }\n');
-                else
-                    wstream.write('        },\n');
-            }
-            else
-                console.log("ERROR: Unable to find environment variable " + param.ipEnvName + i);
-        }
-
-        wstream.write('    ],\n');
-
-        if (process.env.SOAJS_MONGO_USERNAME && process.env.SOAJS_MONGO_PASSWORD) {
-            wstream.write('    "credentials": {\n');
-            wstream.write('        "username": "' + process.env.SOAJS_MONGO_USERNAME + '",\n');
-            wstream.write('        "password": "' + process.env.SOAJS_MONGO_PASSWORD + '"\n');
-            wstream.write('    },\n');
-        }
-        else
-            wstream.write('    "credentials": null,\n');
-
-        wstream.write('    "URLParam": {\n');
-        if (process.env.SOAJS_MONGO_AUTH_DB)
-            wstream.write('        "authSource": "' + process.env.SOAJS_MONGO_AUTH_DB + '",\n');
-        wstream.write('        "maxPoolSize": 2,\n');
-        wstream.write('        "readPreference": "secondaryPreferred",\n');
-        wstream.write('        "replicaSet": "' + param.rsName + '",\n');
-        wstream.write('        "w": "majority",\n');
-        wstream.write('        "ha": true,\n');
-        wstream.write('        "slaveOk": true\n');
-        wstream.write('    },\n');
-        wstream.write('    "extraParam": {\n');
-        wstream.write('        "db": {\n');
-        wstream.write('            "native_parser": true,\n');
-        wstream.write('            "bufferMaxEntries": 0\n');
-        wstream.write('       },\n');
-        wstream.write('       "replSet": {\n');
-        wstream.write('            "ha": true\n');
-        wstream.write('        },\n');
-	    wstream.write('       "server": {\n');
-	    wstream.write('            "auto_reconnect": true\n');
-	    wstream.write('        }\n');
-        wstream.write('    }\n');
-        wstream.write('};\n');
-
-        wstream.end();
-        return cb(null);
+        
+        var profile = {
+	        "name": "core_provision",
+	        "prefix": mongoPrefix,
+	        "servers": [],
+	        "credentials": null,
+	        "URLParam": {
+		        "maxPoolSize": 2,
+		        "readPreference": "secondaryPreferred",
+		        "replicaSet": param.rsName,
+		        "w": "majority",
+		        "ha": true
+	        },
+	        "extraParam": {
+		        "db": {
+			        "bufferMaxEntries": 0
+		        },
+		        "replSet": {
+			        "ha": true,
+			        "poolSize": 2
+		        }
+	        }
+        };
+        
+	    /**
+	     * add the server's informaition
+	     */
+	    profile = lib.updateServersList(param, profile);
+	
+	    /**
+	     * add the credentials information if any
+	     */
+	    profile = lib.updatedCredentials(profile);
+	
+	    lib.writeProfile(param, profile, cb);
     }
 };
 
@@ -137,6 +155,9 @@ if (mongoNb === 1) {
         "portDefault": 27017,
         "ssl": process.env.SOAJS_MONGO_SSL || false
     }, function (err) {
+    	if(err){
+    		throw err;
+	    }
         console.log("PROFILE SINGLE DONE.");
     });
 } else if (mongoNb > 1) {
@@ -150,6 +171,10 @@ if (mongoNb === 1) {
         "ssl": process.env.SOAJS_MONGO_SSL || false,
         "rsName": mongoRsName
     }, function (err) {
+	    if(err){
+		    throw err;
+	    }
+	    
         console.log("PROFILE REPLICA DONE.");
     });
 } else {
