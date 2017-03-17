@@ -35,7 +35,7 @@ SOAJS_NX_SITE_DOMAIN | This is the domain for API |  |
 SOAJS_NX_SITE_PATH | This is the path where to deploy the static content | [/opt/soajs/site] | 
 SOAJS_NX_SITE_HTTPS | This is to turn on or off HTTPS: [0 - 1] | [0] | 
 SOAJS_NX_SITE_HTTP_REDIRECT | This is to redirect HTTP to HTTPS: [0 - 1] | [0] | 
-SOAJS_NX_OS | The OS. Default [ubuntu] |  | 
+SOAJS_NX_OS | The OS. Default [ubuntu] |  |
 
 #### MONGO
 ENV Variable | Description | Default | Example
@@ -56,3 +56,6 @@ SOAJS_GIT_REPO | This is the GIT repo name |  |
 SOAJS_GIT_BRANCH | This the GIT repo branch | [master] | 
 SOAJS_GIT_TOKEN | This is the GIT account token |  | 
 SOAJS_GIT_DASHBOARD_BRANCH | This is the GIT repo branch for soajs.dashboard | [ master] | 
+
+#### NODEJS
+SOAJS_SRV_MEMORY | defines a custom value for nodejs memory limit
