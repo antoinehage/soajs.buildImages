@@ -199,10 +199,15 @@ function serviceRun() {
     echo $'\n- SOAJS Deployer starting service ... '
     echo "    -->    ${DEPLOY_FOLDER}${SOAJS_GIT_REPO}${MAIN}"
 
+    local NODE_PARAMS=""
+    if [ -n "${SOAJS_SRV_MEMORY}" ]; then
+        NODE_PARAMS="--max_old_space_size="${SOAJS_SRV_MEMORY}
+    fi
+
     #TODO: merge all clean calls into one function
     local SOAJS_GIT_REPO_CLEAN=$(echo ${SOAJS_GIT_REPO} | sed -e 's/[\\/\*\?"<>\|,\.-]/_/g' | awk '{print tolower($0)}')
     local SOAJS_HA_NAME_CLEAN=$(echo ${SOAJS_HA_NAME} | cut -d "." -f 1,2 | sed -e 's/[\\/\*\?"<>\|,\.-]/_/g' | awk '{print tolower($0)}')
-    node ${DEPLOY_FOLDER}${SOAJS_GIT_REPO}${MAIN} 2>&1 | tee /var/log/soajs/${SOAJS_ENV}-${SOAJS_GIT_REPO_CLEAN}-${SOAJS_HA_NAME_CLEAN}-service.log
+    node ${NODE_PARAMS} ${DEPLOY_FOLDER}${SOAJS_GIT_REPO}${MAIN} 2>&1 | tee /var/log/soajs/${SOAJS_ENV}-${SOAJS_GIT_REPO_CLEAN}-${SOAJS_HA_NAME_CLEAN}-service.log
 }
 function serviceCode() {
     if [ ${SOAJS_GIT_REPO} ] && [ ${SOAJS_GIT_OWNER} ]; then
