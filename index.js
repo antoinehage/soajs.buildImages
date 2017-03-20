@@ -14,7 +14,7 @@ var archiver = require('archiver');
 
 //schema validation
 var validatorSchemas = require("./schemas");
-var core = require("soajs/modules/soajs.core");
+var core = require("soajs.core.modules").core;
 var validator = new core.validator.Validator();
 
 var service = new soajs.server.service({"config": config});

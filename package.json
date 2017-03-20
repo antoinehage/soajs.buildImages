@@ -27,6 +27,7 @@
     "mkdirp": "*",
     "ncp": "*",
     "rimraf": "*",
-    "soajs": "*"
+    "soajs": "*",
+    "soajs.core.modules": "git+https://github.com/soajs/soajs.core.modules.git#develop"
   }
 }
