@@ -134,6 +134,11 @@ function deployNginx() {
         if [ ! -f "${nginxPath}/ssl/dhparam2048.pem" ]; then
             openssl dhparam -outform pem -out ${nginxPath}/ssl/dhparam2048.pem 2048
         fi
+        if [ "${SOAJS_NX_CUSTOM_SSL}" != 1 ]; then
+            if [ ! -f "${nginxPath}/ssl/tls.crt" ] || [ ! -f "${nginxPath}/ssl/tls.key" ]; then
+                openssl req -x509 -newkey rsa:4096 -keyout ${nginxPath}/ssl/tls.key -out ${nginxPath}/ssl/tls.crt -days 365 -nodes -subj "/CN="${NGINX_MASTER_DOMAIN}";"
+            fi
+        fi
     else
         echo $'\n- SOAJS Deployer skipped pem file. SSL is NOT supported in this container'
     fi
@@ -207,7 +212,7 @@ function serviceRun() {
     #TODO: merge all clean calls into one function
     local SOAJS_GIT_REPO_CLEAN=$(echo ${SOAJS_GIT_REPO} | sed -e 's/[\\/\*\?"<>\|,\.-]/_/g' | awk '{print tolower($0)}')
     local SOAJS_HA_NAME_CLEAN=$(echo ${SOAJS_HA_NAME} | cut -d "." -f 1,2 | sed -e 's/[\\/\*\?"<>\|,\.-]/_/g' | awk '{print tolower($0)}')
-    
+
     echo 'node '${NODE_PARAMS}' '${DEPLOY_FOLDER}${SOAJS_GIT_REPO}${MAIN}' 2>&1 | tee /var/log/soajs/'${SOAJS_ENV}'-'${SOAJS_GIT_REPO_CLEAN}'-'${SOAJS_HA_NAME_CLEAN}'-service.log'
     node ${NODE_PARAMS} ${DEPLOY_FOLDER}${SOAJS_GIT_REPO}${MAIN} 2>&1 | tee /var/log/soajs/${SOAJS_ENV}-${SOAJS_GIT_REPO_CLEAN}-${SOAJS_HA_NAME_CLEAN}-service.log
 }
@@ -342,6 +347,11 @@ SOURCE="github"
 SOURCE_DOMAIN="github.com"
 REBUILD_NX_CONF=0
 REBUILD_SERVICE_PROFILE=0
+NGINX_MASTER_DOMAIN="soajs.org"
+if [ -n ${SOAJS_NX_DOMAIN} ]; then
+    NGINX_MASTER_DOMAIN=${SOAJS_NX_DOMAIN}
+fi
+
 while getopts T:X:M:PLSsg:G:c OPT; do
 	case "${OPT}" in
         T)

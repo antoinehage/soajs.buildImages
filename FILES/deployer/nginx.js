@@ -15,6 +15,9 @@ var httpSiteRedirect = (httpsSite && process.env.SOAJS_NX_SITE_HTTP_REDIRECT && 
 var nxOs = process.env.SOAJS_NX_OS || "ubuntu";
 var nxLocation = process.env.SOAJS_NX_LOC || "/etc/nginx";
 
+var nxCustomCerts = (process.env.SOAJS_NX_CUSTOM_SSL && (process.env.SOAJS_NX_CUSTOM_SSL == 1 ? true : false)) || false;
+var nxCustomCertsLoc = process.env.SOAJS_NX_SSL_CERTS_LOCATION || "/etc/ssl";
+
 var lib = {
     "writeUpstream": function (param, cb) {
         console.log("writing upstream.conf in " + param.loc);
@@ -56,8 +59,11 @@ var lib = {
         wstream.write("}\n");
     },
     "writeServerSSL": function (wstream) {
-        wstream.write("  ssl_certificate         " + nxLocation + "/ssl/domainname-chained.crt;\n");
-        wstream.write("  ssl_certificate_key     " + nxLocation + "/ssl/domainname-chained.key;\n");
+        var location = nxLocation;
+        if (nxCustomCerts) location = nxCustomCertsLoc;
+
+        wstream.write("  ssl_certificate         " + location + "/tls.crt;\n");
+        wstream.write("  ssl_certificate_key     " + location + "/tls.key;\n");
         wstream.write("  include " + nxLocation + "/ssl/ssl.conf;\n");
     },
     "writeServer": function (param, wstream) {
