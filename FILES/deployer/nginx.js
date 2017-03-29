@@ -16,7 +16,7 @@ var nxOs = process.env.SOAJS_NX_OS || "ubuntu";
 var nxLocation = process.env.SOAJS_NX_LOC || "/etc/nginx";
 
 var nxCustomCerts = (process.env.SOAJS_NX_CUSTOM_SSL && (process.env.SOAJS_NX_CUSTOM_SSL == 1 ? true : false)) || false;
-var nxCustomCertsLoc = process.env.SOAJS_NX_SSL_CERTS_LOCATION || "/etc/ssl";
+var nxCustomCertsLoc = process.env.SOAJS_NX_SSL_CERTS_LOCATION || "/etc/soajs/ssl";
 
 var lib = {
     "writeUpstream": function (param, cb) {
@@ -59,11 +59,11 @@ var lib = {
         wstream.write("}\n");
     },
     "writeServerSSL": function (wstream) {
-        var location = nxLocation;
-        if (nxCustomCerts) location = nxCustomCertsLoc;
+        var certsLocation = nxLocation + "/ssl";
+        if (nxCustomCerts) certsLocation = nxCustomCertsLoc;
 
-        wstream.write("  ssl_certificate         " + location + "/tls.crt;\n");
-        wstream.write("  ssl_certificate_key     " + location + "/tls.key;\n");
+        wstream.write("  ssl_certificate         " + certsLocation + "/tls.crt;\n");
+        wstream.write("  ssl_certificate_key     " + certsLocation + "/tls.key;\n");
         wstream.write("  include " + nxLocation + "/ssl/ssl.conf;\n");
     },
     "writeServer": function (param, wstream) {
