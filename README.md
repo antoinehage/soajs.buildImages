@@ -37,7 +37,8 @@ SOAJS_NX_SITE_PATH | This is the path where to deploy the static content | [/opt
 SOAJS_NX_SITE_HTTPS | This is to turn on or off HTTPS: [0 - 1] | [0] |
 SOAJS_NX_SITE_HTTP_REDIRECT | This is to redirect HTTP to HTTPS: [0 - 1] | [0] |
 SOAJS_NX_CUSTOM_SSL | This is to specify user-provided certificates: [0 - 1]| [0] |
-SOAJS_NX_SSL_CERTS_LOCATION | This is to specify the location of user-provided certificates | [/etc/ssl] |
+SOAJS_NX_SSL_CERTS_LOCATION | This is to specify the location of user-provided certificates | [/etc/soajs/ssl] |
+SOAJS_NX_SSL_SECRET | This is to specify the name of user-provided kubernetes secret that contains certificates | |
 SOAJS_NX_OS | The OS. Default [ubuntu] |  |
 
 #### MONGO
