@@ -108,17 +108,17 @@ function nxDeploySuccess() {
     echo "- Nginx config preparation done successfully"
     nxFetchCode
 
-    startTopbeat
+    # startTopbeat
 
     echo $'\n- SOAJS Deployer starting nginx ... '
     service nginx start
 }
-function nxRedeploySuccess() {
-    echo "- Nginx config preparation done successfully"
-    nxFetchCode
-    echo $'\n- SOAJS Deployer reloading nginx ... '
-    nginx -s reload
-}
+# function nxRedeploySuccess() {
+#     echo "- Nginx config preparation done successfully"
+#     nxFetchCode
+#     echo $'\n- SOAJS Deployer reloading nginx ... '
+#     nginx -s reload
+# }
 function nxFailure() {
     echo "ERROR: nginx deployer failed .... exiting :( !"
 }
@@ -153,25 +153,25 @@ function deployNginx() {
     local b=$!
     wait $b && nxDeploySuccess || nxFailure
 }
-function reDeployNginx() {
-    echo $'\n- SOAJS Deployer - reDeploying nginx ...'
-    if [ ${REBUILD_NX_CONF} == 0 ]; then
-        nxFetchCode
-    else
-        node ./nginx.js &
-        local b=$!
-        wait $b && nxRedeploySuccess || nxFailure
-    fi
-}
-function persistNginxEnvsBuild() {
-    node ./nginxEnvsPersist.js
-}
-function persistNginxEnvsExec() {
-    if [ -f "/opt/soajs/FILES/nginxEnvsPersist.sh" ]; then
-        chmod 777 /opt/soajs/FILES/nginxEnvsPersist.sh
-        /opt/soajs/FILES/nginxEnvsPersist.sh
-    fi
-}
+# function reDeployNginx() {
+#     echo $'\n- SOAJS Deployer - reDeploying nginx ...'
+#     if [ ${REBUILD_NX_CONF} == 0 ]; then
+#         nxFetchCode
+#     else
+#         node ./nginx.js &
+#         local b=$!
+#         wait $b && nxRedeploySuccess || nxFailure
+#     fi
+# }
+# function persistNginxEnvsBuild() {
+#     node ./nginxEnvsPersist.js
+# }
+# function persistNginxEnvsExec() {
+#     if [ -f "/opt/soajs/FILES/nginxEnvsPersist.sh" ]; then
+#         chmod 777 /opt/soajs/FILES/nginxEnvsPersist.sh
+#         /opt/soajs/FILES/nginxEnvsPersist.sh
+#     fi
+# }
 # ------ NGINX END
 
 # ------ SERVICE BEGIN
@@ -188,18 +188,18 @@ function serviceDependencies() {
     npm ls
     popd > /dev/null 2>&1
 }
-function serviceCodePull() {
-    echo $'\n- SOAJS Deployer - reDeploying service ...'
-    pushd ${DEPLOY_FOLDER}${SOAJS_GIT_REPO} > /dev/null 2>&1
-    local BRANCH="master"
-    if [ -n "${SOAJS_GIT_BRANCH}" ]; then
-        BRANCH=${SOAJS_GIT_BRANCH}
-    fi
-    echo $'\- Pulling new code ... '
-    git checkout ${BRANCH}
-    git pull
-    popd > /dev/null 2>&1
-}
+# function serviceCodePull() {
+#     echo $'\n- SOAJS Deployer - reDeploying service ...'
+#     pushd ${DEPLOY_FOLDER}${SOAJS_GIT_REPO} > /dev/null 2>&1
+#     local BRANCH="master"
+#     if [ -n "${SOAJS_GIT_BRANCH}" ]; then
+#         BRANCH=${SOAJS_GIT_BRANCH}
+#     fi
+#     echo $'\- Pulling new code ... '
+#     git checkout ${BRANCH}
+#     git pull
+#     popd > /dev/null 2>&1
+# }
 function serviceRun() {
     echo $'\n- SOAJS Deployer starting service ... '
     echo "    -->    ${DEPLOY_FOLDER}${SOAJS_GIT_REPO}${MAIN}"
@@ -227,13 +227,13 @@ function serviceCode() {
             clone ${SOAJS_GIT_REPO} ${SOAJS_GIT_OWNER} ${BRANCH} ${SOURCE} ${SOURCE_DOMAIN} ${SOAJS_GIT_TOKEN}
             # popd > /dev/null 2>&1
             popd
-        else
-            serviceCodePull
+        # else
+        #     serviceCodePull
         fi
 
         serviceDependencies
 
-        startTopbeat
+        # startTopbeat
 
         serviceRun
     else
@@ -280,43 +280,43 @@ function deployService() {
     wait $b && serviceEnv || serviceFailure
 
 }
-function reDeployService() {
-    if [ ${REBUILD_SERVICE_PROFILE} == 1 ]; then
-        node ./profile.js &
-    fi
-    if [ ${SOAJS_GIT_REPO} ] && [ ${SOAJS_GIT_OWNER} ]; then
-        serviceCodePull
-        serviceDependencies
-    else
-        echo "ERROR: unable to find environment variable SOAJS_GIT_REPO or SOAJS_GIT_OWNER. nothing to re-deploy"
-    fi
-}
-function persistServiceEnvsBuild() {
-    node ./serviceEnvsPersist.js
-}
-function persistServiceEnvsExec() {
-    if [ -f "/opt/soajs/FILES/serviceEnvsPersist.sh" ]; then
-        chmod 777 /opt/soajs/FILES/serviceEnvsPersist.sh
-        /opt/soajs/FILES/serviceEnvsPersist.sh
-    fi
-}
+# function reDeployService() {
+#     if [ ${REBUILD_SERVICE_PROFILE} == 1 ]; then
+#         node ./profile.js &
+#     fi
+#     if [ ${SOAJS_GIT_REPO} ] && [ ${SOAJS_GIT_OWNER} ]; then
+#         serviceCodePull
+#         serviceDependencies
+#     else
+#         echo "ERROR: unable to find environment variable SOAJS_GIT_REPO or SOAJS_GIT_OWNER. nothing to re-deploy"
+#     fi
+# }
+# function persistServiceEnvsBuild() {
+#     node ./serviceEnvsPersist.js
+# }
+# function persistServiceEnvsExec() {
+#     if [ -f "/opt/soajs/FILES/serviceEnvsPersist.sh" ]; then
+#         chmod 777 /opt/soajs/FILES/serviceEnvsPersist.sh
+#         /opt/soajs/FILES/serviceEnvsPersist.sh
+#     fi
+# }
 # ------ SERVICE END
 
 # ------ COMMON FUNCTIONS START
-function startTopbeat() {
-    echo 'SOAJS Deployer Starting Topbeat ...'
-
-    if [ ${DEPLOY_TYPE} == 1 ]; then
-        export SOAJS_SERVICE_NAME='nginx'
-    else
-        export SOAJS_SERVICE_NAME=$(echo ${SOAJS_GIT_REPO} | sed -e 's/[\\/\*\?"<>\|,\.-]/_/g' | awk '{print tolower($0)}')
-    fi
-
-    export SOAJS_HA_NAME_CLEAN=$(echo ${SOAJS_HA_NAME} | cut -d "." -f 1,2 | sed -e 's/[\\/\*\?"<>\|,\.-]/_/g' | awk '{print tolower($0)}')
-
-    topbeat -e -c /etc/topbeat/topbeat.yml &
-    disown
-}
+# function startTopbeat() {
+#     echo 'SOAJS Deployer Starting Topbeat ...'
+#
+#     if [ ${DEPLOY_TYPE} == 1 ]; then
+#         export SOAJS_SERVICE_NAME='nginx'
+#     else
+#         export SOAJS_SERVICE_NAME=$(echo ${SOAJS_GIT_REPO} | sed -e 's/[\\/\*\?"<>\|,\.-]/_/g' | awk '{print tolower($0)}')
+#     fi
+#
+#     export SOAJS_HA_NAME_CLEAN=$(echo ${SOAJS_HA_NAME} | cut -d "." -f 1,2 | sed -e 's/[\\/\*\?"<>\|,\.-]/_/g' | awk '{print tolower($0)}')
+#
+#     topbeat -e -c /etc/topbeat/topbeat.yml &
+#     disown
+# }
 # ------ COMMON FUNCTIONS END
 
 # DEPLOY_TYPE
