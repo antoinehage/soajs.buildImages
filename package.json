@@ -23,6 +23,7 @@
   },
   "dependencies": {
     "archiver": "*",
+    "async": "2.1.4",
     "dockerode": "*",
     "mkdirp": "*",
     "ncp": "*",
