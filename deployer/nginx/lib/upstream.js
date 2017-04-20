@@ -1,6 +1,7 @@
 'use strict';
 
 const fs = require('fs');
+const path = require('path');
 const async = require('async');
 const log = require('util').log;
 
@@ -24,7 +25,7 @@ let upstream = {
             options.config.setup[env].nginx.upstream &&
             options.config.setup[env].nginx.upstream.path) {
 
-            let upstreamPath = options.paths.configRepo.path + options.config.setup[env].nginx.upstream.path;
+            let upstreamPath = path.join(options.paths.configRepo.path, options.config.setup[env].nginx.upstream.path);
             if (upstreamPath.chatAt(upstreamPath.length - 1) !== '/') upstreamPath += '/';
 
             // check access to specified upstream folder path
@@ -66,7 +67,7 @@ let upstream = {
 
             // read the contents of all upstream files and pass them to the 'process' function
             async.map(files, (oneFile, callback) {
-                let onePath = options.paths.upstream.path + oneFile;
+                let onePath = path.join (options.paths.upstream.path, oneFile);
                 fs.readFile(onePath, (error, fileData) => {
                     if (error) {
                         log('An error occured while reading ' + onePath + ', skipping file ...');
@@ -140,7 +141,7 @@ let upstream = {
         let nxOs = options.nginx.os;
         let nxUpstreamDir = options.nginx.location + ((nxOs === 'mac') ? "/servers/" : ( nxOs === 'ubuntu') ? "/conf.d/" : "/nginx/");
         async.eachOf(options.data.updatedUpstreams, (oneUpstream, index, callback) => {
-            let upstreamFilePath = nxUpstreamDir + 'upstream-' + index;
+            let upstreamFilePath = path.join (nxUpstreamDir, 'upstream-' + index);
             fs.writeFile(upstreamFilePath, (error) => {
                 if (error) {
                     log('An error occured while writing ' + upstreamFilePath + ', skipping file ...');
