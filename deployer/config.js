@@ -4,6 +4,10 @@ const path = require('path');
 
 module.exports = {
 
+    deploy: {
+        types: ['service', 'nginx']
+    },
+
     paths: {
         configRepo: {
             path: __dirname + '/configRepo/'
