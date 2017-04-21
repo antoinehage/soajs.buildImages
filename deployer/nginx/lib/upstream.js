@@ -15,7 +15,7 @@ let upstream = {
      */
     get(options, cb) {
         log('Fetching custom upstream files ...');
-        let env = process.env.SOAJS_ENV || 'dev';
+        let env = process.env.SOAJS_ENV.toLowerCase() || 'dev';
 
         // if config repo contains upstream files, process them
         if (options.config &&
