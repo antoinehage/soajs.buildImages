@@ -5,6 +5,7 @@ const path = require('path');
 const log = require('util').log;
 const ncp = require('ncp');
 const async = require('async');
+const rimraf = require('rimraf');
 
 const utils = require('../../utils.js');
 
@@ -132,15 +133,10 @@ let sites = {
                     }
 
                     // delete contents of temp before cloning a new repository into it
-                    // deleting whole folder and recreating it to avoid manually scanning the folder recursively and deleting its contents
-                    fs.rmdir(source, (error) => {
+                    rimraf(source, (error) => {
                         if (error) log(error);
 
-                        fs.mkdir(source, (error) => {
-                            if (error) log(error);
-
-                            return setTimeout(callback, 100);
-                        });
+                        return setTimeout(callback, 100);
                     })
                 });
             });
