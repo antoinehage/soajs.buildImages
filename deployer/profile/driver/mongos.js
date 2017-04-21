@@ -45,13 +45,9 @@ var shardProfile = {
 
         "ha": true,                                 //Turn on high availability monitoring.
         "haInterval": 10000,                        //Time between each replicaset status check
-        "replicaSet": null,
-        "secondaryAcceptableLatencyMS": 15,         //Sets the range of servers to pick when using NEAREST
         "acceptableLatencyMS": 15,                  //Sets the range of servers to pick when using NEAREST
-        "connectWithNoPrimary": false,              //Sets if the driver should connect even if no primary is available
 
         "authSource": null,                         //specify a db to authenticate the user if the one he is connecting to doesn't do that
-
         "w": "majority",                            //values majority|number|<tag set>
         "wtimeout": 0,                            //timeout for w, 0 is for never
         "j": false,                                 //Specify a journal write concern.
@@ -71,7 +67,6 @@ var shardProfile = {
         "promiseLibrary": null,                     //A Promise library class the application wishes to use such as Bluebird, must be ES6 compatible
         "readConcern": null,
 
-        "maxStalenessSeconds": 10,                  //The max staleness to secondary reads (values under 10 seconds cannot be guaranteed);
         "loggerLevel": null,     //The logging level
         "logger": null                                //Custom logger object
     }
