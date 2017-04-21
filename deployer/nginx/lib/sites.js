@@ -31,6 +31,7 @@ let sites = {
             let sitesPath = path.join(options.paths.configRepo.path, options.config.setup[env].nginx.sites.path);
             let sitesConfig = {};
 
+            // check if sites.json exists and readable
             fs.access(sitesPath, fs.constants.F_OK | fs.constants.R_OK | fs.constants.W_OK, (error) => {
                 if (error) {
                     log('UI repositories config file detected but not reachable, skipping ...');
@@ -39,6 +40,7 @@ let sites = {
                     return cb();
                 }
 
+                // require sites.json file
                 try {
                     sitesConfig = require(sitesPath);
                 }
@@ -62,6 +64,7 @@ let sites = {
      */
     prepare(options, cb) {
         log('Creating temp folders ...');
+        // clean (if needed) and create temp file where each repo will be cloned seperately
         fs.rmdir(options.paths.tempFolders.temp.path, (error) => {
             if (error && error.code !== 'ENOENT') {
                 log(`Unable to clean ${options.paths.tempFolders.temp.path} folder, proceeding anyways ...`);
@@ -75,6 +78,7 @@ let sites = {
                     return cb();
                 }
 
+                // clean (if needed) and create temp_site file where repos will be merged into one folder
                 fs.rmdir(options.paths.tempFolders.tempSite.path, (error) => {
                     if (error && error.code !== 'ENOENT') {
                         log(`Unable to clean ${options.paths.tempFolders.tempSite.path} folder, proceeding anyways ...`);
@@ -105,6 +109,7 @@ let sites = {
     clone(options, cb) {
         log(`Cloning ${options.sitesConfig.sites.length} UI repositories ...`);
 
+        // go through each site config and clone the repository
         async.eachSeries(options.sitesConfig.sites, (oneSite, callback) => {
             let cloneOptions = {
                 repo: oneSite,
@@ -117,6 +122,7 @@ let sites = {
                     return callback(error)
                 }
 
+                //copy repo contents from temp to temp_site (overwrite)
                 let source = path.join(options.paths.tempFolders.temp.path, '/');
                 let destination = path.join (options.paths.tempFolders.tempSite.path, '/');
                 ncp(source, destination, { clobber: true }, (error) => {
@@ -125,7 +131,17 @@ let sites = {
                         log(error);
                     }
 
-                    return callback();
+                    // delete contents of temp before cloning a new repository into it
+                    // deleting whole folder and recreating it to avoid manually scanning the folder recursively and deleting its contents
+                    fs.rmdir(source, (error) => {
+                        if (error) log(error);
+
+                        fs.mkdir(source, (error) => {
+                            if (error) log(error);
+
+                            return setTimeout(callback, 100);
+                        });
+                    })
                 });
             });
         }, (error) => {
@@ -145,6 +161,7 @@ let sites = {
      *
      */
     finalize(options, cb) {
+        // copy contents of temp_site to nginx site location
         let nxPath = config.nginx.siteLocation;
         let tempPath = path.join(options.paths.tempFolders.temp.path, '/');
         let tempSitePath = path.join (options.paths.tempFolders.tempSite.path, '/');
@@ -154,6 +171,7 @@ let sites = {
                 throw new Error(error);
             }
 
+            // remove temp_site and temp folders
             fs.rmdir(tempSitePath, (error) => {
                 if (error) {
                     log(`Unable to delete ${tempSitePath}`);
