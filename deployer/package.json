@@ -23,6 +23,7 @@
     "commander": "2.9.0",
     "nodegit": "0.18.0",
     "ncp": "*",
+    "openssl-wrapper": "0.3.4",
     "rimraf": "*"
   }
 }

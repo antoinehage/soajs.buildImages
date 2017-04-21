@@ -26,6 +26,7 @@ const config = {
         os: process.env.SOAJS_NX_OS || 'ubuntu',
         location: process.env.SOAJS_NX_LOC || '/etc/nginx',
         siteLocation: ((process.env.SOAJS_NX_SITE_PATH) ? path.join(process.env.SOAJS_NX_SITE_PATH, '/') : '/opt/soajs/site/'),
+        masterDomain: process.env.SOAJS_NX_DOMAIN || 'soajs.org',
         config: {
             upstream: {
                 ctrlPort: '4000',
