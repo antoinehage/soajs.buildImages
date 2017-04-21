@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "async": "2.1.4",
+    "fs-extra": "*",
     "nodegit": "0.18.0",
     "ncp": "*",
     "rimraf": "*"
