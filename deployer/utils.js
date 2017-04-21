@@ -44,8 +44,10 @@ let utils = {
                 return cb(null, repo);
             })
             .catch(function (error) {
-                log(`Unable to clone repository ${options.repo.git.owner}/${options.repo.git.repo}`);
-                throw new Error(error);
+                if (error) {
+                    log(`Unable to clone repository ${options.repo.git.owner}/${options.repo.git.repo}`);
+                    throw new Error(error);
+                }
             });
         }
         else {
