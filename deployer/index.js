@@ -4,6 +4,7 @@ const script = require('commander');
 const log = require('util').log;
 
 const config = require('./config.js');
+const utils = require('./utils.js');
 const version = require('./package.json').version;
 
 script
@@ -18,11 +19,31 @@ if (config.deploy.types.indexOf(script.type) === -1) {
 }
 
 log(`Starting SOAJS Deployer v${version}`);
-log(`Deploying a new ${script.type} instance ...`);
 
-if (script.type === 'service') {
-    require('./service');
+log(`Looking for configuration repository settings ...`)
+if (process.env.SOAJS_CONFIG_REPO_OWNER && process.env.SOAJS_CONFIG_REPO_NAME) {
+    log('Configuration repository detected, cloning ...');
+    let cloneOptions = {
+        clonePath: config.paths.configRepo.path,
+        repo: config.configRepo.git
+    };
+    utils.clone(cloneOptions, (error) => {
+        if (error) throw new Error(error);
+
+        deploy();
+    });
 }
-else if (script.type === 'nginx') {
-    require('./nginx');
+else {
+    log(`No configuration repository detected, proceeding ...`);
+    deploy();
+}
+
+function deploy() {
+    log(`Deploying a new ${script.type} instance ...`);
+    if (script.type === 'service') {
+        require('./service');
+    }
+    else if (script.type === 'nginx') {
+        require('./nginx');
+    }
 }
