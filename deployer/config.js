@@ -1,16 +1,27 @@
 'use strict';
 
+const path = require('path');
+
 module.exports = {
 
     paths: {
         configRepo: {
             path: __dirname + '/configRepo/'
+        },
+        tempFolders: {
+            temp: {
+                path: __dirname + '/temp/'
+            },
+            tempSite: {
+                path: ((process.env.SOAJS_NX_SITE_PATH) ? path.join(process.env.SOAJS_NX_SITE_PATH, '/temp_site') : '/opt/soajs/site/temp_site')
+            }
         }
     },
 
     nginx: {
         os: process.env.SOAJS_NX_OS || 'ubuntu',
-        location: process.env.SOAJS_NX_LOC || '/etc/nginx'
+        location: process.env.SOAJS_NX_LOC || '/etc/nginx',
+        siteLocation: ((process.env.SOAJS_NX_SITE_PATH) ? path.join(process.env.SOAJS_NX_SITE_PATH, '/') : '/opt/soajs/site/')
     },
 
     configRepo: {
