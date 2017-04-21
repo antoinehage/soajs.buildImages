@@ -20,10 +20,9 @@
   },
   "dependencies": {
     "async": "2.1.4",
-    "commander": "2.9.0",
+    "fs-extra": "*",
     "nodegit": "0.18.0",
     "ncp": "*",
-    "openssl-wrapper": "0.3.4",
     "rimraf": "*"
   }
 }

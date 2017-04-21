@@ -1,6 +1,5 @@
 "use strict";
 const fs = require('fs');
-const exec = require('child_process').exec;
 const util = require('util');
 
 var mongoNbTemp = process.env.SOAJS_MONGO_NB || 1;
@@ -11,7 +10,7 @@ const mongoProfileFolder = __dirname + "/driver/";
 
 const profileLocation = process.env.SOAJS_PROFILE_LOC || "/opt/soajs/FILES/profiles/";
 
-var helperFunctions = {
+let helperFunctions = {
     /**
      * clones a JSON object
      * @param obj
@@ -86,7 +85,7 @@ var helperFunctions = {
     },
 };
 
-var utils = {
+let utils = {
     /**
      * function that writes a profile file from the generated cluster configuration
      * @param {Object} param
@@ -122,7 +121,7 @@ var utils = {
     }
 };
 
-var lib = {
+let lib = {
     /**
      * Creates (or copies) a profile based on available environment variables and deploys it in a specified directory
      * inside the container
@@ -147,7 +146,8 @@ var lib = {
                            util.log(error)
                            throw new Error("Error while copying the custom profile to: " + profileLocation);
                        }
-                       util.log("Successfully copied the custom profile from " + profilePath + " to " + profileLocation)
+                       util.log("Successfully copied the custom profile from " + profilePath + " to " + profileLocation);
+                       return cb(null, true);
                     });
                 }
             });
@@ -166,11 +166,12 @@ var lib = {
                     "portEnvName": "SOAJS_MONGO_PORT_",
                     "portDefault": 27017,
                     "ssl": process.env.SOAJS_MONGO_SSL || false
-                }, function (err) {
+                }, (err) => {
                     if(err){
                         throw new Error(err);
                     }
                     util.log("Successfully generated a profile for a single mongo instance.");
+                    return cb(null, true);
                 });
             } else if (mongoNb > 1 && mongoRsName) {
                 util.log("Generating a profile for a mongo replica set.");
@@ -184,11 +185,12 @@ var lib = {
                     "portDefault": 27017,
                     "ssl": process.env.SOAJS_MONGO_SSL || false,
                     "rsName": mongoRsName
-                }, function (err) {
+                }, (err) => {
                     if(err){
                         throw err;
                     }
                     util.log("Successfully generated a profile for a mongo replica set.");
+                    return cb(null, true);
                 });
             } else if (mongoNb > 1 && !mongoRsName) {
                 util.log("Generating a profile for a mongo sharded cluster.");
@@ -201,16 +203,17 @@ var lib = {
                     "portEnvName": "SOAJS_MONGO_PORT_",
                     "portDefault": 27017,
                     "ssl": process.env.SOAJS_MONGO_SSL || false,
-                }, function (err) {
+                }, (err) => {
                     if(err){
                         throw err;
                     }
                     util.log("Successfully generated a profile for a mongo sharded cluster.");
+                    return cb(null, true);
                 });
             }
 
             else {
-                util.log("ERROR: PROFILE CREATION FAILED. Environment variable SOAJS_MONGO_NB must be a strict positive integer (greater than 0). [" + mongoNb + "] is invalid.");
+                throw new Error("ERROR: PROFILE CREATION FAILED. Environment variable SOAJS_MONGO_NB must be a strict positive integer (greater than 0). [" + mongoNb + "] is invalid.");
             }
         }
     }
