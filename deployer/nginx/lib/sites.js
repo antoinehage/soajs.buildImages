@@ -55,6 +55,9 @@ let sites = {
                 return sites.clone(options, cb);
             });
         }
+        else {
+            return cb();
+        }
     },
 
     /**
@@ -124,7 +127,7 @@ let sites = {
                 }
 
                 //copy repo contents from temp to temp_site (overwrite)
-                let source = path.join(options.paths.tempFolders.temp.path, '/');
+                let source = path.join(options.paths.tempFolders.temp.path, oneSite.path || '/');
                 let destination = path.join (options.paths.tempFolders.tempSite.path, '/');
                 ncp(source, destination, { clobber: true }, (error) => {
                     if (error) {
@@ -133,7 +136,7 @@ let sites = {
                     }
 
                     // delete contents of temp before cloning a new repository into it
-                    rimraf(source, (error) => {
+                    rimraf(options.paths.tempFolders.temp.path, (error) => {
                         if (error) log(error);
 
                         return setTimeout(callback, 100);
