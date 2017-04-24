@@ -75,18 +75,20 @@ function getDashboardUI(cb) {
     }
 }
 
-const deploy = function (options, cb) {
-    ssl.init(options, () => {
-        conf.write(options, () => {
-            upstream.getUpstream(options, () => {
-                getDashboardUI(() => {
-                    sites.getSites(options, () => {
-                        startNginx(cb);
+const exports = {
+    deploy(options, cb) {
+        ssl.init(options, () => {
+            conf.write(options, () => {
+                upstream.getUpstream(options, () => {
+                    getDashboardUI(() => {
+                        sites.getSites(options, () => {
+                            startNginx(cb);
+                        });
                     });
                 });
             });
         });
-    });
-}
+    }
+};
 
-module.exports = deploy;
+module.exports = exports;

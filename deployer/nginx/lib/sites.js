@@ -97,7 +97,7 @@ let sites = {
                         }
 
                         return sites.clone(options, cb);
-                    }});
+                    });
                 });
             });
         });

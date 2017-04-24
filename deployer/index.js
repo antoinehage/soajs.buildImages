@@ -44,7 +44,9 @@ function deploy() {
     let options = { paths: config.paths };
 
     try {
-        options.config = require(path.join(config.paths.configRepo.path, 'config.json'));
+        if (process.env.SOAJS_CONFIG_REPO_OWNER && process.env.SOAJS_CONFIG_REPO_NAME) {
+            options.config = require(path.join(config.paths.configRepo.path, 'config.json'));
+        }
     }
     catch (e) {
         log('Unable to load config.json from configuration repository ...');

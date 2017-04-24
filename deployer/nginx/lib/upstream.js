@@ -66,7 +66,7 @@ let upstream = {
             }
 
             // read the contents of all upstream files and pass them to the 'process' function
-            async.map(files, (oneFile, callback) {
+            async.map(files, (oneFile, callback) => {
                 let onePath = path.join (options.paths.upstream.path, oneFile);
                 fs.readFile(onePath, (error, fileData) => {
                     if (error) {
@@ -77,7 +77,7 @@ let upstream = {
 
                     return callback(fileData);
                 });
-            }, (error, upstreamData) {
+            }, (error, upstreamData) => {
                 // no error will be returned, errors are only logged and files will be skipped
                 options.data = { upstreams: upstreamData };
                 return upstream.process(options, cb);

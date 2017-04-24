@@ -17,7 +17,7 @@ module.exports = {
             "from": 'FROM soajsorg/basenginx',
             "maintainer": 'MAINTAINER SOAJS Team <team@soajs.org>',
             "body": [
-                'RUN apt-get update && apt-get install --fix-missing -y make g++ libssl-dev', //NOTE: set here temporary for testing, should be moved to base image
+                'RUN apt-get update && apt-get install --fix-missing -y make g++ libssl-dev libcurl3', //NOTE: set here temporary for testing, should be moved to base image
                 'RUN mkdir -p /opt/soajs/FILES/profiles && mkdir -p /opt/soajs/deployer && mkdir -p /etc/nginx/ssl',
                 'ADD ./FILES /opt/soajs/FILES/', // old deployer, will be removed
                 'ADD ./deployer /opt/soajs/deployer/', // new deployer
@@ -31,7 +31,7 @@ module.exports = {
             "from": 'FROM soajsorg/baseservice',
             "maintainer": 'MAINTAINER SOAJS Team <team@soajs.org>',
             "body": [
-                'RUN apt-get update && apt-get install --fix-missing -y libssl-dev', //NOTE: set here temporary for testing, should be moved to base image
+                'RUN apt-get update && apt-get install --fix-missing -y libssl-dev libcurl3', //NOTE: set here temporary for testing, should be moved to base image
                 'RUN mkdir -p /opt/soajs/node_modules && mkdir -p /opt/soajs/FILES/profiles && mkdir -p /opt/soajs/deployer',
                 'ADD ./FILES /opt/soajs/FILES/', // old deployer, will be removed
                 'ADD ./deployer /opt/soajs/deployer/', // new deployer

@@ -192,7 +192,7 @@ let builder = {
             builder.writeApiConf({
                 loc: options.nginx.location + ((nxOs === 'mac') ? "/servers/" : ( nxOs === 'ubuntu') ? "/sites-enabled/" : "/nginx/"),
                 confFileName: options.nginx.config.apiConf.fileName,
-                domain: options.nginx.config.apiConf.domain,,
+                domain: options.nginx.config.apiConf.domain,
                 upstreamName: options.nginx.config.upstream.upstreamName,
             }, () => {
                 log('Nginx API config was written successfully');

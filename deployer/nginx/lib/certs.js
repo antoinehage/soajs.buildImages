@@ -90,5 +90,5 @@ let ssl = {
 };
 
 module.exports = {
-    initSSL: ssl.init
+    init: ssl.init
 }
