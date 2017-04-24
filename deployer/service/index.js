@@ -75,6 +75,7 @@ let utils = {
      */
     accelerateDeployment(options, cb) {
         if(accDeployment){
+            util.log("Copying SOAJS to accelerate deployment.");
             fs.stat(soajsDirectory, (error, stat) => {
                 if(error){
                     throw new error("Cannot find the SOAJS repository in: " + soajsDirectory);
@@ -82,6 +83,7 @@ let utils = {
                 else {
                     fs.stat(serviceDirectory + gitRepo + "/node_modules/", (error2, stat2) => {
                         if(error2){
+                            //create the node_modules directory in which SOAJS will be copied
                             fs.mkdir(serviceDirectory + gitRepo +"/node_modules/soajs/", (error3, res3) => {
                                 //copy the SOAJS repo to the node_modules directory of the service repository
                                 fse.copy(soajsDirectory, serviceDirectory + gitRepo + "/node_modules/soajs/", cb);
@@ -105,6 +107,7 @@ let utils = {
      */
     runService(options, cb) {
         //install the depdendencies
+        util.log("Installing the " + gitRepo + " dependencies.");
         exec("npm install", {
                 cwd: serviceDirectory + gitRepo
             },
@@ -116,6 +119,7 @@ let utils = {
                 exec("node index.js",{
                     cwd: serviceDirectory + gitRepo + "/"
                 }, cb);
+
             });
 
     }
