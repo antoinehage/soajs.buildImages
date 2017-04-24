@@ -17,8 +17,8 @@ const gitProvider = process.env.SOAJS_GIT_PROVIDER || "Github";
 const soajsProfile = process.env.SOAJS_PROFILE;
 const accDeployment = process.env.SOAJS_DEPLOY_ACC;
 
-const serviceDirectory = "/mnt/soajs/node_modules/";
-const soajsDirectory = "/mnt/soajs/FILES/soajs";
+const serviceDirectory = "/opt/soajs/node_modules/";
+const soajsDirectory = "/opt/soajs/FILES/soajs";
 
 let utils = {
     /**
