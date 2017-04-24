@@ -4,6 +4,7 @@ module.exports = {
     extKeyRequired: false,
 
     "FILES": __dirname + "/FILES/",
+    "deployer": __dirname + "/deployer/",
     "workingDir": "/opt/tmp/",
     "localSrcDir": "/opt/soajs/node_modules/",
 
@@ -17,10 +18,9 @@ module.exports = {
             "maintainer": 'MAINTAINER SOAJS Team <team@soajs.org>',
             "body": [
                 'RUN mkdir -p /opt/soajs/FILES/profiles && mkdir -p /etc/nginx/ssl',
-                'ADD ./FILES /opt/soajs/FILES/',
+                'ADD ./FILES /opt/soajs/FILES/', // old deployer, will be removed
+                'ADD ./deployer /opt/soajs/deployer/', // new deployer
                 'RUN cd /opt/soajs/FILES/conf && cp -f nginx.conf /etc/nginx/ && cp -f ssl.conf /etc/nginx/ssl/',
-                'RUN curl -L -O https://download.elastic.co/beats/topbeat/topbeat_1.3.1_amd64.deb && dpkg -i topbeat_1.3.1_amd64.deb',
-                'ADD ./FILES/conf/topbeat.yml /etc/topbeat/',
                 'ENV NODE_ENV=production',
                 'EXPOSE #SERVICEPORT#',
                 'CMD ["/bin/bash"]']
@@ -29,11 +29,10 @@ module.exports = {
             "from": 'FROM soajsorg/baseservice',
             "maintainer": 'MAINTAINER SOAJS Team <team@soajs.org>',
             "body": [
-                'RUN mkdir -p /opt/soajs/node_modules && mkdir -p /opt/soajs/FILES/profiles',
-                'ADD ./FILES /opt/soajs/FILES/',
+                'RUN mkdir -p /opt/soajs/node_modules && mkdir -p /opt/soajs/FILES/profiles && mkdir -p /opt/soajs/deployer',
+                'ADD ./FILES /opt/soajs/FILES/', // old deployer, will be removed
+                'ADD ./deployer /opt/soajs/deployer/', // new deployer
                 'ENV NODE_ENV=production',
-                'RUN curl -L -O https://download.elastic.co/beats/topbeat/topbeat_1.3.1_amd64.deb && dpkg -i topbeat_1.3.1_amd64.deb',
-                'ADD ./FILES/conf/topbeat.yml /etc/topbeat/',
                 'RUN cd /opt/soajs/FILES/soajs && npm install',
                 'CMD ["/bin/bash"]']
         },

@@ -109,6 +109,7 @@ service.init(function () {
                 archive.pipe(output);
                 archive.file(rootFolder + 'Dockerfile', {name: 'Dockerfile'});
                 archive.directory(rootFolder + 'FILES', 'FILES');
+                archive.directory(rootFolder + 'deployer', 'deployer');
                 archive.finalize();
             }
 
@@ -182,10 +183,16 @@ service.init(function () {
                                         "loc": rootFolder + "FILES/"
                                     }, function (err) {
                                         if (err) return cb(err.message);
-                                        if (param.type === "soajs" && path)
-                                            handleServiceFiles(path, rootFolder, serviceInfo);
-                                        else if (param.type === "nginx" || param.type === 'logstash' || param.type === 'filebeat')
-                                            tarFolder(rootFolder, serviceInfo);
+                                        lib.writeFiles({
+                                            "src": config.deployer,
+                                            "loc": rootFolder + "deployer/"
+                                        }, function (err) {
+                                            if (err) return cb(err.message);
+                                            if (param.type === "soajs" && path)
+                                                handleServiceFiles(path, rootFolder, serviceInfo);
+                                            else if (param.type === "nginx" || param.type === 'logstash' || param.type === 'filebeat')
+                                                tarFolder(rootFolder, serviceInfo);
+                                        });
                                     });
                                 });
                             });
