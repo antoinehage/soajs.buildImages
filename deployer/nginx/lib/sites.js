@@ -19,7 +19,7 @@ let sites = {
      */
     get(options, cb) {
         log('Fetching custom UI content ...');
-        let env = process.env.SOAJS_ENV.toLowerCase() || 'dev';
+        let env = ((process.env.SOAJS_ENV) : process.env.SOAJS_ENV.toLowerCase() : 'dev');
 
         // if config repo contains sites.json file, require it
         if (options.config &&

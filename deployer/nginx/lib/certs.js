@@ -72,7 +72,7 @@ let ssl = {
         else {
             // Case 2: user provided certs in config repo
             log('Searching for SSL certificates in configuration repository ...');
-            let env = process.env.SOAJS_ENV.toLowerCase() || 'dev';
+            let env = ((process.env.SOAJS_ENV) : process.env.SOAJS_ENV.toLowerCase() : 'dev');
             if (options.config &&
                 options.config.setup &&
                 options.config.setup[env] &&
