@@ -49,6 +49,16 @@ let ssl = {
     },
 
     /**
+     * Function that checks for certificates provided in a configuration repository or volume
+     * @param  {Object}   options An object that contains params passed to the function
+     * @param  {Function} cb      Callback function
+     *
+     */
+    check(options, cb) {
+        //TODO: implement
+    },
+
+    /**
      * Function that generates self signed certificates
      * @param  {Object}   options An object that contains params passed to the function
      * @param  {Function} cb      Callback function

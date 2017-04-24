@@ -3,6 +3,7 @@
 const script = require('commander');
 const log = require('util').log;
 const path = require('path');
+const fs = require('fs');
 
 const config = require('./config.js');
 const utils = require('./utils.js');
@@ -24,14 +25,18 @@ log(`Starting SOAJS Deployer v${version}`);
 log(`Looking for configuration repository settings ...`)
 if (process.env.SOAJS_CONFIG_REPO_OWNER && process.env.SOAJS_CONFIG_REPO_NAME) {
     log('Configuration repository detected, cloning ...');
-    let cloneOptions = {
-        clonePath: config.paths.configRepo.path,
-        repo: config.configRepo.git
-    };
-    utils.clone(cloneOptions, (error) => {
+    fs.mkdir(config.paths.configRepo.path, (error) => {
         if (error) throw new Error(error);
 
-        deploy();
+        let cloneOptions = {
+            clonePath: config.paths.configRepo.path,
+            repo: { git: config.configRepo.git }
+        };
+        utils.clone(cloneOptions, (error) => {
+            if (error) throw new Error(error);
+
+            deploy();
+        });
     });
 }
 else {
