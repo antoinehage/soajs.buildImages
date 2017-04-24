@@ -1,6 +1,7 @@
 'use strict';
 
 const path = require('path');
+const fs = require('fs');
 const log = require('util').log;
 const async = require('async');
 const openssl = require('openssl-wrapper');
@@ -18,13 +19,13 @@ let ssl = {
             let dhparamFilePath = path.join(options.nginx.location, '/ssl/dhparam2048.pem');
             fs.access(dhparamFilePath, fs.constants.F_OK | fs.constants.R_OK | fs.constants.W_OK, (error) => {
                 if (error && error.code !== 'ENOENT') {
-                    log('Unable to find nginx SSL dhparam file');
+                    log('Error occured while checking for nginx SSL dhparam file');
                     log(error);
                     return cb();
                 }
                 // in case dhparam.pem was not found, generate it
                 else if (error && error.code === 'ENOENT') {
-                    openssl('dhparam', { outform: 'pem', out: dhparamFilePath, '2048': true }, (error, buffer) => {
+                    openssl('dhparam', { outform: 'pem', out: dhparamFilePath, '2048': false }, (error, buffer) => {
                         if (error) {
                             log('Unable to generate nginx SSL dhparam file');
                             log(error);
@@ -63,7 +64,7 @@ let ssl = {
                         return callback(error);
                     }
                     else if (error && error.code === 'ENOENT') {
-                        openssl('req', { x509: true, newKey: true, keyout: onePath, days: '365', nodes: true, subj: `/CN=${config.nginx.masterDomain};` }, (error, buffer) => {
+                        openssl('req', { x509: true, newkey: 'rsa:4096', keyout: oneCert, days: '365', nodes: true, subj: `/CN=${options.nginx.masterDomain};` }, (error, buffer) => {
                             if (error) return callback(error);
 
                             console.log (buffer.toString());
