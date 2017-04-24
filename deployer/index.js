@@ -2,6 +2,7 @@
 
 const script = require('commander');
 const log = require('util').log;
+const path = require('path');
 
 const config = require('./config.js');
 const utils = require('./utils.js');
@@ -14,7 +15,7 @@ script
 
 if (config.deploy.types.indexOf(script.type) === -1) {
     log(`SOAJS deployer is not compatible with the provided type ${script.type}`);
-    log(`Please choose one of ${config.deploy.types.join(', ')}, exiting ...`);
+    log(`Please choose one of ${config.deploy.types.join(', ')}. Exiting ...`);
     process.exit();
 }
 
@@ -40,10 +41,23 @@ else {
 
 function deploy() {
     log(`Deploying a new ${script.type} instance ...`);
+    let options = { paths: config.paths };
+
+    try {
+        options.config = require(path.join(config.paths.configRepo.path, 'config.json'));
+    }
+    catch (e) {
+        log('Unable to load config.json from configuration repository ...');
+        throw new Error(e);
+    }
+
     if (script.type === 'service') {
-        require('./service');
+        const service = require('./service');
+        service.deployService(options, () => {}); //TODO: update callback function
     }
     else if (script.type === 'nginx') {
-        require('./nginx');
+        options.nginx = config.nginx;
+        const nginx = require('./nginx');
+        nginx.deploy(options, () => {}); //TODO: update callback function
     }
 }
