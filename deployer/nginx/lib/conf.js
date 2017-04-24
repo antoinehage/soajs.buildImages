@@ -117,7 +117,7 @@ let builder = {
      *
      */
     writeApiConf(options, cb) {
-        log("writing api conf in " + options.loc + " " + options.confFileName);
+        log("Writing api conf in " + options.loc + " " + options.confFileName);
         let wstream = fs.createWriteStream(options.loc + options.confFileName);
         let httpsApi = config.nginx.config.ssl.httpsApi;
         let httpApiRedirect = config.nginx.config.ssl.httpApiRedirect;
@@ -149,7 +149,7 @@ let builder = {
      *
      */
     writeSiteConf(options, cb) {
-        log("writing site conf in " + options.loc + " " + options.confFileName);
+        log("Writing site conf in " + options.loc + " " + options.confFileName);
         let wstream = fs.createWriteStream(options.loc + options.confFileName);
         let httpsSite = config.nginx.config.ssl.httpsSite;
         let httpSiteRedirect = config.nginx.config.ssl.httpSiteRedirect;

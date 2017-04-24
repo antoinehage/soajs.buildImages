@@ -1,7 +1,10 @@
 'use strict';
 
 const log = require('util').log;
+const path = require('path');
 const async = require('async');
+const rimraf = require('rimraf');
+const ncp = require('ncp');
 const spawn = require('child_process').spawn;
 
 const config = require('../config.js');
@@ -12,13 +15,13 @@ const sites = require('./lib/sites.js');
 const upstream = require('./lib/upstream.js');
 
 function startNginx(cb) {
-    const nginx = spawn('service', [ 'nginx', 'start' ]);
+    const nginx = spawn('service', [ 'nginx', 'start' ], { stdio: 'inherit' });
 
     nginx.stdout.on('data', (data) => {
-        console.log(data);
+        console.log(data.toString());
     });
     nginx.stderr.on('data', (data) => {
-        console.log(data);
+        console.log(data.toString());
     });
 
     nginx.on('close', (code) => {
@@ -45,7 +48,7 @@ function getDashboardUI(cb) {
                         branch: process.env.SOAJS_GIT_DASHBOARD_BRANCH
                     }
                 },
-                clonepath: config.paths.tempFolders.temp.path
+                clonePath: config.paths.tempFolders.temp.path
             };
 
             utils.clone(cloneOptions, (error) => {
