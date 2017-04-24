@@ -181,6 +181,7 @@ let builder = {
      *
      */
     write(options, cb) {
+        let nxOs = options.nginx.os;
         builder.writeUpstream({
             loc: options.nginx.location + ((nxOs === 'mac') ? "/servers/" : ( nxOs === 'ubuntu') ? "/conf.d/" : "/nginx/"),
             port: options.nginx.config.upstream.ctrlPort,
@@ -217,5 +218,5 @@ let builder = {
 };
 
 module.exports = {
-    writeDefaultConf: builder.write
+    write: builder.write
 };

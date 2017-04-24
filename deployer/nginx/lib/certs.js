@@ -1,6 +1,7 @@
 'use strict';
 
 const path = require('path');
+const log = require('util').log;
 const async = require('async');
 const openssl = require('openssl-wrapper');
 

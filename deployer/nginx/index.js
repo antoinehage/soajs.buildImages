@@ -37,13 +37,15 @@ function getDashboardUI(cb) {
             // clone dashboard ui
             let cloneOptions = {
                 repo: {
-                    provider: 'github',
-                    domain: 'github.com',
-                    owner: 'soajs',
-                    repo: 'soajs.dashboard',
-                    branch: process.env.SOAJS_GIT_DASHBOARD_BRANCH
+                    git: {
+                        provider: 'github',
+                        domain: 'github.com',
+                        owner: 'soajs',
+                        repo: 'soajs.dashboard',
+                        branch: process.env.SOAJS_GIT_DASHBOARD_BRANCH
+                    }
                 },
-                clonepath: config.paths.tempFolder.temp.path
+                clonepath: config.paths.tempFolders.temp.path
             };
 
             utils.clone(cloneOptions, (error) => {
