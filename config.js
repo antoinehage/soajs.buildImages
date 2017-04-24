@@ -17,9 +17,11 @@ module.exports = {
             "from": 'FROM soajsorg/basenginx',
             "maintainer": 'MAINTAINER SOAJS Team <team@soajs.org>',
             "body": [
-                'RUN mkdir -p /opt/soajs/FILES/profiles && mkdir -p /etc/nginx/ssl',
+                'RUN apt-get update && apt-get install --fix-missing -y make g++ libssl-dev', //NOTE: set here temporary for testing, should be moved to base image
+                'RUN mkdir -p /opt/soajs/FILES/profiles && mkdir -p /opt/soajs/deployer && mkdir -p /etc/nginx/ssl',
                 'ADD ./FILES /opt/soajs/FILES/', // old deployer, will be removed
                 'ADD ./deployer /opt/soajs/deployer/', // new deployer
+                'RUN cd /opt/soajs/deployer/ && npm install',
                 'RUN cd /opt/soajs/FILES/conf && cp -f nginx.conf /etc/nginx/ && cp -f ssl.conf /etc/nginx/ssl/',
                 'ENV NODE_ENV=production',
                 'EXPOSE #SERVICEPORT#',
@@ -29,9 +31,11 @@ module.exports = {
             "from": 'FROM soajsorg/baseservice',
             "maintainer": 'MAINTAINER SOAJS Team <team@soajs.org>',
             "body": [
+                'RUN apt-get update && apt-get install --fix-missing -y libssl-dev', //NOTE: set here temporary for testing, should be moved to base image
                 'RUN mkdir -p /opt/soajs/node_modules && mkdir -p /opt/soajs/FILES/profiles && mkdir -p /opt/soajs/deployer',
                 'ADD ./FILES /opt/soajs/FILES/', // old deployer, will be removed
                 'ADD ./deployer /opt/soajs/deployer/', // new deployer
+                'RUN cd /opt/soajs/deployer/ && npm install',
                 'ENV NODE_ENV=production',
                 'RUN cd /opt/soajs/FILES/soajs && npm install',
                 'CMD ["/bin/bash"]']
