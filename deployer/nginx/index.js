@@ -22,10 +22,10 @@ const importer = require('./lib/importer.js');
 function startNginx(cb) {
     const nginx = spawn('service', [ 'nginx', 'start' ], { stdio: 'inherit' });
 
-    nginx.stdout.on('data', (data) => {
+    nginx.on('data', (data) => {
         console.log(data.toString());
     });
-    nginx.stderr.on('data', (data) => {
+    nginx.on('data', (data) => {
         console.log(data.toString());
     });
 
@@ -55,8 +55,8 @@ function getUI(options, cb) {
         gitInfo = config.dashboard.git;
     }
     else {
-        if (!options.git || !options.git.owner || !options.git.repo) {
-            log('No or missing git information for custom UI, repository will not be cloned ...');
+        if (!process.env.SOAJS_GIT_OWNER || !process.env.SOAJS_GIT_REPO) {
+            log('No or missing git information for custom UI, no custom UI to clone ...');
             return cb();
         }
 
@@ -84,14 +84,15 @@ function getUI(options, cb) {
         clonePath: config.paths.tempFolders.temp.path
     };
 
+    log(`Cloning ${gitInfo.owner}/${gitInfo.repo} ...`);
     utils.clone(cloneOptions, (error) => {
         if (error) throw new Error(error);
 
-        let source = path.join(config.paths.tempFolders.temp.path, options.git.path || '/');
+        let source = path.join(config.paths.tempFolders.temp.path, gitInfo.path || '/');
         let destination = path.join (config.nginx.siteLocation, '/');
         ncp(source, destination, { clobber: true }, (error) => {
             if (error) {
-                log(`Unable to move contents of ${options.git.owner}/${options.git.repo} to ${destination} ...`);
+                log(`Unable to move contents of ${gitInfo.owner}/${gitInfo.repo} to ${destination} ...`);
                 throw new Error(error);
             }
 
@@ -99,7 +100,7 @@ function getUI(options, cb) {
             rimraf(config.paths.tempFolders.temp.path, (error) => {
                 if (error) log(error);
 
-                log(`${options.git.owner}/${options.git.repo} cloned successfully ...`);
+                log(`${gitInfo.owner}/${gitInfo.repo} cloned successfully ...`);
                 return setTimeout(cb, 100);
             })
         });
