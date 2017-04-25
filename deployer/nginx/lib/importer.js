@@ -25,7 +25,7 @@ let importer = {
             options.config.setup[env].nginx[options.type] &&
             options.config.setup[env].nginx[options.type].path) {
 
-            let importPath = path.join(options.paths.configRepo.path, options.config.setup[env].nginx[options.type].path,);
+            let importPath = path.join(options.paths.configRepo.path, options.config.setup[env].nginx[options.type].path);
             if (options.isDirectory) {
                 importPath = path.join(importPath, '/');
             }
@@ -56,7 +56,7 @@ let importer = {
                 else {
                     let importPathArr = importPath.split('/');
 
-                    options.paths.import.path = importPathArr.slice(0. importPathArr.length - 1).join('/');
+                    options.paths.import.path = importPathArr.slice(0, importPathArr.length - 1).join('/');
                     options.files = [ importPathArr[importPathArr.length - 1] ];
                     return importer.read(options, cb);
                 }

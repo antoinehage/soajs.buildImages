@@ -78,7 +78,7 @@ let ssl = {
                 options.config.setup[env] &&
                 options.config.setup[env].nginx &&
                 options.config.setup[env].nginx.ssl &&
-                options.config.setup[env].nginx.ssl.path &&
+                options.config.setup[env].nginx.ssl.path
             ) {
                 log('Detected user-provided certificates via config repository, checking certificates ...');
                 let certsRepoPath = options.config.setup[env].nginx.ssl.path;
