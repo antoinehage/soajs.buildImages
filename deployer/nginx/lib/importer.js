@@ -152,6 +152,11 @@ let importer = {
 
         async.eachOf(options.data.updatedFiles, (oneFile, index, callback) => {
             let filePath = path.join (options.targetDir, `${options.type}-${index}.conf`);
+            // nginx.conf file should preserve file name
+            if (options.type === 'conf' && options.data.updatedFiles.length === 1) {
+                filePath = path.join (options.targetDir, `nginx.conf`);
+            }
+
             fs.writeFile(filePath, oneFile, (error) => {
                 if (error) {
                     log(`An error occured while writing ${filePath}, skipping file ...`);
