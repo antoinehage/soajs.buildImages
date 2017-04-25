@@ -106,7 +106,7 @@ function getUI(options, cb) {
     });
 }
 
-const exports = {
+const exp = {
 
     deploy(options, cb) {
         ssl.init(options, () => {
@@ -145,4 +145,4 @@ const exports = {
 
 };
 
-module.exports = exports;
+module.exports = exp;
