@@ -60,11 +60,15 @@ function deploy() {
 
     if (script.type === 'service') {
         const service = require('./service');
-        service.deployService(options, () => {}); //TODO: update callback function
+        service.deployService(options, () => {
+            log('Exiting ...');
+        });
     }
     else if (script.type === 'nginx') {
         options.nginx = config.nginx;
         const nginx = require('./nginx');
-        nginx.deploy(options, () => {}); //TODO: update callback function
+        nginx.deploy(options, () => {
+            log('Exiting ...');
+        });
     }
 }
