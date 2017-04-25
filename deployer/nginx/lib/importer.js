@@ -115,7 +115,7 @@ let importer = {
 
                 // go through every entry in array, search for placeholders and replace if applicable
                 async.map(dataArray, (oneArrayEntry, callback) => {
-                    let matches = oneArrayEntry.match(/{{.*}}/g);
+                    let matches = oneArrayEntry.match(/{{[^}}]*}}/g);
                     if (matches && matches.length > 0) {
                         for (let i = 0; i < matches.length; i++) {
                             let placeholder = matches[i].substring(2, matches[i].length - 2);
