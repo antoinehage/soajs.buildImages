@@ -12,7 +12,7 @@ const utils = require('../utils.js');
 const ssl = require('./lib/certs.js');
 const conf = require('./lib/conf.js');
 const sites = require('./lib/sites.js');
-const upstream = require('./lib/upstream.js');
+const importer = require('./lib/importer.js');
 
 /**
  * Function that runs nginx service and prints logs to stdout
@@ -111,15 +111,30 @@ const exports = {
     deploy(options, cb) {
         ssl.init(options, () => {
             conf.write(options, () => {
-                upstream.getUpstream(options, () => {
-                    // Get dashboard UI if dashboard nginx, check for validity is done in the getUI() function
-                    getUI({ type: 'dashboard' }, () => {
-                        //Get custom UI module if user specified source as environment variables (this is not related to sites.json config)
-                        getUI({ type: 'custom' }, () => {
-                            // Get custom UI sites if any
-                            sites.getSites(options, () => {
-                                // Start nginx
-                                startNginx(cb);
+                let nxOs = options.nginx.os;
+
+                options.type = 'upstream';
+                options.targetDir = options.nginx.location + ((nxOs === 'mac') ? "/servers/" : ( nxOs === 'ubuntu') ? "/conf.d/" : "/nginx/");
+                options.isDirectory = true;
+                importer.import(options, () => {
+                    options.type = 'sites-enabled';
+                    options.targetDir = options.nginx.location + ((nxOs === 'mac') ? "/servers/" : ( nxOs === 'ubuntu') ? "/sites-enabled/" : "/nginx/");
+                    options.isDirectory = true;
+                    importer.import(options, () => {
+                        options.type = 'conf';
+                        options.targetDir = options.nginx.location;
+                        options.isDirectory = false;
+                        importer.import(options, () => {
+                            // Get dashboard UI if dashboard nginx, check for validity is done in the getUI() function
+                            getUI({ type: 'dashboard' }, () => {
+                                //Get custom UI module if user specified source as environment variables (this is not related to sites.json config)
+                                getUI({ type: 'custom' }, () => {
+                                    // Get custom UI sites if any
+                                    sites.getSites(options, () => {
+                                        // Start nginx
+                                        startNginx(cb);
+                                    });
+                                });
                             });
                         });
                     });
