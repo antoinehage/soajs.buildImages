@@ -14,6 +14,11 @@ const conf = require('./lib/conf.js');
 const sites = require('./lib/sites.js');
 const upstream = require('./lib/upstream.js');
 
+/**
+ * Function that runs nginx service and prints logs to stdout
+ * @param  {Function} cb Callback Function
+ *
+ */
 function startNginx(cb) {
     const nginx = spawn('service', [ 'nginx', 'start' ], { stdio: 'inherit' });
 
@@ -34,66 +39,95 @@ function startNginx(cb) {
     });
 }
 
-function getDashboardUI(cb) {
-    if (process.env.SOAJS_ENV && process.env.SOAJS_ENV.toLowerCase() === 'dashboard') {
-        if (process.env.SOAJS_GIT_DASHBOARD_BRANCH && process.env.SOAJS_GIT_DASHBOARD_BRANCH !== '') {
-            // clone dashboard ui
-            let cloneOptions = {
-                repo: {
-                    git: {
-                        provider: 'github',
-                        domain: 'github.com',
-                        owner: 'soajs',
-                        repo: 'soajs.dashboard',
-                        branch: process.env.SOAJS_GIT_DASHBOARD_BRANCH
-                    }
-                },
-                clonePath: config.paths.tempFolders.temp.path
-            };
+/**
+ * Function that clones UI passed as environment variables only (not sites.json config)
+ * @param  {Object}   options Object that contains the type of the UI module and its git information
+ * @param  {Function} cb      Callback Function
+ *
+ */
+function getUI(options, cb) {
+    let gitInfo = {};
+    // if requested UI is dashboard ui, check if valid before cloning it
+    if (options.type === 'dashboard') {
+        if (!process.env.SOAJS_ENV && process.env.SOAJS_ENV.toLowerCase() !== 'dashboard') return cb();
+        if (!process.env.SOAJS_GIT_DASHBOARD_BRANCH || process.env.SOAJS_GIT_DASHBOARD_BRANCH === '') return cb();
 
-            utils.clone(cloneOptions, (error) => {
-                if (error) throw new Error(error);
-
-                let source = path.join(config.paths.tempFolders.temp.path, '/ui');
-                let destination = path.join (config.nginx.siteLocation, '/');
-                ncp(source, destination, { clobber: true }, (error) => {
-                    if (error) {
-                        log(`Unable to move contents of soajs/soajs.dashboard to ${destination} ...`);
-                        throw new Error(error);
-                    }
-
-                    // delete contents of temp before cloning a new repository into it
-                    rimraf(config.paths.tempFolders.temp.path, (error) => {
-                        if (error) log(error);
-
-                        return setTimeout(cb, 100);
-                    })
-                });
-            });
-        }
-        else {
-            return cb();
-        }
+        gitInfo = config.dashboard.git;
     }
     else {
-        return cb();
+        if (!options.git || !options.git.owner || !options.git.repo) {
+            log('No or missing git information for custom UI, repository will not be cloned ...');
+            return cb();
+        }
+
+        gitInfo = {
+            provider: process.env.SOAJS_GIT_PROVIDER || 'github',
+            domain: process.env.SOAJS_GIT_DOMAIN || 'github.com',
+            owner: process.env.SOAJS_GIT_OWNER,
+            repo: process.env.SOAJS_GIT_REPO,
+            branch: process.env.SOAJS_GIT_BRANCH || 'master',
+            path: process.env.SOAJS_GIT_PATH || '/'
+        };
     }
+
+    // clone ui
+    let cloneOptions = {
+        repo: {
+            git: {
+                provider: gitInfo.provider,
+                domain: gitInfo.domain,
+                owner: gitInfo.owner,
+                repo: gitInfo.repo,
+                branch: gitInfo.branch
+            }
+        },
+        clonePath: config.paths.tempFolders.temp.path
+    };
+
+    utils.clone(cloneOptions, (error) => {
+        if (error) throw new Error(error);
+
+        let source = path.join(config.paths.tempFolders.temp.path, options.git.path || '/');
+        let destination = path.join (config.nginx.siteLocation, '/');
+        ncp(source, destination, { clobber: true }, (error) => {
+            if (error) {
+                log(`Unable to move contents of ${options.git.owner}/${options.git.repo} to ${destination} ...`);
+                throw new Error(error);
+            }
+
+            // delete contents of temp before cloning a new repository into it
+            rimraf(config.paths.tempFolders.temp.path, (error) => {
+                if (error) log(error);
+
+                log(`${options.git.owner}/${options.git.repo} cloned successfully ...`);
+                return setTimeout(cb, 100);
+            })
+        });
+    });
 }
 
 const exports = {
+
     deploy(options, cb) {
         ssl.init(options, () => {
             conf.write(options, () => {
                 upstream.getUpstream(options, () => {
-                    getDashboardUI(() => {
-                        sites.getSites(options, () => {
-                            startNginx(cb);
+                    // Get dashboard UI if dashboard nginx, check for validity is done in the getUI() function
+                    getUI({ type: 'dashboard' }, () => {
+                        //Get custom UI module if user specified source as environment variables (this is not related to sites.json config)
+                        getUI({ type: 'custom' }, () => {
+                            // Get custom UI sites if any
+                            sites.getSites(options, () => {
+                                // Start nginx
+                                startNginx(cb);
+                            });
                         });
                     });
                 });
             });
         });
     }
+
 };
 
 module.exports = exports;

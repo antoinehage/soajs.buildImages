@@ -68,6 +68,17 @@ const config = {
         settings: {
             configFileName: 'config.json'
         }
+    },
+
+    dashboard: {
+        git: {
+            provider: 'github',
+            domain: 'github.com',
+            owner: 'soajs',
+            repo: 'soajs.dashboard',
+            branch: process.env.SOAJS_GIT_DASHBOARD_BRANCH,
+            path: '/ui'
+        }
     }
 
 };
