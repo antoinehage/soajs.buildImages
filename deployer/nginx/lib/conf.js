@@ -184,13 +184,14 @@ let builder = {
         //read nginx.conf from templates directory
         log('Writing default nginx.conf ...');
         let filePath = path.join(options.paths.templates.nginx.path, 'nginx.conf');
+        let targetFilePath = path.join(options.nginx.location, '/nginx.conf');
         fs.readFile(filePath, 'utf8', (error, data) => {
             if (error) throw new Error(error);
 
             //replace placeholders with appropriate values
-            data.replace(/{{SOAJS_ENV}}/g, process.env.SOAJS_ENV.toLowerCase());
-            data.replace(/{{SOAJS_HA_NAME}}/g, process.env.SOAJS_HA_NAME.toLowerCase());
-            fs.writeFile(filePath, data, (error) => {
+            data = data.replace(/{{SOAJS_ENV}}/g, process.env.SOAJS_ENV.toLowerCase());
+            data = data.replace(/{{SOAJS_HA_NAME}}/g, process.env.SOAJS_HA_NAME.toLowerCase());
+            fs.writeFile(targetFilePath, data, (error) => {
                 if (error) throw new Error(error);
 
                 log('nginx.conf written successfully ...');
@@ -209,7 +210,7 @@ let builder = {
         //copy ssl.conf from templates directory to nginx directory
         log('Copying ssl.conf ...');
         let readStream = fs.createReadStream(path.join(options.paths.templates.nginx.path, 'ssl.conf'));
-        let writeStream = fs.createWriteStream(path.join(options.nginx.location, '/ssl'));
+        let writeStream = fs.createWriteStream(path.join(options.nginx.location, '/ssl/ssl.conf'));
 
         readStream.on('error', (error) => {
             log('Unable to read ssl.conf ...');
@@ -219,7 +220,7 @@ let builder = {
             log('Unable to write ssl.conf ...');
             throw new Error(error);
         });
-        writeStream.on('clone', () => {
+        writeStream.on('close', () => {
             log('Successfully copied ssl.conf ...');
             return cb();
         });
@@ -236,9 +237,7 @@ let builder = {
     write(options, cb) {
         let nxOs = options.nginx.os;
         builder.writeDefaultNginxConf(options, () => {
-            log('Default nginx.conf written successfully');
             builder.copySSLConf(options, () => {
-                log('ssl.conf copied successfully');
                 builder.writeUpstream({
                     loc: options.nginx.location + ((nxOs === 'mac') ? "/servers/" : ( nxOs === 'ubuntu') ? "/conf.d/" : "/nginx/"),
                     port: options.nginx.config.upstream.ctrlPort,
