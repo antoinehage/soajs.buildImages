@@ -3,8 +3,7 @@
 const log = require('util').log;
 const path = require('path');
 const async = require('async');
-const rimraf = require('rimraf');
-const ncp = require('ncp');
+const fse = require('fs-extra');
 const spawn = require('child_process').spawn;
 
 const config = require('../config.js');
@@ -87,15 +86,15 @@ function getUI(options, cb) {
 
         let source = path.join(config.paths.tempFolders.temp.path, gitInfo.path || '/');
         let destination = path.join (config.nginx.siteLocation, '/');
-        ncp(source, destination, { clobber: true }, (error) => {
+        fse.copyRecursice(source, destination, (error) => {
             if (error) {
                 log(`Unable to move contents of ${gitInfo.owner}/${gitInfo.repo} to ${destination} ...`);
                 throw new Error(error);
             }
 
             // delete contents of temp before cloning a new repository into it
-            rimraf(config.paths.tempFolders.temp.path, (error) => {
-                if (error) log(error);
+            fse.rmrf(config.paths.tempFolders.temp.path, (error) => {
+                if (error) throw new Error(error);
 
                 log(`${gitInfo.owner}/${gitInfo.repo} cloned successfully ...`);
                 return setTimeout(cb, 100);

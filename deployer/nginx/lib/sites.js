@@ -3,7 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 const log = require('util').log;
-const ncp = require('ncp');
+const fse = require('fs-extra');
 const async = require('async');
 const rimraf = require('rimraf');
 
@@ -69,7 +69,7 @@ let sites = {
     prepare(options, cb) {
         log('Creating temp folders ...');
         // clean (if needed) and create temp file where each repo will be cloned seperately
-        fs.rmdir(options.paths.tempFolders.temp.path, (error) => {
+        fse.rmrf(options.paths.tempFolders.temp.path, (error) => {
             if (error && error.code !== 'ENOENT') {
                 log(`Unable to clean ${options.paths.tempFolders.temp.path} folder, proceeding anyways ...`);
                 log(error);
@@ -83,7 +83,7 @@ let sites = {
                 }
 
                 // clean (if needed) and create temp_site file where repos will be merged into one folder
-                fs.rmdir(options.paths.tempFolders.tempSite.path, (error) => {
+                fse.rmrf(options.paths.tempFolders.tempSite.path, (error) => {
                     if (error && error.code !== 'ENOENT') {
                         log(`Unable to clean ${options.paths.tempFolders.tempSite.path} folder, proceeding anyways ...`);
                         log(error);
@@ -116,7 +116,7 @@ let sites = {
         // go through each site config and clone the repository
         async.eachSeries(options.sitesConfig.sites, (oneSite, callback) => {
             let cloneOptions = {
-                repo: oneSite,
+                repo: { git: oneSite },
                 clonePath: options.paths.tempFolders.temp.path
             };
 
@@ -129,14 +129,11 @@ let sites = {
                 //copy repo contents from temp to temp_site (overwrite)
                 let source = path.join(options.paths.tempFolders.temp.path, oneSite.path || '/');
                 let destination = path.join (options.paths.tempFolders.tempSite.path, '/');
-                ncp(source, destination, { clobber: true }, (error) => {
-                    if (error) {
-                        log(`Unable to move contents of ${oneSite.owner}/${oneSite.repo} to ${options.paths.tempFolders.tempSite.path}, skipping ...`);
-                        log(error);
-                    }
+                fse.copyRecursice(source, destination, (error) => {
+                    if (error) throw new Error(`Unable to move contents of ${oneSite.owner}/${oneSite.repo} to ${options.paths.tempFolders.tempSite.path}, \n${error}`);
 
                     // delete contents of temp before cloning a new repository into it
-                    rimraf(options.paths.tempFolders.temp.path, (error) => {
+                    fse.rmrf(options.paths.tempFolders.temp.path, (error) => {
                         if (error) log(error);
 
                         return setTimeout(callback, 100);
@@ -161,23 +158,23 @@ let sites = {
      */
     finalize(options, cb) {
         // copy contents of temp_site to nginx site location
-        let nxPath = config.nginx.siteLocation;
+        let nxPath = options.nginx.siteLocation;
         let tempPath = path.join(options.paths.tempFolders.temp.path, '/');
         let tempSitePath = path.join (options.paths.tempFolders.tempSite.path, '/');
-        ncp(tempSitePath, nxPath, { clobber: true }, (error) => {
+        fse.copyRecursice(tempSitePath, nxPath, (error) => {
             if (error) {
                 log(`Unable to move temp_site contents to ${nxPath}`);
                 throw new Error(error);
             }
 
             // remove temp_site and temp folders
-            fs.rmdir(tempSitePath, (error) => {
+            fse.rmrf(tempSitePath, (error) => {
                 if (error) {
                     log(`Unable to delete ${tempSitePath}`);
                     log(error);
                 }
 
-                fs.rmdir(tempPath, (error) => {
+                fse.rmrf(tempPath, (error) => {
                     if (error) {
                         log(`Unable to delete ${tempPath}`);
                         log(error);
