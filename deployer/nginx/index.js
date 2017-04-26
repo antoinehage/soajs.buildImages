@@ -86,7 +86,7 @@ function getUI(options, cb) {
 
         let source = path.join(config.paths.tempFolders.temp.path, gitInfo.path || '/');
         let destination = path.join (config.nginx.siteLocation, '/');
-        fse.copyRecursive(source, destination, (error) => {
+        fse.copy(source, destination, { overwrite: true }, (error) => {
             if (error) {
                 log(`Unable to move contents of ${gitInfo.owner}/${gitInfo.repo} to ${destination} ...`);
                 throw new Error(error);
