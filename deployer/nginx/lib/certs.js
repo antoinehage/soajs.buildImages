@@ -141,7 +141,11 @@ let ssl = {
                         return callback(error);
                     }
                     else if (error && error.code === 'ENOENT') {
-                        openssl('req', { x509: true, newkey: 'rsa:4096', keyout: oneCert, days: '365', nodes: true, subj: `/CN=${options.nginx.masterDomain};` }, (error, buffer) => {
+                        let oneCertType = oneCert.substring(oneCert.lastIndexOf('/'));
+                        oneCertType = oneCertType.substring(oneCertType.lastIndexOf('.'));
+                        let certOutCommand = ((oneCertType && oneCertType === '.key') ? 'keyout' : 'out');
+
+                        openssl('req', { x509: true, newkey: 'rsa:4096', [ certOutCommand ]: oneCert, days: '365', nodes: true, subj: `/CN=${options.nginx.masterDomain};` }, (error, buffer) => {
                             if (error) return callback(error);
 
                             console.log (buffer.toString());
