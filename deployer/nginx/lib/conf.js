@@ -214,7 +214,7 @@ let builder = {
         readStream.on('error', (error) => {
             log('Unable to read ssl.conf ...');
             throw new Error(error);
-        })
+        });
         writeStream.on('error', (error) => {
             log('Unable to write ssl.conf ...');
             throw new Error(error);
