@@ -177,16 +177,28 @@ let ssl = {
     copy(options, cb) {
         let destination = path.join(options.nginx.location, '/ssl');
         async.each(options.certs, (oneCertPath, callback) => {
-            ncp(oneCertPath, destination, { clobber: true }, (error) => {
-                if (error) {
-                    log(`Unable to move ${oneCertPath} to ${destination} ...`);
-                    throw new Error(error);
-                }
+            let readStream = fs.createReadStream(oneCertPath);
+            let writeStream = fs.createWriteStream(path.join(destination, oneCertPath.substring(oneCertPath.lastIndexOf('/'))));
 
+            readStream.on('error', (error) => {
+                log(`Unable to read ${oneCertPath} ...`);
+                return callback(error);
+            });
+            writeStream.on('error', (error) => {
+                log(`Unable to write ${oneCertPath} to ${destination} ...`);
+                return callback(error);
+            });
+            writeStream.on('close', () => {
                 return callback();
             });
+
+            readStream.pipe(writeStream);
         }, (error) => {
-            // no error to be handled
+            if (error) {
+                log(error);
+                throw new Error(error);
+            }
+
             log(`Successfully copied certificates to ${destination} ...`);
             return cb();
         });
