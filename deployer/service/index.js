@@ -2,7 +2,7 @@
 const util = require('util');
 const fs = require('fs');
 const fse = require('fs-extra');
-const exec = require('child_process').exec;
+const spawn = require('child_process').spawn;
 
 const utilsFile = require('../utils.js');
 const profileGenerator = require('../profile/index.js');
@@ -13,7 +13,7 @@ const gitCommit = process.env.SOAJS_GIT_COMMIT;
 const gitBranch = process.env.SOAJS_GIT_BRANCH || "master";
 const gitToken = process.env.SOAJS_GIT_TOKEN;
 const gitDomain = process.env.SOAJS_GIT_DOMAIN || "github.com";
-const gitProvider = process.env.SOAJS_GIT_PROVIDER || "Github";
+const gitProvider = process.env.SOAJS_GIT_PROVIDER || "github";
 const soajsProfile = process.env.SOAJS_PROFILE;
 const accDeployment = process.env.SOAJS_DEPLOY_ACC;
 
@@ -101,29 +101,55 @@ let utils = {
     },
 
     /**
-     * Installs the service dependecies and runs the service
+     * Installs the service dependecies
+     * @param options
+     * @param cb
+     */
+    npmInstall(options, cb) {
+        //install the depdendencies
+        util.log("Installing the " + gitRepo + " dependencies.");
+        const npmInstall = spawn('npm', [ 'install' ], { stdio: 'inherit', cwd: serviceDirectory + gitRepo + "/" });
+
+        npmInstall.on('data', (data) => {
+            console.log(data.toString());
+        });
+
+        npmInstall.on('close', (code) => {
+            console.log ('Successfully Installed the ' + gitRepo + ' dependencies.');
+            return cb();
+        });
+        npmInstall.on('error', (error) => {
+            console.log ('Error while installing the ' + gitRepo + ' dependencies.');
+            return cb(error);
+        });
+    },
+
+    /**
+     * Runs the service
      * @param options
      * @param cb
      */
     runService(options, cb) {
-        //install the depdendencies
-        util.log("Installing the " + gitRepo + " dependencies.");
-        exec("npm install", {
-                cwd: serviceDirectory + gitRepo
-            },
-            (error1, stdout, stderr) => {
-                if(error1){
-                    throw new Error("Error while installing the dependencies of repository: " + gitRepo);
-                }
-                //run the service
-                exec("node index.js",{
-                    cwd: serviceDirectory + gitRepo + "/"
-                }, cb);
+        //run the service
+        util.log("Running the " + gitRepo + " service.");
+        const runService = spawn('node', [ 'index.js' ], { stdio: 'inherit', cwd: serviceDirectory + gitRepo + "/" });
 
-            });
+        runService.on('data', (data) => {
+            console.log(data.toString());
+        });
 
+        runService.on('close', (code) => {
+            console.log ('The ' + gitRepo + ' service is successfully running.');
+            return cb();
+        });
+        runService.on('error', (error) => {
+            console.log (' Unable to start the ' + gitRepo + ' service.');
+            return cb(error);
+        });
     }
 };
+
+
 
 let lib = {
     /**
@@ -139,9 +165,13 @@ let lib = {
                 utils.cloneRepo(options, (error, repo) => {
                     if(repo) {
                         //Check if accelerate deployment is checked
-                        utils.accelerateDeployment(options, (error, res) => {
+                        utils.accelerateDeployment(options, (error1, res1) => {
                             //install service dependencies and run the service
-                            utils.runService(options, cb);
+                            utils.npmInstall(options, (error2) => {
+                                if(error2)
+                                    return cb(error2);
+                                utils.runService(cb);
+                            });
                         });
                     }
                 });

@@ -139,11 +139,12 @@ let lib = {
 
             fs.readFile(profilePath, 'utf8', (error, customProfile) => {
                 if(error) {
+                    util.log(error);
                     throw new Error("Could not access the following custom profile: " + profilePath);
                 } else {
-                    fs.writeFile(profileLocation + "profile.js", customProfile, (error) => {
-                       if(error){
-                           util.log(error)
+                    fs.writeFile(profileLocation + "profile.js", customProfile, (error1) => {
+                       if(error1){
+                           util.log(error1)
                            throw new Error("Error while copying the custom profile to: " + profileLocation);
                        }
                        util.log("Successfully copied the custom profile from " + profilePath + " to " + profileLocation);
@@ -187,7 +188,7 @@ let lib = {
                     "rsName": mongoRsName
                 }, (err) => {
                     if(err){
-                        throw err;
+                        throw new Error(err);
                     }
                     util.log("Successfully generated a profile for a mongo replica set.");
                     return cb(null, true);
@@ -205,7 +206,7 @@ let lib = {
                     "ssl": process.env.SOAJS_MONGO_SSL || false,
                 }, (err) => {
                     if(err){
-                        throw err;
+                        throw new Error(err);
                     }
                     util.log("Successfully generated a profile for a mongo sharded cluster.");
                     return cb(null, true);
