@@ -175,6 +175,59 @@ let builder = {
     },
 
     /**
+     * Function that writes the default nginx.conf file from templates and replaces placeholders with appropriate values
+     * @param  {Object}   options An object that contains params passed to the function
+     * @param  {Function} cb Callback function
+     *
+     */
+    writeDefaultNginxConf(options, cb) {
+        //read nginx.conf from templates directory
+        log('Writing default nginx.conf ...');
+        let filePath = path.join(options.paths.templates.nginx.path, 'nginx.conf');
+        fs.readFile(filePath, 'utf8', (error, data) => {
+            if (error) return throw new Error(error);
+
+            //replace placeholders with appropriate values
+            data.replace(/{{SOAJS_ENV}}/g, process.env.SOAJS_ENV.toLowerCase());
+            data.replace(/{{SOAJS_HA_NAME}}/g, process.env.SOAJS_HA_NAME.toLowerCase());
+            fs.writeFile(filePath, data, (error) => {
+                if (error) return throw new Error(error);
+
+                log('nginx.conf written successfully ...');
+                return cb();
+            });
+        });
+    },
+
+    /**
+     * Function that copies ssl.conf from templates directory to nginx directory
+     * @param  {Object}   options An object that contains params passed to the function
+     * @param  {Function} cb Callback function
+     *
+     */
+    copySSLConf(options, cb) {
+        //copy ssl.conf from templates directory to nginx directory
+        log('Copying ssl.conf ...');
+        let readStream = fs.createReadStream(path.join(options.paths.templates.nginx.path, 'ssl.conf'));
+        let writeStream = fs.createWriteStream(path.join(options.nginx.location, '/ssl'));
+
+        readStream.on('error', (error) => {
+            log('Unable to read ssl.conf ...');
+            return throw new Error(error);
+        })
+        writeStream.on('error', (error) => {
+            log('Unable to write ssl.conf ...');
+            return throw new Error(error);
+        });
+        writeStream.on('clone', () => {
+            log('Successfully copied ssl.conf ...');
+            return cb();
+        });
+
+        readStream.pipe(writeStream);
+    },
+
+    /**
      * Function that calls writeUpstream, writeApiConf, and writeSiteConf
      * @param  {Object}   options An object that contains params passed to the function
      * @param  {Object}   wstream An instance of fs.writeStream
@@ -182,35 +235,41 @@ let builder = {
      */
     write(options, cb) {
         let nxOs = options.nginx.os;
-        builder.writeUpstream({
-            loc: options.nginx.location + ((nxOs === 'mac') ? "/servers/" : ( nxOs === 'ubuntu') ? "/conf.d/" : "/nginx/"),
-            port: options.nginx.config.upstream.ctrlPort,
-            ipEnvName: options.nginx.config.upstream.ipEnvName,
-            upstreamName: options.nginx.config.upstream.upstreamName,
-            count: options.nginx.config.upstream.count,
-        }, () => {
-            log('SOAJS Controller Upstream was written successfully');
-            builder.writeApiConf({
-                loc: options.nginx.location + ((nxOs === 'mac') ? "/servers/" : ( nxOs === 'ubuntu') ? "/sites-enabled/" : "/nginx/"),
-                confFileName: options.nginx.config.apiConf.fileName,
-                domain: options.nginx.config.apiConf.domain,
-                upstreamName: options.nginx.config.upstream.upstreamName,
-            }, () => {
-                log('Nginx API config was written successfully');
-                if (options.nginx.config.siteConf.domain) {
-                    builder.writeSiteConf({
+        builder.writeDefaultNginxConf(options, () => {
+            log('Default nginx.conf written successfully');
+            builder.copySSLConf(options, () => {
+                log('ssl.conf copied successfully');
+                builder.writeUpstream({
+                    loc: options.nginx.location + ((nxOs === 'mac') ? "/servers/" : ( nxOs === 'ubuntu') ? "/conf.d/" : "/nginx/"),
+                    port: options.nginx.config.upstream.ctrlPort,
+                    ipEnvName: options.nginx.config.upstream.ipEnvName,
+                    upstreamName: options.nginx.config.upstream.upstreamName,
+                    count: options.nginx.config.upstream.count,
+                }, () => {
+                    log('SOAJS Controller Upstream was written successfully');
+                    builder.writeApiConf({
                         loc: options.nginx.location + ((nxOs === 'mac') ? "/servers/" : ( nxOs === 'ubuntu') ? "/sites-enabled/" : "/nginx/"),
-                        confFileName: options.nginx.config.siteConf.fileName,
-                        domain: options.nginx.config.siteConf.domain,
-                        path: options.nginx.config.siteConf.path
+                        confFileName: options.nginx.config.apiConf.fileName,
+                        domain: options.nginx.config.apiConf.domain,
+                        upstreamName: options.nginx.config.upstream.upstreamName,
                     }, () => {
-                        log('Nginx Site config was written successfully');
-                        return cb();
+                        log('Nginx API config was written successfully');
+                        if (options.nginx.config.siteConf.domain) {
+                            builder.writeSiteConf({
+                                loc: options.nginx.location + ((nxOs === 'mac') ? "/servers/" : ( nxOs === 'ubuntu') ? "/sites-enabled/" : "/nginx/"),
+                                confFileName: options.nginx.config.siteConf.fileName,
+                                domain: options.nginx.config.siteConf.domain,
+                                path: options.nginx.config.siteConf.path
+                            }, () => {
+                                log('Nginx Site config was written successfully');
+                                return cb();
+                            });
+                        }
+                        else {
+                            return cb();
+                        }
                     });
-                }
-                else {
-                    return cb();
-                }
+                });
             });
         });
     }

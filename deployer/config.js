@@ -19,6 +19,11 @@ const config = {
             tempSite: {
                 path: ((process.env.SOAJS_NX_SITE_PATH) ? path.join(process.env.SOAJS_NX_SITE_PATH, '/temp_site') : '/opt/soajs/site/temp_site')
             }
+        },
+        templates: {
+            nginx: {
+                path: __dirname + '/nginx/templates/'
+            }
         }
     },
 
