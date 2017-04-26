@@ -93,7 +93,7 @@ function getUI(options, cb) {
             }
 
             // delete contents of temp before cloning a new repository into it
-            fse.rmrf(config.paths.tempFolders.temp.path, (error) => {
+            fse.remove(config.paths.tempFolders.temp.path, (error) => {
                 if (error) throw new Error(error);
 
                 log(`${gitInfo.owner}/${gitInfo.repo} cloned successfully ...`);

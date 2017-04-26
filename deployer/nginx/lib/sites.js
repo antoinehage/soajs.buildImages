@@ -69,7 +69,7 @@ let sites = {
     prepare(options, cb) {
         log('Creating temp folders ...');
         // clean (if needed) and create temp file where each repo will be cloned seperately
-        fse.rmrf(options.paths.tempFolders.temp.path, (error) => {
+        fse.remove(options.paths.tempFolders.temp.path, (error) => {
             if (error && error.code !== 'ENOENT') {
                 log(`Unable to clean ${options.paths.tempFolders.temp.path} folder, proceeding anyways ...`);
                 log(error);
@@ -83,7 +83,7 @@ let sites = {
                 }
 
                 // clean (if needed) and create temp_site file where repos will be merged into one folder
-                fse.rmrf(options.paths.tempFolders.tempSite.path, (error) => {
+                fse.remove(options.paths.tempFolders.tempSite.path, (error) => {
                     if (error && error.code !== 'ENOENT') {
                         log(`Unable to clean ${options.paths.tempFolders.tempSite.path} folder, proceeding anyways ...`);
                         log(error);
@@ -133,7 +133,7 @@ let sites = {
                     if (error) throw new Error(`Unable to move contents of ${oneSite.owner}/${oneSite.repo} to ${options.paths.tempFolders.tempSite.path}, \n${error}`);
 
                     // delete contents of temp before cloning a new repository into it
-                    fse.rmrf(options.paths.tempFolders.temp.path, (error) => {
+                    fse.remove(options.paths.tempFolders.temp.path, (error) => {
                         if (error) log(error);
 
                         return setTimeout(callback, 100);
@@ -168,13 +168,13 @@ let sites = {
             }
 
             // remove temp_site and temp folders
-            fse.rmrf(tempSitePath, (error) => {
+            fse.remove(tempSitePath, (error) => {
                 if (error) {
                     log(`Unable to delete ${tempSitePath}`);
                     log(error);
                 }
 
-                fse.rmrf(tempPath, (error) => {
+                fse.remove(tempPath, (error) => {
                     if (error) {
                         log(`Unable to delete ${tempPath}`);
                         log(error);
