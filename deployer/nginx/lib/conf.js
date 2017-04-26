@@ -185,13 +185,13 @@ let builder = {
         log('Writing default nginx.conf ...');
         let filePath = path.join(options.paths.templates.nginx.path, 'nginx.conf');
         fs.readFile(filePath, 'utf8', (error, data) => {
-            if (error) return throw new Error(error);
+            if (error) throw new Error(error);
 
             //replace placeholders with appropriate values
             data.replace(/{{SOAJS_ENV}}/g, process.env.SOAJS_ENV.toLowerCase());
             data.replace(/{{SOAJS_HA_NAME}}/g, process.env.SOAJS_HA_NAME.toLowerCase());
             fs.writeFile(filePath, data, (error) => {
-                if (error) return throw new Error(error);
+                if (error) throw new Error(error);
 
                 log('nginx.conf written successfully ...');
                 return cb();
@@ -213,11 +213,11 @@ let builder = {
 
         readStream.on('error', (error) => {
             log('Unable to read ssl.conf ...');
-            return throw new Error(error);
+            throw new Error(error);
         })
         writeStream.on('error', (error) => {
             log('Unable to write ssl.conf ...');
-            return throw new Error(error);
+            throw new Error(error);
         });
         writeStream.on('clone', () => {
             log('Successfully copied ssl.conf ...');
