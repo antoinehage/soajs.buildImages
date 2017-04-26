@@ -19,10 +19,8 @@ module.exports = {
             "body": [
                 'RUN apt-get update && apt-get install --fix-missing -y make g++ libssl-dev libcurl3', //NOTE: set here temporary for testing, should be moved to base image
                 'RUN mkdir -p /opt/soajs/FILES/profiles && mkdir -p /opt/soajs/deployer && mkdir -p /etc/nginx/ssl',
-                'ADD ./FILES /opt/soajs/FILES/', // old deployer, will be removed
                 'ADD ./deployer /opt/soajs/deployer/', // new deployer
                 'RUN cd /opt/soajs/deployer/ && npm install',
-                'RUN cd /opt/soajs/FILES/conf && cp -f nginx.conf /etc/nginx/ && cp -f ssl.conf /etc/nginx/ssl/',
                 'ENV NODE_ENV=production',
                 'EXPOSE #SERVICEPORT#',
                 'CMD ["/bin/bash"]']
