@@ -2,7 +2,6 @@
 
 const path = require('path');
 const fs = require('fs');
-const ncp = require('ncp');
 const log = require('util').log;
 const async = require('async');
 const openssl = require('openssl-wrapper').exec;
