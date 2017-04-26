@@ -129,7 +129,7 @@ let sites = {
                 //copy repo contents from temp to temp_site (overwrite)
                 let source = path.join(options.paths.tempFolders.temp.path, oneSite.path || '/');
                 let destination = path.join (options.paths.tempFolders.tempSite.path, '/');
-                fse.copyRecursice(source, destination, (error) => {
+                fse.copyRecursive(source, destination, (error) => {
                     if (error) throw new Error(`Unable to move contents of ${oneSite.owner}/${oneSite.repo} to ${options.paths.tempFolders.tempSite.path}, \n${error}`);
 
                     // delete contents of temp before cloning a new repository into it
@@ -161,7 +161,7 @@ let sites = {
         let nxPath = options.nginx.siteLocation;
         let tempPath = path.join(options.paths.tempFolders.temp.path, '/');
         let tempSitePath = path.join (options.paths.tempFolders.tempSite.path, '/');
-        fse.copyRecursice(tempSitePath, nxPath, (error) => {
+        fse.copyRecursive(tempSitePath, nxPath, (error) => {
             if (error) {
                 log(`Unable to move temp_site contents to ${nxPath}`);
                 throw new Error(error);
