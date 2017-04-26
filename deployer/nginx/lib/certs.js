@@ -2,9 +2,10 @@
 
 const path = require('path');
 const fs = require('fs');
+const ncp = require('ncp');
 const log = require('util').log;
 const async = require('async');
-const openssl = require('openssl-wrapper');
+const openssl = require('openssl-wrapper').exec;
 
 let ssl = {
 
@@ -25,6 +26,7 @@ let ssl = {
                 }
                 // in case dhparam.pem was not found, generate it
                 else if (error && error.code === 'ENOENT') {
+                    log('Generating dhparam2048.pem file, please wait ...');
                     openssl('dhparam', { outform: 'pem', out: dhparamFilePath, '2048': false }, (error, buffer) => {
                         if (error) {
                             log('Unable to generate nginx SSL dhparam file');
@@ -81,15 +83,15 @@ let ssl = {
                 options.config.setup[env].nginx.ssl.path
             ) {
                 log('Detected user-provided certificates via config repository, checking certificates ...');
-                let certsRepoPath = options.config.setup[env].nginx.ssl.path;
+                let certsRepoPath = path.join(options.paths.configRepo.path, options.config.setup[env].nginx.ssl.path);
                 let crtPath = path.join(certsRepoPath, '/tls.crt');
                 let keyPath = path.join(certsRepoPath, '/tls.key');
                 options.certs = [ crtPath, keyPath ];
                 ssl.detect(options, (error) => {
                     if (error) throw new Error(error);
 
-                    log('Certificates found, proceeding ...');
-                    return cb();
+                    log('Certificates found, coping ...');
+                    return ssl.copy(options, cb);
                 });
             }
             // Case 3: no volume or config repo, generate self signed certificates
@@ -149,6 +151,7 @@ let ssl = {
                         });
                     }
                     else {
+                        log(`{oneCert} self-signed certificate found, keeping it ...`);
                         return callback();
                     }
                 });
@@ -163,6 +166,31 @@ let ssl = {
         else {
             return cb();
         }
+    },
+
+    /**
+     * Function that copies certificates from config repository to /etc/nginx/ssl directory
+     * @param  {Object}   options An object that contains params passed to the function
+     * @param  {Function} cb      Callback function
+     *
+     */
+    copy(options, cb) {
+        let destination = path.join(options.nginx.location, '/ssl');
+        async.each(options.certs, (oneCertPath, callback) => {
+            ncp(oneCertPath, destination, { clobber: true }, (error) => {
+                if (error) {
+                    log(`Unable to move ${oneCertPath} to ${destination} ...`);
+                    throw new Error(error);
+                }
+
+                return callback();
+            });
+        }, (error) => {
+            // no error to be handled
+            log(`Successfully copied certificates to ${destination} ...`);
+            return cb();
+        });
+
     }
 
 };

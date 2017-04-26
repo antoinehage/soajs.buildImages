@@ -59,7 +59,7 @@ const config = {
     configRepo: {
         git: {
             provider: process.env.SOAJS_CONFIG_REPO_PROVIDER || 'github',
-            domain: process.env.SOAJS_CONFIG_REPO_DOMAIN || ((process.env.SOAJS_CONFIG_REPO_PROVIDER === 'github') ? 'github.com' : (process.env.SOAJS_CONFIG_REPO_PROVIDER === 'bitbucket') ? 'bitbucket.org' : ''),
+            domain: process.env.SOAJS_CONFIG_REPO_DOMAIN, // default value is computed, check end of file
             owner: process.env.SOAJS_CONFIG_REPO_OWNER || '',
             repo: process.env.SOAJS_CONFIG_REPO_NAME || '',
             branch: process.env.SOAJS_CONFIG_REPO_BRANCH || 'master',
@@ -82,6 +82,8 @@ const config = {
     }
 
 };
+
+config.configRepo.git.domain = process.env.SOAJS_CONFIG_REPO_DOMAIN || ((config.configRepo.git.provider === 'github') ? 'github.com' : ((config.configRepo.git.provider === 'bitbucket') ? 'bitbucket.org' : ''));
 
 config.nginx.config.ssl.httpApiRedirect = (config.nginx.config.ssl.httpsApi && process.env.SOAJS_NX_API_HTTP_REDIRECT && (process.env.SOAJS_NX_API_HTTP_REDIRECT == 1 ? true : false)) || false;
 config.nginx.config.ssl.httpSiteRedirect = (config.nginx.config.ssl.httpsSite && process.env.SOAJS_NX_SITE_HTTP_REDIRECT && (process.env.SOAJS_NX_SITE_HTTP_REDIRECT == 1 ? true : false)) || false;

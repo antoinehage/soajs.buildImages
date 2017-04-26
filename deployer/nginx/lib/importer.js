@@ -79,7 +79,7 @@ let importer = {
         log(`Processing custom ${options.type} file(s) ...`);
 
         // read the contents of all custom files and pass them to the 'process' function
-        async.map(files, (oneFile, callback) => {
+        async.map(options.files, (oneFile, callback) => {
             let onePath = path.join (options.paths.import.path, oneFile);
             fs.readFile(onePath, (error, fileData) => {
                 if (error) {
@@ -88,7 +88,7 @@ let importer = {
                     return callback();
                 }
 
-                return callback(fileData);
+                return callback(null, fileData);
             });
         }, (error, importData) => {
             // no error will be returned, errors are only logged and files will be skipped
@@ -115,13 +115,13 @@ let importer = {
 
                 // go through every entry in array, search for placeholders and replace if applicable
                 async.map(dataArray, (oneArrayEntry, callback) => {
-                    let matches = oneArrayEntry.match(/{{.*}}/g);
+                    let matches = oneArrayEntry.match(/{{[^}}]*}}/g);
                     if (matches && matches.length > 0) {
                         for (let i = 0; i < matches.length; i++) {
                             let placeholder = matches[i].substring(2, matches[i].length - 2);
                             if (process.env[placeholder]) {
                                 let replacementRegExp = new RegExp(matches[i], 'g');
-                                oneArrayEntry.replace(replacementRegExp, process.env[placeholder]);
+                                oneArrayEntry = oneArrayEntry.replace(replacementRegExp, process.env[placeholder]);
                             }
                         }
                     }
@@ -151,7 +151,12 @@ let importer = {
         // write the files to the nginx folder
 
         async.eachOf(options.data.updatedFiles, (oneFile, index, callback) => {
-            let filePath = path.join (options.targetDir, `${options.type}-` + index);
+            let filePath = path.join (options.targetDir, `${options.type}-${index}.conf`);
+            // nginx.conf file should preserve file name
+            if (options.type === 'conf' && options.data.updatedFiles.length === 1) {
+                filePath = path.join (options.targetDir, `nginx.conf`);
+            }
+
             fs.writeFile(filePath, oneFile, (error) => {
                 if (error) {
                     log(`An error occured while writing ${filePath}, skipping file ...`);

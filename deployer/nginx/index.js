@@ -102,7 +102,7 @@ function getUI(options, cb) {
 
                 log(`${gitInfo.owner}/${gitInfo.repo} cloned successfully ...`);
                 return setTimeout(cb, 100);
-            })
+            });
         });
     });
 }
