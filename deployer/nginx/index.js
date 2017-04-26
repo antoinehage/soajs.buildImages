@@ -25,9 +25,6 @@ function startNginx(cb) {
     nginx.on('data', (data) => {
         console.log(data.toString());
     });
-    nginx.on('data', (data) => {
-        console.log(data.toString());
-    });
 
     nginx.on('close', (code) => {
         console.log (`Nginx process exited with code: ${code}`);
