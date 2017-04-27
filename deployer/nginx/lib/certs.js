@@ -126,7 +126,7 @@ let ssl = {
     },
 
     /**
-     * Function that generates self signed certificates
+     * Function that generates self signed certificates (overwrites old ones if any)
      * @param  {Object}   options An object that contains params passed to the function
      * @param  {Function} cb      Callback function
      *
@@ -135,30 +135,11 @@ let ssl = {
         if (!options.nginx.config.ssl.customCerts || options.nginx.config.ssl.customCerts !== '1') {
             let crtPath = path.join(options.nginx.location, '/ssl/tls.crt');
             let keyPath = path.join(options.nginx.location, '/ssl/tls.key');
-            async.each([crtPath, keyPath], (oneCert, callback) => {
-                fs.access(oneCert, fs.constants.F_OK | fs.constants.R_OK | fs.constants.W_OK, (error) => {
-                    if (error && error.code !== 'ENOENT') {
-                        return callback(error);
-                    }
-                    else if (error && error.code === 'ENOENT') {
-                        openssl('req', { x509: true, newkey: 'rsa:4096', keyout: oneCert, days: '365', nodes: true, subj: `/CN=${options.nginx.masterDomain};` }, (error, buffer) => {
-                            if (error) return callback(error);
+            openssl('req', { x509: true, newkey: 'rsa:4096', keyout: keyPath, out: crtPath, days: '365', nodes: true, subj: `/CN=${options.nginx.masterDomain};` }, (error, buffer) => {
+                if (error) throw new Error(error);
 
-                            console.log (buffer.toString());
-                            log(`${oneCert} generated successfully ...`);
-                            return callback();
-                        });
-                    }
-                    else {
-                        log(`{oneCert} self-signed certificate found, keeping it ...`);
-                        return callback();
-                    }
-                });
-            }, (error) => {
-                if (error) {
-                    throw new Error(error);
-                }
-
+                console.log (buffer.toString());
+                log(`Certificates generated successfully ...`);
                 return cb();
             });
         }
