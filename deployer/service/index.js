@@ -1,6 +1,7 @@
 "use strict";
 const util = require('util');
 const fs = require('fs');
+const path = require('path');
 const fse = require('fs-extra');
 const spawn = require('child_process').spawn;
 
@@ -133,7 +134,7 @@ let utils = {
     runService(options, cb) {
         //run the service
         util.log("Running the " + gitRepo + " service.");
-        const runService = spawn('node', [ mainFile ], { stdio: 'inherit', cwd: serviceDirectory + gitRepo + "/" });
+        const runService = spawn('node', [ path.join(serviceDirectory, gitRepo, mainFile) ], { stdio: 'inherit' });
 
         runService.on('data', (data) => {
             console.log(data.toString());
