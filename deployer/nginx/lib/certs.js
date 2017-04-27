@@ -109,7 +109,7 @@ let ssl = {
      */
     detect(options, cb) {
         async.each(options.certs, (oneCert, callback) => {
-            fs.access(oneCert, fs.constants.F_OK | fs.constants.R_OK | fs.constants.W_OK, (error) => {
+            fs.access(oneCert, fs.constants.F_OK | fs.constants.R_OK, (error) => {
                 if (error) {
                     if (error.code === 'ENOENT') {
                         log(`Error: ${error.code} Certificate ${oneCert} no found`);
