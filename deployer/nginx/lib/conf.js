@@ -189,8 +189,10 @@ let builder = {
             if (error) throw new Error(error);
 
             //replace placeholders with appropriate values
-            data = data.replace(/{{SOAJS_ENV}}/g, process.env.SOAJS_ENV.toLowerCase());
-            data = data.replace(/{{SOAJS_HA_NAME}}/g, process.env.SOAJS_HA_NAME.toLowerCase());
+            let env = ((process.env.SOAJS_ENV) ? process.env.SOAJS_ENV.toLowerCase() : 'dev');
+            let haName = ((process.env.SOAJS_HA_NAME) ? process.env.SOAJS_HA_NAME.toLowerCase() : '');
+            data = data.replace(/{{SOAJS_ENV}}/g, env);
+            data = data.replace(/{{SOAJS_HA_NAME}}/g, haName);
             fs.writeFile(targetFilePath, data, (error) => {
                 if (error) throw new Error(error);
 
