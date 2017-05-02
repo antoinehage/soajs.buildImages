@@ -136,24 +136,24 @@ let utils = {
         //run the service
         util.log("Running the " + gitRepo + " service.");
 
-        let servicePath =  path.join(serviceDirectory, gitRepo, mainFile);
+        let servicePath =  path.join(serviceDirectory, gitRepo, '/') + mainFile;
         let nodeParams = '';
-        
+
         //if custom memory is allocated to the service, add it to the command.
         if (serviceMemory) {
             nodeParams = "--max_old_space_size=" + serviceMemory;
         }
 
-        const runService = spawn('node', [ nodeParams, servicePath ], { stdio: 'inherit' });
+        let runParams = [];
+        if (nodeParams) runParams.push(nodeParams);
+        runParams.push(servicePath);
+
+        const runService = spawn('node', runParams, { stdio: 'inherit' });
 
         runService.on('data', (data) => {
             console.log(data.toString());
         });
 
-        runService.on('close', (code) => {
-            console.log ('The ' + gitRepo + ' service is successfully running.');
-            return cb();
-        });
         runService.on('error', (error) => {
             console.log (' Unable to start the ' + gitRepo + ' service.');
             return cb(error);
