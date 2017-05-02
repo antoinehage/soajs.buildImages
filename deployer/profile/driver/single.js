@@ -62,7 +62,6 @@ var singleProfile = {
         "domainsEnabled": false,                    //Enable the wrapping of the callback in the current domain, disabled by default to avoid perf hit.
 
         "bufferMaxEntries": -1,                     //Sets a cap on how many operations the driver will buffer up before giving up on getting a working connection, default is -1 which is unlimited.
-        "readPreference": null,
         "pkFactory": null,                          //A primary key factory object for generation of custom _id keys.
         "promiseLibrary": null,                     //A Promise library class the application wishes to use such as Bluebird, must be ES6 compatible
         "readConcern": null,
