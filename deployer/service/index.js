@@ -18,6 +18,7 @@ const gitProvider = process.env.SOAJS_GIT_PROVIDER || "github";
 const soajsProfile = process.env.SOAJS_PROFILE;
 const accDeployment = process.env.SOAJS_DEPLOY_ACC;
 const mainFile = process.env.SOAJS_SRV_MAIN || ".";
+const serviceMemory = process.env.SOAJS_SRV_MEMORY || null;
 
 const serviceDirectory = "/opt/soajs/node_modules/";
 const soajsDirectory = "/opt/soajs/FILES/soajs";
@@ -134,7 +135,14 @@ let utils = {
     runService(options, cb) {
         //run the service
         util.log("Running the " + gitRepo + " service.");
-        const runService = spawn('node', [ path.join(serviceDirectory, gitRepo, mainFile) ], { stdio: 'inherit' });
+
+        let servicePath =  path.join(serviceDirectory, gitRepo, mainFile);
+
+        //if custom memory is allocated to the service, add it to the command.
+        if(serviceMemory)
+            servicePath += " --max_old_space_size=" + serviceMemory;
+
+        const runService = spawn('node', [ servicePath ], { stdio: 'inherit' });
 
         runService.on('data', (data) => {
             console.log(data.toString());
