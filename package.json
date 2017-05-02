@@ -26,7 +26,6 @@
     "async": "2.1.4",
     "dockerode": "*",
     "mkdirp": "*",
-    "nodegit": "0.18.0",
     "ncp": "*",
     "rimraf": "*",
     "soajs": "1.*",
