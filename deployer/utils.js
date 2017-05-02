@@ -36,7 +36,7 @@ let utils = {
             }
 
             log('Cloning in progress ...');
-            const clone = spawn('git', [ 'clone', '--branch', options.repo.git.branch, '--depth', '1', cloneUrl, options.clonePath ], { stdio: 'inherit' });
+            const clone = spawn('git', [ 'clone', '--progress', '--branch', options.repo.git.branch, '--depth', '1', cloneUrl, options.clonePath ], { stdio: 'inherit' });
 
             clone.on('data', (data) => {
                 console.log(data.toString());
@@ -44,7 +44,7 @@ let utils = {
 
             clone.on('close', (code) => {
                 log(`Cloning repository ${options.repo.git.owner}/${options.repo.git.repo} was successful, exit code: ${code}`);
-                return cb();
+                return cb(null, true);
             });
             clone.on('error', (error) => {
                 console.log (`Clone process failed with error: ${error}`);
