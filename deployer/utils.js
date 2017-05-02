@@ -1,6 +1,6 @@
 'use strict';
 
-const git = require('nodegit');
+const spawn = require('child_process').spawn;
 const log = require('util').log;
 
 let utils = {
@@ -36,16 +36,18 @@ let utils = {
             }
 
             log('Cloning in progress ...');
-            let cloneOptions = {
-                checkoutBranch: options.repo.git.branch
-            };
-            git.Clone(cloneUrl, options.clonePath, cloneOptions).then(function (repo) {
-                log(`Cloning repository ${options.repo.git.owner}/${options.repo.git.repo} was successful ...`);
-                return cb(null, repo);
-            })
-            .catch(function (error) {
-                log(`Unable to clone repository ${options.repo.git.owner}/${options.repo.git.repo}`);
-                log(error);
+            const clone = spawn('git', [ 'clone', '--branch', options.repo.git.branch, '--depth', '1', cloneUrl, options.clonePath ], { stdio: 'inherit' });
+
+            clone.on('data', (data) => {
+                console.log(data.toString());
+            });
+
+            clone.on('close', (code) => {
+                log(`Cloning repository ${options.repo.git.owner}/${options.repo.git.repo} was successful, exit code: ${code}`);
+                return cb();
+            });
+            clone.on('error', (error) => {
+                console.log (`Clone process failed with error: ${error}`);
                 throw new Error(error);
             });
         }
