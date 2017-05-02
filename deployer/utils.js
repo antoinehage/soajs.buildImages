@@ -19,20 +19,20 @@ let utils = {
                 log('Cloning from ' + options.repo.git.provider + ' private repository ...');
 
                 if (options.repo.git.provider === 'github') {
-                    cloneUrl = `https://${options.repo.git.token}@${options.repo.git.domain}/${options.repo.git.owner}/${options.repo.git.repo}`;
+                    cloneUrl = `https://${options.repo.git.token}@${options.repo.git.domain}/${options.repo.git.owner}/${options.repo.git.repo}.git`;
                 }
                 else if (options.repo.git.provider === 'bitbucket') {
                     if (options.repo.git.domain === 'bitbucket.org') {
-                        cloneUrl = `https://x-token-auth:${options.repo.git.token}@${options.repo.git.domain}/${options.repo.git.owner}/${options.repo.git.repo}`;
+                        cloneUrl = `https://x-token-auth:${options.repo.git.token}@${options.repo.git.domain}/${options.repo.git.owner}/${options.repo.git.repo}.git`;
                     }
                     else {
-                        cloneUrl = `https://${options.repo.git.token}@${options.repo.git.domain}/scm/${options.repo.git.owner}/${options.repo.git.repo}`;
+                        cloneUrl = `https://${options.repo.git.token}@${options.repo.git.domain}/scm/${options.repo.git.owner}/${options.repo.git.repo}.git`;
                     }
                 }
             }
             else {
                 log('Cloning from ' + options.repo.git.provider + ' public repository ...');
-                cloneUrl = `https://${options.repo.git.domain}/${options.repo.git.owner}/${options.repo.git.repo}`;
+                cloneUrl = `https://${options.repo.git.domain}/${options.repo.git.owner}/${options.repo.git.repo}.git`;
             }
 
             log('Cloning in progress ...');
