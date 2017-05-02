@@ -137,12 +137,14 @@ let utils = {
         util.log("Running the " + gitRepo + " service.");
 
         let servicePath =  path.join(serviceDirectory, gitRepo, mainFile);
-
+        let nodeParams = '';
+        
         //if custom memory is allocated to the service, add it to the command.
-        if(serviceMemory)
-            servicePath += " --max_old_space_size=" + serviceMemory;
+        if (serviceMemory) {
+            nodeParams = "--max_old_space_size=" + serviceMemory;
+        }
 
-        const runService = spawn('node', [ servicePath ], { stdio: 'inherit' });
+        const runService = spawn('node', [ nodeParams, servicePath ], { stdio: 'inherit' });
 
         runService.on('data', (data) => {
             console.log(data.toString());
