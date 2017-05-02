@@ -23,7 +23,7 @@ let utils = {
                 }
                 else if (options.repo.git.provider === 'bitbucket') {
                     if (options.repo.git.domain === 'bitbucket.org') {
-                        cloneUrl = `https://x-token-auth${options.repo.git.token}@${options.repo.git.domain}/${options.repo.git.owner}/${options.repo.git.repo}`;
+                        cloneUrl = `https://x-token-auth:${options.repo.git.token}@${options.repo.git.domain}/${options.repo.git.owner}/${options.repo.git.repo}`;
                     }
                     else {
                         cloneUrl = `https://${options.repo.git.token}@${options.repo.git.domain}/scm/${options.repo.git.owner}/${options.repo.git.repo}`;
