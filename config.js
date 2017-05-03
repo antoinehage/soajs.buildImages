@@ -18,9 +18,9 @@ module.exports = {
             "maintainer": 'MAINTAINER SOAJS Team <team@soajs.org>',
             "body": [
                 'RUN mkdir -p /opt/soajs/FILES/profiles && mkdir -p /opt/soajs/deployer && mkdir -p /etc/nginx/ssl',
-                'ADD ./deployer /opt/soajs/deployer/', // new deployer
-                'RUN cd /opt/soajs/deployer/ && npm install',
+                'ADD ./deployer /opt/soajs/deployer/',
                 'ENV NODE_ENV=production',
+                'RUN cd /opt/soajs/deployer/ && npm install',
                 'EXPOSE #SERVICEPORT#',
                 'CMD ["/bin/bash"]']
         },
@@ -29,10 +29,9 @@ module.exports = {
             "maintainer": 'MAINTAINER SOAJS Team <team@soajs.org>',
             "body": [
                 'RUN mkdir -p /opt/soajs/node_modules && mkdir -p /opt/soajs/FILES/profiles && mkdir -p /opt/soajs/deployer',
-                'ADD ./FILES /opt/soajs/FILES/', // old deployer, will be removed
-                'ADD ./deployer /opt/soajs/deployer/', // new deployer
-                'RUN cd /opt/soajs/deployer/ && npm install',
+                'ADD ./deployer /opt/soajs/deployer/',
                 'ENV NODE_ENV=production',
+                'RUN cd /opt/soajs/deployer/ && npm install',
                 'RUN cd /opt/soajs/FILES/soajs && npm install',
                 'CMD ["/bin/bash"]']
         },
