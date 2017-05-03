@@ -58,16 +58,40 @@ function deploy() {
         throw new Error(e);
     }
 
-    if (script.type === 'service') {
+    switch (script.type) {
+
+        case 'service':
+            deployService(options);
+            break;
+
+        case 'nginx':
+            deployNginx(options);
+            break;
+
+        case 'nodejs':
+            deployNodejs(options);
+
+    }
+
+    function deployService(options) {
         const service = require('./service');
         service.deployService(options, () => {
             log('Exiting ...');
         });
     }
-    else if (script.type === 'nginx') {
+
+    function deployNginx(options) {
         options.nginx = config.nginx;
         const nginx = require('./nginx');
         nginx.deploy(options, () => {
+            log('Exiting ...');
+        });
+    }
+
+    function deployNodejs(options) {
+        options.nodejs = config.nodejs;
+        const nodejs = require('./nodejs');
+        nodejs.deploy(options, () => {
             log('Exiting ...');
         });
     }

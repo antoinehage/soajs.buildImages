@@ -5,7 +5,7 @@ const path = require('path');
 const config = {
 
     deploy: {
-        types: ['service', 'nginx']
+        types: ['service', 'nginx', 'nodejs']
     },
 
     paths: {
@@ -24,6 +24,9 @@ const config = {
             nginx: {
                 path: __dirname + '/nginx/templates/'
             }
+        },
+        service: {
+            path: '/opt/soajs/node_modules/'
         }
     },
 
@@ -84,6 +87,19 @@ const config = {
             branch: process.env.SOAJS_GIT_DASHBOARD_BRANCH,
             path: '/ui'
         }
+    },
+
+    nodejs: {
+        git: {
+            provider: process.env.SOAJS_GIT_PROVIDER || 'github',
+            domain: process.env.SOAJS_GIT_DOMAIN || 'github.com',
+            owner: process.env.SOAJS_GIT_OWNER,
+            repo: process.env.SOAJS_GIT_REPO,
+            branch: process.env.SOAJS_GIT_BRANCH || 'master',
+            token: process.env.SOAJS_GIT_TOKEN
+        },
+        main: process.env.SOAJS_SRV_MAIN || '.',
+        memory: process.env.SOAJS_SRV_MEMORY
     }
 
 };
