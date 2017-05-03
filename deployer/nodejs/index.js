@@ -89,7 +89,7 @@ let nodejs = {
         if (nodeParams) runParams.push(nodeParams);
         runParams.push(serviceRun);
 
-        const node = spawn('node', runParams, { stdio: 'inherit', cwd: options.repoDirPath });
+        const node = spawn('node', runParams, { stdio: 'inherit' });
 
         node.on('data', (data) => {
             console.log (data.toString());
