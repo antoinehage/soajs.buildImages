@@ -118,11 +118,16 @@ let utils = {
         });
 
         npmInstall.on('close', (code) => {
-            console.log ('Successfully Installed the ' + gitRepo + ' dependencies.');
-            return cb();
+            if (code === 0) {
+                util.log('Successfully Installed the ' + gitRepo + ' dependencies.');
+                return cb();
+            }
+            else {
+                throw new Error(`npm install failed, exit code: ${code}`);
+            }
         });
         npmInstall.on('error', (error) => {
-            console.log ('Error while installing the ' + gitRepo + ' dependencies.');
+            util.log ('Error while installing the ' + gitRepo + ' dependencies.');
             return cb(error);
         });
     },

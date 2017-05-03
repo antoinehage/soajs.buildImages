@@ -26,11 +26,11 @@ function startNginx(cb) {
     });
 
     nginx.on('close', (code) => {
-        console.log (`Nginx process exited with code: ${code}`);
+        log(`Nginx process exited with code: ${code}`);
         return cb();
     });
     nginx.on('error', (error) => {
-        console.log (`Nginx process failed with error: ${error}`);
+        log(`Nginx process failed with error: ${error}`);
         return cb(error);
     });
 }

@@ -64,8 +64,13 @@ let nodejs = {
         });
 
         npm.on('close', (code) => {
-            log(`npm install process exited with code: ${code}`);
-            return nodejs.run(options, cb);
+            if (code === 0) {
+                log(`npm install process exited with code: ${code}`);
+                return nodejs.run(options, cb);
+            }
+            else {
+                throw new Error(`npm install failed, exit code: ${code}`);
+            }
         });
 
         npm.on('error', (error) => {

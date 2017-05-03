@@ -43,8 +43,13 @@ let utils = {
             });
 
             clone.on('close', (code) => {
-                log(`Cloning repository ${options.repo.git.owner}/${options.repo.git.repo} was successful, exit code: ${code}`);
-                return cb(null, true);
+                if (code === 0) {
+                    log(`Cloning repository ${options.repo.git.owner}/${options.repo.git.repo} was successful, exit code: ${code}`);
+                    return cb(null, true);
+                }
+                else {
+                    throw new Error(`ERROR: Clone exited with code: ${code}, check clone logs`);
+                }
             });
             clone.on('error', (error) => {
                 console.log (`Clone process failed with error: ${error}`);
