@@ -40,7 +40,7 @@ const config = {
         masterDomain: process.env.SOAJS_NX_DOMAIN || 'soajs.org',
         config: {
             upstream: {
-                ctrlPort: '4000',
+                ctrlPort: process.env.SOAJS_NX_CONTROLLER_PORT || '4000',
                 ipEnvName: 'SOAJS_NX_CONTROLLER_IP_',
                 upstreamName: 'soajs.controller',
                 count: process.env.SOAJS_NX_CONTROLLER_NB || 1
