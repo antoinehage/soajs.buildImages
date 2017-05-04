@@ -27,6 +27,9 @@ const config = {
         },
         service: {
             path: '/opt/soajs/node_modules/'
+        },
+        logging: {
+            path: '/var/log/soajs/'
         }
     },
 
