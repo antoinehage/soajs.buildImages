@@ -45,7 +45,7 @@ function getUI(options, cb) {
     let gitInfo = {};
     // if requested UI is dashboard ui, check if valid before cloning it
     if (options.type === 'dashboard') {
-        if (!process.env.SOAJS_ENV && process.env.SOAJS_ENV.toLowerCase() !== 'dashboard') return cb();
+        if (process.env.SOAJS_ENV && process.env.SOAJS_ENV.toLowerCase() !== 'dashboard') return cb();
         if (!process.env.SOAJS_GIT_DASHBOARD_BRANCH || process.env.SOAJS_GIT_DASHBOARD_BRANCH === '') return cb();
 
         gitInfo = config.dashboard.git;
