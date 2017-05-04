@@ -4,6 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const async = require('async');
 const log = require('util').log;
+const handlebars = require("handlebars");
 
 let importer = {
 
@@ -104,6 +105,8 @@ let importer = {
      *
      */
     process(options, cb) {
+	    
+	    
         // before processing, filter out all files that were not read properly because of an error
         async.filter(options.data.files, (oneEntry, callback) => {
             return callback(null, oneEntry);
@@ -115,18 +118,29 @@ let importer = {
 
                 // go through every entry in array, search for placeholders and replace if applicable
                 async.map(dataArray, (oneArrayEntry, callback) => {
-                    let matches = oneArrayEntry.match(/{{[^}}]*}}/g);
-                    if (matches && matches.length > 0) {
-                        for (let i = 0; i < matches.length; i++) {
-                            let placeholder = matches[i].substring(2, matches[i].length - 2);
-                            if (process.env[placeholder]) {
-                                let replacementRegExp = new RegExp(matches[i], 'g');
-                                oneArrayEntry = oneArrayEntry.replace(replacementRegExp, process.env[placeholder]);
-                            }
-                        }
-                    }
-
-                    return callback(null, oneArrayEntry);
+                	
+                	//compile the incoming file content
+                	let template = handlebars.compile(oneArrayEntry);
+                	
+                	//use the compile version to render the env variables
+	                let out = template(process.env);
+	                
+	                //return the output via callback
+	                return callback(null, out);
+                	
+                    // let matches = oneArrayEntry.match(/{{[^}}]*}}/g);
+                    // if (matches && matches.length > 0) {
+                    //     for (let i = 0; i < matches.length; i++) {
+                    //         let placeholder = matches[i].substring(2, matches[i].length - 2);
+                    //         if (process.env[placeholder]) {
+                    //             let replacementRegExp = new RegExp(matches[i], 'g');
+                    //             oneArrayEntry = oneArrayEntry.replace(replacementRegExp, process.env[placeholder]);
+                    //         }
+                    //     }
+                    // }
+                    //
+                    // return callback(null, oneArrayEntry);
+	                
                 }, (error, updatedArrayEntries) => {
                     // no errors will be returned
                     // join the array back to a single string and return
