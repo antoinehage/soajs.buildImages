@@ -105,8 +105,8 @@ let importer = {
      *
      */
     process(options, cb) {
-	    
-	    
+
+
         // before processing, filter out all files that were not read properly because of an error
         async.filter(options.data.files, (oneEntry, callback) => {
             return callback(null, oneEntry);
@@ -114,38 +114,15 @@ let importer = {
             // convert each custom file from buffer to utf8 string and split based on space
             async.map(importEntries, (oneImport, callback) => {
                 let importData = oneImport.toString('utf8');
-                let dataArray = importData.split(' ');
 
-                // go through every entry in array, search for placeholders and replace if applicable
-                async.map(dataArray, (oneArrayEntry, callback) => {
-                	
-                	//compile the incoming file content
-                	let template = handlebars.compile(oneArrayEntry);
-                	
-                	//use the compile version to render the env variables
-	                let out = template(process.env);
-	                
-	                //return the output via callback
-	                return callback(null, out);
-                	
-                    // let matches = oneArrayEntry.match(/{{[^}}]*}}/g);
-                    // if (matches && matches.length > 0) {
-                    //     for (let i = 0; i < matches.length; i++) {
-                    //         let placeholder = matches[i].substring(2, matches[i].length - 2);
-                    //         if (process.env[placeholder]) {
-                    //             let replacementRegExp = new RegExp(matches[i], 'g');
-                    //             oneArrayEntry = oneArrayEntry.replace(replacementRegExp, process.env[placeholder]);
-                    //         }
-                    //     }
-                    // }
-                    //
-                    // return callback(null, oneArrayEntry);
-	                
-                }, (error, updatedArrayEntries) => {
-                    // no errors will be returned
-                    // join the array back to a single string and return
-                    return callback(null, updatedArrayEntries.join(' '));
-                });
+                //compile the incoming file content
+                let template = handlebars.compile(importData);
+
+                //use the compile version to render the env variables
+                let out = template(process.env);
+
+                //return the output via callback
+                return callback(null, out);
             }, (error, updatedFiles) => {
                 // no errors will be returned
                 options.data.updatedFiles = updatedFiles;
