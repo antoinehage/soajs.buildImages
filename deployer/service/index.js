@@ -153,22 +153,21 @@ let utils = {
             nodeParams = "--max_old_space_size=" + serviceMemory;
         }
 
-        // let runParams = [];
-        // if (nodeParams) runParams.push(nodeParams);
-        // runParams.push(servicePath);
-        let runParams = '';
+        let runParams = [];
+        if (nodeParams) runParams.push(nodeParams);
+        runParams.push(servicePath);
+        // let runParams = '';
+        //
+        // let repoNameClean = gitRepo.replace(/[\\/\*\?"<>\|,\.-]/g, '_').toLowerCase();
+        // let haNameClean = haName.replace(/[\\/\*\?"<>\|,\.-]/g, '_').toLowerCase();
+        // if (process.env.SOAJS_DEPLOY_HA && process.env.SOAJS_DEPLOY_HA.toLowerCase() === 'docker') {
+        //     haNameClean = haName.substring(0, haName.lastIndexOf('.')).replace(/[\\/\*\?"<>\|,\.-]/g, '_').toLowerCase();
+        // }
+        //
+        // let logPath = path.join(config.paths.logging.path, `${soajsEnv}-${repoNameClean}-${haNameClean}-service.log`);
+        // let loggingParams = [ '2>&1', '|', 'tee', logPath ];
 
-        let repoNameClean = gitRepo.replace(/[\\/\*\?"<>\|,\.-]/g, '_').toLowerCase();
-        let haNameClean = haName.replace(/[\\/\*\?"<>\|,\.-]/g, '_').toLowerCase();
-        if (process.env.SOAJS_DEPLOY_HA && process.env.SOAJS_DEPLOY_HA.toLowerCase() === 'docker') {
-            haNameClean = haName.substring(0, haName.lastIndexOf('.')).replace(/[\\/\*\?"<>\|,\.-]/g, '_').toLowerCase();
-        }
-
-        let logPath = path.join(config.paths.logging.path, `${soajsEnv}-${repoNameClean}-${haNameClean}-service.log`);
-        let loggingParams = [ '2>&1', '|', 'tee', logPath ];
-        // runParams = runParams.concat(loggingParams);
-
-        const runService = spawn('node', [], { stdio: 'inherit' });
+        const runService = spawn('node', runParams, { stdio: 'inherit' });
 
         runService.on('data', (data) => {
             console.log(data.toString());
