@@ -62,7 +62,8 @@ function getUI(options, cb) {
             owner: process.env.SOAJS_GIT_OWNER,
             repo: process.env.SOAJS_GIT_REPO,
             branch: process.env.SOAJS_GIT_BRANCH || 'master',
-            path: process.env.SOAJS_GIT_PATH || '/'
+            path: process.env.SOAJS_GIT_PATH || '/',
+            token: process.env.SOAJS_GIT_TOKEN || null
         };
     }
 
@@ -74,7 +75,8 @@ function getUI(options, cb) {
                 domain: gitInfo.domain,
                 owner: gitInfo.owner,
                 repo: gitInfo.repo,
-                branch: gitInfo.branch
+                branch: gitInfo.branch,
+	            token: gitInfo.token
             }
         },
         clonePath: config.paths.tempFolders.temp.path
