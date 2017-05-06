@@ -15,6 +15,9 @@ let utils = {
         let cloneUrl = '';
 
         if (options.repo.git.owner && options.repo.git.repo) {
+            if (!options.repo.git.branch) options.repo.git.branch = 'master';
+            if (!options.clonePath) throw new Error(`ERROR: No clone path specified, you need to specify where to download the contents of the repository!`);
+
             if (options.repo.git.token) {
                 log('Cloning from ' + options.repo.git.provider + ' private repository ...');
 
@@ -35,7 +38,7 @@ let utils = {
                 cloneUrl = `https://${options.repo.git.domain}/${options.repo.git.owner}/${options.repo.git.repo}.git`;
             }
 
-            log('Cloning in progress ...');
+            log(`Cloning ${options.repo.git.owner}/${options.repo.git.repo} from ${options.repo.git.branch} branch, in progress ...`);
             const clone = spawn('git', [ 'clone', '--progress', '--branch', options.repo.git.branch, '--depth', '1', cloneUrl, options.clonePath ], { stdio: 'inherit' });
 
             clone.on('data', (data) => {
