@@ -1,0 +1,29 @@
+{
+  "name": "soajs.deployer",
+  "description": "SOAJS Deployer",
+  "version": "0.0.1",
+  "author": {
+    "name": "SOAJS Team",
+    "email": "team@soajs.org"
+  },
+  "license" : "Apache-2.0",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:antoinehage/soajs.buildImages.git"
+  },
+  "engines": {
+    "node": "*"
+  },
+  "scripts": {
+    "test": ""
+  },
+  "dependencies": {
+    "async": "2.1.4",
+    "commander": "2.9.0",
+    "fs-extra": "*",
+    "handlebars": "4.0.6",
+    "openssl-wrapper": "0.3.4",
+    "rimraf": "*"
+  }
+}
