@@ -1,7 +1,7 @@
 {
   "name": "soajs.deployer",
   "description": "SOAJS Deployer",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "author": {
     "name": "SOAJS Team",
     "email": "team@soajs.org"
