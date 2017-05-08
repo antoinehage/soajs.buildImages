@@ -37,24 +37,60 @@ module.exports = {
                 'CMD ["/bin/bash"]']
         },
         "logstash": {
-            "from": 'FROM logstash:2.4.0',
-            "maintainer": 'MAINTAINER SOAJS Team <team@soajs.org>',
-            "body": [
-                'Add ./FILES/conf/logstash.conf /conf/logstash.conf',
-                'RUN chown logstash:logstash /conf/logstash.conf',
-                'CMD ["/bin/bash"]']
-        },
+		    "from": 'FROM docker.elastic.co/logstash/logstash:5.3.0',
+		    "maintainer": 'MAINTAINER SOAJS Team <team@soajs.org>',
+		    "body": [
+			    'Add ./FILES/logstash/logstash.yml /usr/share/logstash/config/logstash.yml',
+			    'Add ./FILES/logstash/logstash.conf /usr/share/logstash/config/logstash.conf',
+			    'CMD ["/bin/bash"]']
+	    },
         "filebeat": {
             "from": "FROM ubuntu:16.04",
             "maintainer": "MAINTAINER SOAJS Team <team@soajs.org>",
             "body": [
                 'RUN apt-get update && apt-get install -y curl',
                 'RUN cd /opt/ && \\',
-                    'curl -o filebeat.deb https://download.elastic.co/beats/filebeat/filebeat_1.3.1_amd64.deb && \\',
+                    'curl -o filebeat.deb https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-5.3.0-amd64.deb && \\',
                     'dpkg -i filebeat.deb && \\',
                     'rm filebeat.deb',
-                'ADD ./FILES/conf/filebeat.yml /etc/filebeat/filebeat.yml',
+                'ADD ./FILES/filebeat/filebeat.yml /etc/filebeat/filebeat.yml',
                 'CMD ["/bin/bash"]'
+            ]
+        },
+        "metricbeat": {
+            "from": "FROM frolvlad/alpine-glibc",
+            "maintainer": "MAINTAINER SOAJS Team <team@soajs.org>",
+            "body": [
+                'ENV METRICBEAT_VERSION=5.3.0',
+                'RUN apk add --no-cache ca-certificates curl',
+                'RUN curl -L -O https://artifacts.elastic.co/downloads/beats/metricbeat/metricbeat-${METRICBEAT_VERSION}-linux-x86_64.tar.gz && \\',
+                    'tar -xvvf metricbeat-${METRICBEAT_VERSION}-linux-x86_64.tar.gz && \\',
+                    'mv metricbeat-${METRICBEAT_VERSION}-linux-x86_64/ /metricbeat && \\',
+                    'mv /metricbeat/metricbeat.yml /metricbeat/metricbeat.example.yml && \\',
+                    'mv /metricbeat/metricbeat /bin/metricbeat && \\',
+                    'chmod +x /bin/metricbeat && \\',
+                    'mkdir -p /metricbeat/config /metricbeat/data && \\',
+                    'rm metricbeat-${METRICBEAT_VERSION}-linux-x86_64.tar.gz',
+                'WORKDIR /metricbeat',
+                'ADD ./FILES/metricbeat/metricbeat.yml /metricbeat/metricbeat.yml',
+                'ADD ./FILES/metricbeat/start.sh /metricbeat/start.sh',
+                'ENTRYPOINT /metricbeat/start.sh'
+            ]
+        },
+        "kibana": {
+            "from": "FROM kibana:5.3.0",
+            "maintainer": "MAINTAINER SOAJS Team <team@soajs.org>",
+            "body": [
+                'RUN apt-get update && \\',
+                    'apt-get install --fix-missing -y git curl && \\',
+                    'curl -sL https://deb.nodesource.com/setup_6.x | bash && \\',
+                    'apt-get install --fix-missing -y nodejs && \\',
+                    'npm install --global bower',
+                'WORKDIR /usr/share/kibana/plugins',
+                'RUN git clone https://github.com/nreese/kibana-time-plugin.git && \\',
+                    'cd /usr/share/kibana/plugins/kibana-time-plugin && \\',
+                    'bower install --allow-root',
+                'ADD ./FILES/kibana/package.json /usr/share/kibana/plugins/kibana-time-plugin/package.json'
             ]
         }
     },

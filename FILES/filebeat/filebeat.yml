@@ -1,9 +1,9 @@
 filebeat:
-  #registry_file: .test
+  registry_file: .filebeat-${SOAJS_ENV}
   prospectors:
     -
       paths:
-        - /var/log/soajs/${SOAJS_ENV}-*.log
+        - "/var/log/soajs/${SOAJS_ENV}-*.log"
       multiline:
          pattern: '^[[:space:]]'
          match: after
