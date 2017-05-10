@@ -70,6 +70,11 @@ function deploy() {
 
         case 'nodejs':
             deployNodejs(options);
+            break;
+
+        case 'profile':
+            generateProfile(options);
+            break;
 
     }
 
@@ -93,6 +98,13 @@ function deploy() {
         const nodejs = require('./nodejs');
         nodejs.deploy(options, () => {
             log('Exiting ...');
+        });
+    }
+
+    function generateProfile(options) {
+        const profile = require('./profile');
+        profile.getProfile(options, () => {
+            log('Profile generation done');
         });
     }
 }

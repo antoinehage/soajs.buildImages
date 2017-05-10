@@ -5,7 +5,7 @@ const path = require('path');
 const config = {
 
     deploy: {
-        types: ['service', 'nginx', 'nodejs']
+        types: ['service', 'nginx', 'nodejs', 'profile']
     },
 
     paths: {
