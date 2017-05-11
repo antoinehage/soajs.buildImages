@@ -28,7 +28,7 @@
     "mkdirp": "*",
     "ncp": "*",
     "rimraf": "*",
-    "soajs": "1.*",
-    "soajs.core.modules": "1.*"
+    "soajs": "1.0.*",
+    "soajs.core.modules": "1.0.*"
   }
 }
