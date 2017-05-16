@@ -31,9 +31,8 @@ var replicaProfile = {
     "URLParam": {
         "poolSize": 5,                             //Default poolsize value
         "ha": true,                                 //Turn on high availability monitoring.
-        "replicaSet": null,
         "bufferMaxEntries": -1,                    //Sets a cap on how many operations the driver will buffer up before giving up on getting a working connection, default is -1 which is unlimited.
-        "readPreference": null
+        "readPreference": "secondaryPreferred"
     }
 };
 
