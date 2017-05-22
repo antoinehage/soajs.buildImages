@@ -1,3 +1,4 @@
+/* jshint esversion: 6 */
 'use strict';
 
 const script = require('commander');
@@ -6,12 +7,12 @@ const path = require('path');
 const fs = require('fs');
 
 const config = require('./config.js');
-const utils = require('./utils.js');
+const utils = require('./utils');
 const version = require('./package.json').version;
 
 script
     .version(version)
-    .option('-T, --type <type>', '(required): Deployment type: nginx || service')
+    .option('-T, --type <type>', '(required): Deployment type')
     .parse(process.argv);
 
 if (config.deploy.types.indexOf(script.type) === -1) {
@@ -76,35 +77,61 @@ function deploy() {
             generateProfile(options);
             break;
 
+        case 'metricbeat':
+            deployMetricbeat(options);
+            break;
+
+        case 'logstash':
+            deployLogstash(options);
+            break;
+
+        case 'kibana':
+            deployKibana(options);
+            break;
+
     }
 
     function deployService(options) {
         const service = require('./service');
-        service.deployService(options, () => {
-            log('Exiting ...');
-        });
+        service.deployService(options, exitCb);
     }
 
     function deployNginx(options) {
         options.nginx = config.nginx;
         const nginx = require('./nginx');
-        nginx.deploy(options, () => {
-            log('Exiting ...');
-        });
+        nginx.deploy(options, exitCb);
     }
 
     function deployNodejs(options) {
         options.nodejs = config.nodejs;
         const nodejs = require('./nodejs');
-        nodejs.deploy(options, () => {
-            log('Exiting ...');
-        });
+        nodejs.deploy(options, exitCb);
     }
 
     function generateProfile(options) {
         const profile = require('./profile');
-        profile.getProfile(options, () => {
-            log('Profile generation done');
-        });
+        profile.getProfile(options, exitCb);
     }
+
+    function deployMetricbeat(options) {
+        options.metricbeat = config.metricbeat;
+        const metricbeat = require('./metricbeat');
+        metricbeat.deploy(options, exitCb);
+    }
+
+    function deployLogstash(options) {
+        options.logstash = config.logstash;
+        const logstash = require('./logstash');
+        logstash.deploy(options, exitCb);
+    }
+
+    function deployKibana(options) {
+        options.kibana = config.kibana;
+        const kibana = require('./kibana');
+        kibana.deploy(options, exitCb);
+    }
+}
+
+function exitCb() {
+    log('Done, exiting ...');
 }

@@ -1,9 +1,10 @@
+/* jshint esversion: 6 */
 'use strict';
 
 const spawn = require('child_process').spawn;
 const log = require('util').log;
 
-let utils = {
+const cloner = {
 
     /**
      * Function that clones a git repositroy
@@ -67,4 +68,6 @@ let utils = {
 
 };
 
-module.exports = utils;
+module.exports = {
+    clone: cloner.clone
+};

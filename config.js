@@ -40,8 +40,14 @@ module.exports = {
 		    "from": 'FROM docker.elastic.co/logstash/logstash:5.3.0',
 		    "maintainer": 'MAINTAINER SOAJS Team <team@soajs.org>',
 		    "body": [
-			    'Add ./FILES/logstash/logstash.yml /usr/share/logstash/config/logstash.yml',
-			    'Add ./FILES/logstash/logstash.conf /usr/share/logstash/config/logstash.conf',
+                'USER root',
+                'RUN apt-get update && \\',
+                    'apt-get install --fix-missing -y git curl && \\',
+                    'curl -sL https://deb.nodesource.com/setup_6.x | bash && \\',
+                    'apt-get install --fix-missing -y nodejs',
+                'RUN mkdir -p /opt/soajs/deployer',
+                'ADD ./deployer /opt/soajs/deployer',
+                'RUN cd /opt/soajs/deployer/ && npm install',
 			    'CMD ["/bin/bash"]']
 	    },
         "filebeat": {

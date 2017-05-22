@@ -5,7 +5,7 @@ const path = require('path');
 const config = {
 
     deploy: {
-        types: ['service', 'nginx', 'nodejs', 'profile']
+        types: ['service', 'nginx', 'nodejs', 'profile', 'metricbeat', 'logstash', 'kibana']
     },
 
     paths: {
@@ -23,6 +23,15 @@ const config = {
         templates: {
             nginx: {
                 path: __dirname + '/nginx/templates/'
+            },
+            logstash: {
+                path: __dirname + '/logstash/templates/'
+            },
+            kibana: {
+                path: __dirname + '/kibana/templates/'
+            },
+            metricbeat: {
+                path: __dirname + '/metricbeat/templates/'
             }
         },
         service: {
@@ -103,6 +112,18 @@ const config = {
         },
         main: process.env.SOAJS_SRV_MAIN || '.',
         memory: process.env.SOAJS_SRV_MEMORY
+    },
+
+    metricbeat: {
+
+    },
+
+    logstash: {
+        configDir: process.env.SOAJS_LOGSTASH_CONFIG_DIR || '/usr/share/logstash/config/'
+    },
+
+    kibana: {
+
     }
 
 };
