@@ -98,7 +98,8 @@ module.exports = {
                 'ADD ./FILES/kibana/package.json /usr/share/kibana/plugins/kibana-time-plugin/package.json',
                 'RUN mkdir -p /opt/soajs/deployer && mkdir -p /usr/share/kibana/config',
                 'ADD ./deployer /opt/soajs/deployer',
-                'RUN cd /opt/soajs/deployer && npm install'
+                'RUN cd /opt/soajs/deployer && npm install',
+                'CMD ["/bin/bash"]'
             ]
         }
     },
