@@ -1,3 +1,4 @@
+/* jshint esversion: 6 */
 'use strict';
 
 const log = require('util').log;
@@ -7,11 +8,10 @@ const fse = require('fs-extra');
 const spawn = require('child_process').spawn;
 
 const config = require('../config.js');
-const utils = require('../utils.js');
 const ssl = require('./lib/certs.js');
 const conf = require('./lib/conf.js');
 const sites = require('./lib/sites.js');
-const importer = require('./lib/importer.js');
+const utils = require('../utils');
 
 /**
  * Function that runs nginx service and prints logs to stdout
@@ -112,18 +112,27 @@ const exp = {
             conf.write(options, () => {
                 let nxOs = options.nginx.os;
 
+                options.source = 'repo';
+                options.content = 'nginx';
                 options.type = 'upstream';
-                options.targetDir = options.nginx.location + ((nxOs === 'mac') ? "/servers/" : ( nxOs === 'ubuntu') ? "/conf.d/" : "/nginx/");
-                options.isDirectory = true;
-                importer.import(options, () => {
+                options.target = options.nginx.location + ((nxOs === 'mac') ? "/servers/" : ( nxOs === 'ubuntu') ? "/conf.d/" : "/nginx/");
+                utils.import(options, (error) => {
+                    if (error) throw new Error(error);
+
+                    options.source = 'repo';
+                    options.content = 'nginx';
                     options.type = 'sites-enabled';
-                    options.targetDir = options.nginx.location + ((nxOs === 'mac') ? "/servers/" : ( nxOs === 'ubuntu') ? "/sites-enabled/" : "/nginx/");
-                    options.isDirectory = true;
-                    importer.import(options, () => {
-                        options.type = 'conf';
-                        options.targetDir = options.nginx.location;
-                        options.isDirectory = false;
-                        importer.import(options, () => {
+                    options.target = options.nginx.location + ((nxOs === 'mac') ? "/servers/" : ( nxOs === 'ubuntu') ? "/sites-enabled/" : "/nginx/");
+                    utils.import(options, (error) => {
+                        if (error) throw new Error(error);
+
+                        options.source = 'repo';
+                        options.content = 'nginx';
+                        options.type = 'nginx.conf';
+                        options.target = options.nginx.location;
+                        utils.import(options, (error) => {
+                            if (error) throw new Error(error);
+
                             // Get dashboard UI if dashboard nginx, check for validity is done in the getUI() function
                             getUI({ type: 'dashboard' }, () => {
                                 //Get custom UI module if user specified source as environment variables (this is not related to sites.json config)

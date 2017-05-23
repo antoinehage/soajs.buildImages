@@ -91,8 +91,10 @@ const importer = {
                         });
                     }
                     else {
-                        // forward to read()
+                        // set options.import.path to the directory that contains the file and push the filename to the files array
                         options.import.files.push(path.basename(options.import.path));
+                        options.import.path = path.dirname(options.import.path);
+                        // forward to read()
                         return importer.read(options, cb);
                     }
                 });
@@ -116,6 +118,7 @@ const importer = {
         // read the contents of all custom files and pass them to the 'process' function
         async.map(options.import.files, (oneFile, callback) => {
             let onePath = path.join (options.import.path, oneFile);
+
             fs.readFile(onePath, (error, fileData) => {
                 if (error) {
                     log(`An error occured while reading ${onePath} ...`);

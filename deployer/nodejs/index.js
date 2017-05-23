@@ -5,7 +5,7 @@ const path = require('path');
 const fse = require('fs-extra');
 const spawn = require('child_process').spawn;
 
-const utils = require('../utils.js');
+const utils = require('../utils');
 
 let nodejs = {
 

@@ -4,6 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const log = require('util').log;
 const config = require('../../config.js');
+const utils = require('../../utils');
 
 let builder = {
 
@@ -183,22 +184,15 @@ let builder = {
     writeDefaultNginxConf(options, cb) {
         //read nginx.conf from templates directory
         log('Writing default nginx.conf ...');
-        let filePath = path.join(options.paths.templates.nginx.path, 'nginx.conf');
-        let targetFilePath = path.join(options.nginx.location, '/nginx.conf');
-        fs.readFile(filePath, 'utf8', (error, data) => {
+        options.source = 'template';
+        options.content = 'nginx';
+        options.type = 'nginx.conf';
+        options.target = options.nginx.location;
+        utils.import(options, (error) => {
             if (error) throw new Error(error);
 
-            //replace placeholders with appropriate values
-            let env = ((process.env.SOAJS_ENV) ? process.env.SOAJS_ENV.toLowerCase() : 'dev');
-            let haName = ((process.env.SOAJS_HA_NAME) ? process.env.SOAJS_HA_NAME.toLowerCase() : '');
-            data = data.replace(/{{SOAJS_ENV}}/g, env);
-            data = data.replace(/{{SOAJS_HA_NAME}}/g, haName);
-            fs.writeFile(targetFilePath, data, (error) => {
-                if (error) throw new Error(error);
-
-                log('nginx.conf written successfully ...');
-                return cb();
-            });
+            log('nginx.conf written successfully ...');
+            return cb();
         });
     },
 

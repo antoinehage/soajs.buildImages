@@ -7,7 +7,7 @@ const fse = require('fs-extra');
 const async = require('async');
 const rimraf = require('rimraf');
 
-const utils = require('../../utils.js');
+const utils = require('../../utils');
 
 let sites = {
 

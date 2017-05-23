@@ -6,7 +6,7 @@ const fse = require('fs-extra');
 const spawn = require('child_process').spawn;
 
 const config = require('../config.js');
-const utilsFile = require('../utils.js');
+const utilsFile = require('../utils');
 const profileGenerator = require('../profile/index.js');
 
 const gitOwner = process.env.SOAJS_GIT_OWNER;
