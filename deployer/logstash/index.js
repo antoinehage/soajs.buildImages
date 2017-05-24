@@ -56,6 +56,7 @@ let logstash = {
      *
      */
     getDefaultConf(options, cb) {
+        log('Writing default configuration ...');
         options.source = 'template';
         options.content = 'logstash';
         options.target = options.logstash.configDir;
@@ -73,11 +74,14 @@ let logstash = {
      *
      */
     getCustomConf(options, cb) {
+        log('Fetching custom configuration ...');
         if (options.logstash.customConfig) {
             options.source = 'repo';
             options.content = 'logstash';
             options.type = 'config';
             options.target = options.logstash.configDir;
+
+            log('Writing custom configuration ...');
             utils.import(options, (error) => {
                 if (error) throw new Error(error);
 
@@ -85,6 +89,7 @@ let logstash = {
             });
         }
         else {
+            log('No custom configuration found, proceeding ...');
             return logstash.run(options, cb);
         }
     },

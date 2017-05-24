@@ -56,6 +56,7 @@ const metricbeat = {
      *
      */
     getDefaultConf(options, cb) {
+        log('Writing default configuration ...');
         options.source = 'template';
         options.content = 'metricbeat';
         options.target = options.metricbeat.configDir;
@@ -73,11 +74,14 @@ const metricbeat = {
      *
      */
     getCustomConf(options, cb) {
+        log('Fetching custom configuration ...');
         if (options.metricbeat.customConfig) {
             options.source = 'repo';
             options.content = 'metricbeat';
             options.type = 'config';
             options.target = options.metricbeat.configDir;
+
+            log('Writing custom configuration ...');
             utils.import(options, (error) => {
                 if (error) throw new Error(error);
 
@@ -85,6 +89,7 @@ const metricbeat = {
             });
         }
         else {
+            log('No custom configuration found, proceeding ...');
             return metricbeat.run(options, cb);
         }
     },

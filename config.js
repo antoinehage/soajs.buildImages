@@ -68,7 +68,7 @@ module.exports = {
             "maintainer": "MAINTAINER SOAJS Team <team@soajs.org>",
             "body": [
                 'ENV METRICBEAT_VERSION=5.3.0',
-                'RUN apk add --no-cache ca-certificates curl nodejs && mkdir -p /opt/soajs/deployer/',
+                'RUN apk add --no-cache ca-certificates curl nodejs git && mkdir -p /opt/soajs/deployer/',
                 'RUN curl -L -O https://artifacts.elastic.co/downloads/beats/metricbeat/metricbeat-${METRICBEAT_VERSION}-linux-x86_64.tar.gz && \\',
                     'tar -xvvf metricbeat-${METRICBEAT_VERSION}-linux-x86_64.tar.gz && \\',
                     'mv metricbeat-${METRICBEAT_VERSION}-linux-x86_64/ /metricbeat && \\',

@@ -56,6 +56,7 @@ const kibana = {
      *
      */
     getDefaultConf(options, cb) {
+        log('Writing default configuration ...');
         options.source = 'template';
         options.content = 'kibana';
         options.target = options.kibana.configDir;
@@ -73,11 +74,14 @@ const kibana = {
      *
      */
     getCustomConf(options, cb) {
+        log('Fetching custom configuration ...');
         if (options.kibana.customConfig) {
             options.source = 'repo';
             options.content = 'kibana';
             options.type = 'config';
             options.target = options.kibana.configDir;
+
+            log('Writing custom configuration ...');
             utils.import(options, (error) => {
                 if (error) throw new Error(error);
 
@@ -85,6 +89,7 @@ const kibana = {
             });
         }
         else {
+            log('No custom configuration found, proceeding ...');
             return kibana.run(options, cb);
         }
     },
