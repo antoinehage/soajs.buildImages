@@ -378,8 +378,7 @@ output.elasticsearch:
   # Scheme and port can be left out and will be set to the default (http and 9200)
   # In case you specify and additional path, the scheme is required: http://localhost:9200/path
   # IPv6 addresses should always be defined as: https://[2001:db8::1]:9200
-  hosts:
-    - ${ELASTICSEARCH_URL}
+  hosts: [{{#for 0 (env "SOAJS_ANALYTICS_ES_NB") 1}}\"{{env (concat "SOAJS_ANALYTICS_ES_IP_" (inc this))}}:{{env (concat "SOAJS_ANALYTICS_ES_PORT_" (inc this))}}\"{{#if (lessthan (inc this) (env "SOAJS_ANALYTICS_ES_NB"))}}, {{/if}}{{/for}}]
 
   template.name: "metricbeat"
   template.path: "metricbeat.template.json"

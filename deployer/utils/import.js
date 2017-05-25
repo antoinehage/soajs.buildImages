@@ -7,6 +7,32 @@ const async = require('async');
 const log = require('util').log;
 const handlebars = require("handlebars");
 
+handlebars.registerHelper('for', function(from, to, incr, block) {
+    var accum = '';
+
+    for(var i = from; i < to; i += incr) {
+        accum += block.fn(i);
+    }
+
+    return accum;
+});
+
+handlebars.registerHelper('inc', function(value, options) {
+    return parseInt(value) + 1;
+});
+
+handlebars.registerHelper('concat', function(str1, str2) {
+    return str1 + str2;
+});
+
+handlebars.registerHelper('env', function (env) {
+    return process.env[env];
+});
+
+handlebars.registerHelper('lessthan', function (index, length) {
+    return (index < length);
+});
+
 /**
  * Input:
  *  options.
