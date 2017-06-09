@@ -73,6 +73,10 @@ function deploy() {
             deployNodejs(options);
             break;
 
+        case 'java':
+            deployJava(options);
+            break;
+
         case 'profile':
             generateProfile(options);
             break;
@@ -106,6 +110,12 @@ function deploy() {
         options.nodejs = config.nodejs;
         const nodejs = require('./nodejs');
         nodejs.deploy(options, exitCb);
+    }
+
+    function deployJava(options) {
+        options.java = config.java;
+        const java = require('./java');
+        java.deploy(options, exitCb);
     }
 
     function generateProfile(options) {

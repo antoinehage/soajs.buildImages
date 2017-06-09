@@ -5,7 +5,7 @@ const path = require('path');
 const config = {
 
     deploy: {
-        types: ['service', 'nginx', 'nodejs', 'profile', 'metricbeat', 'logstash', 'kibana']
+        types: ['service', 'nginx', 'nodejs', 'profile', 'java', 'metricbeat', 'logstash', 'kibana']
     },
 
     paths: {
@@ -32,6 +32,9 @@ const config = {
             },
             metricbeat: {
                 path: __dirname + '/metricbeat/templates/'
+            },
+            java: {
+                path: __dirname + '/java/templates/'
             }
         },
         service: {
@@ -39,6 +42,14 @@ const config = {
         },
         logging: {
             path: '/var/log/soajs/'
+        },
+        tomcat: {
+            webapps: {
+                path: '/usr/local/tomcat/webapps/'
+            },
+            bin: {
+                path: '/usr/local/tomcat/bin/'
+            }
         }
     },
 
@@ -112,6 +123,19 @@ const config = {
         },
         main: process.env.SOAJS_SRV_MAIN || '.',
         memory: process.env.SOAJS_SRV_MEMORY
+    },
+
+    java: {
+        git: {
+            provider: process.env.SOAJS_GIT_PROVIDER || 'github',
+            domain: process.env.SOAJS_GIT_DOMAIN || 'github.com',
+            owner: process.env.SOAJS_GIT_OWNER,
+            repo: process.env.SOAJS_GIT_REPO,
+            branch: process.env.SOAJS_GIT_BRANCH || 'master',
+            token: process.env.SOAJS_GIT_TOKEN
+        },
+        appArchivePath: process.env.SOAJS_WAR_FILE_PATH || '/',
+        configDir: process.env.SOAJS_TOMCAT_CONFIG_DIR || '/usr/local/tomcat/conf'
     },
 
     metricbeat: {

@@ -190,7 +190,7 @@ service.init(function () {
                                             if (err) return cb(err.message);
                                             if (param.type === "soajs" && path)
                                                 handleServiceFiles(path, rootFolder, serviceInfo);
-                                            else if (['nginx', 'logstash', 'filebeat', 'metricbeat', 'kibana'].indexOf(param.type) !== -1)
+                                            else if (['nginx', 'logstash', 'filebeat', 'metricbeat', 'kibana', 'java'].indexOf(param.type) !== -1)
                                                 tarFolder(rootFolder, serviceInfo);
                                         });
                                     });
@@ -364,6 +364,23 @@ service.init(function () {
             type: "kibana",
             serviceInfo: {
                 "name": "kibana"
+            },
+            socket: req.query.socket || null,
+            log: req.soajs.log,
+            deleteFolder: req.query.delete || null
+        }, function (err, data) {
+            if (err)
+                return res.jsonp(req.soajs.buildResponse({"code": 401, "msg": err}));
+            return res.status(200).send(data);
+        });
+    });
+    service.get("/buildJava", function (req, res) {
+        lib.createImage({
+            imagePrefix: (req.query.imagePrefix ? req.query.imagePrefix + "/" : config.imagePrefix.core),
+            dockerTpl: config.dockerTemnplates.java,
+            type: "java",
+            serviceInfo: {
+                "name": "java"
             },
             socket: req.query.socket || null,
             log: req.soajs.log,
