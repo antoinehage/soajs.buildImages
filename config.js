@@ -106,7 +106,7 @@ module.exports = {
             "from": "FROM tomcat:8.0-jre8-alpine",
             "maintainer": "MAINTAINER SOAJS Team <team@soajs.org>",
             "body": [
-                'RUN apk add --no-cache curl nodejs git && mkdir -p /opt/soajs/deployer/',
+                'RUN apk add --no-cache curl nodejs nodejs-npm git && mkdir -p /opt/soajs/deployer/',
                 'ADD ./deployer /opt/soajs/deployer',
                 'RUN cd /opt/soajs/deployer && npm install',
                 'CMD ["/bin/sh"]'
