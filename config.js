@@ -40,14 +40,8 @@ module.exports = {
 		    "from": 'FROM docker.elastic.co/logstash/logstash:5.3.0',
 		    "maintainer": 'MAINTAINER SOAJS Team <team@soajs.org>',
 		    "body": [
-                'USER root',
-                'RUN apt-get update && \\',
-                    'apt-get install --fix-missing -y git curl && \\',
-                    'curl -sL https://deb.nodesource.com/setup_6.x | bash && \\',
-                    'apt-get install --fix-missing -y nodejs',
-                'RUN mkdir -p /opt/soajs/deployer',
-                'ADD ./deployer /opt/soajs/deployer',
-                'RUN cd /opt/soajs/deployer/ && npm install',
+			    'Add ./FILES/logstash/logstash.yml /usr/share/logstash/config/logstash.yml',
+			    'Add ./FILES/logstash/logstash.conf /usr/share/logstash/config/logstash.conf',
 			    'CMD ["/bin/bash"]']
 	    },
         "filebeat": {
@@ -68,7 +62,7 @@ module.exports = {
             "maintainer": "MAINTAINER SOAJS Team <team@soajs.org>",
             "body": [
                 'ENV METRICBEAT_VERSION=5.3.0',
-                'RUN apk add --no-cache ca-certificates curl nodejs nodejs-npm git && mkdir -p /opt/soajs/deployer/',
+                'RUN apk add --no-cache ca-certificates curl',
                 'RUN curl -L -O https://artifacts.elastic.co/downloads/beats/metricbeat/metricbeat-${METRICBEAT_VERSION}-linux-x86_64.tar.gz && \\',
                     'tar -xvvf metricbeat-${METRICBEAT_VERSION}-linux-x86_64.tar.gz && \\',
                     'mv metricbeat-${METRICBEAT_VERSION}-linux-x86_64/ /metricbeat && \\',
@@ -77,31 +71,28 @@ module.exports = {
                     'chmod +x /bin/metricbeat && \\',
                     'mkdir -p /metricbeat/config /metricbeat/data && \\',
                     'rm metricbeat-${METRICBEAT_VERSION}-linux-x86_64.tar.gz',
-                'ADD ./deployer /opt/soajs/deployer/',
-                'RUN cd /opt/soajs/deployer/ && npm install',
-                'CMD ["/bin/sh"]'
+                'WORKDIR /metricbeat',
+                'ADD ./FILES/metricbeat/metricbeat.yml /metricbeat/metricbeat.yml',
+                'ADD ./FILES/metricbeat/start.sh /metricbeat/start.sh',
+                'ENTRYPOINT /metricbeat/start.sh'
             ]
         },
         "kibana": {
-            "from": "FROM kibana:5.3.0",
-            "maintainer": "MAINTAINER SOAJS Team <team@soajs.org>",
-            "body": [
-                'RUN apt-get update && \\',
-                    'apt-get install --fix-missing -y git curl && \\',
-                    'curl -sL https://deb.nodesource.com/setup_6.x | bash && \\',
-                    'apt-get install --fix-missing -y nodejs && \\',
-                    'npm install --global bower',
-                'WORKDIR /usr/share/kibana/plugins',
-                'RUN git clone https://github.com/nreese/kibana-time-plugin.git && \\',
-                    'cd /usr/share/kibana/plugins/kibana-time-plugin && \\',
-                    'bower install --allow-root',
-                'ADD ./FILES/kibana/package.json /usr/share/kibana/plugins/kibana-time-plugin/package.json',
-                'RUN mkdir -p /opt/soajs/deployer && mkdir -p /usr/share/kibana/config',
-                'ADD ./deployer /opt/soajs/deployer',
-                'RUN cd /opt/soajs/deployer && npm install',
-                'CMD ["/bin/bash"]'
-            ]
-        },
+           "from": "FROM kibana:5.3.0",
+           "maintainer": "MAINTAINER SOAJS Team <team@soajs.org>",
+           "body": [
+               'RUN apt-get update && \\',
+                   'apt-get install --fix-missing -y git curl && \\',
+                   'curl -sL https://deb.nodesource.com/setup_6.x | bash && \\',
+                   'apt-get install --fix-missing -y nodejs && \\',
+                   'npm install --global bower',
+               'WORKDIR /usr/share/kibana/plugins',
+               'RUN git clone https://github.com/nreese/kibana-time-plugin.git && \\',
+                   'cd /usr/share/kibana/plugins/kibana-time-plugin && \\',
+                   'bower install --allow-root',
+               'ADD ./FILES/kibana/package.json /usr/share/kibana/plugins/kibana-time-plugin/package.json'
+           ]
+       },
         "java": {
             "from": "FROM tomcat:8.0-jre8-alpine",
             "maintainer": "MAINTAINER SOAJS Team <team@soajs.org>",
