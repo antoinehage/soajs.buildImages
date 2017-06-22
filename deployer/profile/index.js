@@ -111,6 +111,10 @@ let utils = {
 
         if(param.driver === "replica.js" && param.rsName)
             profile.URLParam.replicaSet = param.rsName;
+        
+        if(param.ssl){
+        	profile.URLParam.ssl = (param.ssl === "true");
+        }
 
         //add the servers' informaition
         profile = helperFunctions.updateServersList(param, profile);
