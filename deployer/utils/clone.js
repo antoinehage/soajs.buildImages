@@ -49,7 +49,26 @@ const cloner = {
             clone.on('close', (code) => {
                 if (code === 0) {
                     log(`Cloning repository ${options.repo.git.owner}/${options.repo.git.repo} was successful, exit code: ${code}`);
-                    return cb(null, true);
+                    
+                    if(options.repo.git.commit && options.repo.git.commit!==''){
+                    	let commit = spawn("git", [ 'reset', '--hard', options.repo.git.commit ], {stdio: 'inherit', cwd: options.clonePath });
+                    	commit.on('data', (data) => {
+                    		log(data.toString());
+	                    });
+                    	
+                    	commit.on('error', (error) => {
+                    		log(`Switching HEAD to commit ${options.repo.git.commit} Failed`);
+                    		throw new Error(error);
+	                    });
+                    	
+                    	commit.on('close', function(code){
+                    		log(`Repository HEAD switched to commit ${options.repo.git.commit}`);
+                    		return cb(null, true);
+	                    });
+                    }
+                    else{
+                        return cb(null, true);
+                    }
                 }
                 else {
                     throw new Error(`ERROR: Clone exited with code: ${code}, check clone logs`);
