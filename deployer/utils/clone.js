@@ -51,6 +51,7 @@ const cloner = {
                     log(`Cloning repository ${options.repo.git.owner}/${options.repo.git.repo} was successful, exit code: ${code}`);
                     
                     if(options.repo.git.commit && options.repo.git.commit!==''){
+                    	log(`Detected custom commit provided, switching head to commit ${options.repo.git.commit}`);
                     	let commit = spawn("git", [ 'reset', '--hard', options.repo.git.commit ], {stdio: 'inherit', cwd: options.clonePath });
                     	commit.on('data', (data) => {
                     		log(data.toString());
