@@ -62,8 +62,13 @@ const cloner = {
 	                    });
                     	
                     	commit.on('close', function(code){
-                    		log(`Repository HEAD switched to commit ${options.repo.git.commit}`);
-                    		return cb(null, true);
+                    		if(code === 0){
+			                    log(`Repository HEAD switched to commit ${options.repo.git.commit}`);
+			                    return cb(null, true);
+		                    }
+                    		else{
+			                    throw new Error(`ERROR: Switch HEAD to commit exited with code: ${code}, check clone logs`);
+		                    }
 	                    });
                     }
                     else{
