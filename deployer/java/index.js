@@ -144,8 +144,11 @@ const java = {
      */
     run(options, cb) {
         log('Starting app ...');
-        let startupFilePath = path.join(options.paths.tomcat.bin.path, 'catalina.sh');
-        const tomcat = spawn(startupFilePath, [ 'run' ], { stdio: 'inherit' });
+        let startupFilePath = 'catalina.sh';
+        const tomcat = spawn(startupFilePath, [ 'run' ], {
+        	stdio: 'inherit',
+	        cwd: options.paths.tomcat.bin.path
+        });
 
         tomcat.on('data', (data) => {
             console.log(data.toString());

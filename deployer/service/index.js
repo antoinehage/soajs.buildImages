@@ -150,8 +150,7 @@ let utils = {
         let serviceFile = servicePath.base;
         let serviceFolder = servicePath.dir;
         
-        let runParams = 'cd ' + serviceFolder + ' && ';
-        runParams += 'node ';
+        let runParams = 'node ';
 
         //if custom memory is allocated to the service, add it to the command.
         if (serviceMemory) {
@@ -165,7 +164,10 @@ let utils = {
         runParams += serviceFile + ` 2>&1 | tee ${logPath}`;
 
         util.log(`Running ${runParams}`);
-        const runService = spawn('bash', [ '-c', runParams ], { stdio: 'inherit' });
+        const runService = spawn('bash', [ '-c', runParams ], {
+           stdio: 'inherit',
+	       cwd: serviceFolder
+        });
 
         runService.on('data', (data) => {
             console.log(data.toString());
