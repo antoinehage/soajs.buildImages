@@ -87,14 +87,17 @@ let nodejs = {
      */
     run(options, cb) {
         log('Running service ...');
-        let serviceRun = path.join(options.repoDirPath, '/') + options.nodejs.main;
+        let serviceRun = options.nodejs.main;
         let nodeParams = ((options.nodejs.memory) ? '--max_old_space_size=' + options.nodejs.memory : '');
 
         let runParams = [];
         if (nodeParams) runParams.push(nodeParams);
         runParams.push(serviceRun);
 
-        const node = spawn('node', runParams, { stdio: 'inherit' });
+        const node = spawn('node', runParams, {
+        	stdio: 'inherit',
+	        cwd: path.join(options.repoDirPath, '/')
+        });
 
         node.on('data', (data) => {
             console.log (data.toString());
