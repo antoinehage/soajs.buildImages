@@ -146,7 +146,12 @@ let utils = {
         util.log("Running the " + gitRepo + " service.");
 
         let servicePath =  path.join(serviceDirectory, gitRepo, '/') + mainFile;
-        let runParams = 'node ';
+	    servicePath = path.parse(servicePath);
+        let serviceFile = servicePath.base;
+        let serviceFolder = servicePath.dir;
+        
+        let runParams = 'cd ' + serviceFolder + ' && ';
+        runParams += 'node ';
 
         //if custom memory is allocated to the service, add it to the command.
         if (serviceMemory) {
@@ -157,7 +162,7 @@ let utils = {
         let haNameClean = haName.toLowerCase();
         let logPath = path.join(config.paths.logging.path, `${soajsEnv}-${repoNameClean}--${haNameClean}--service.log`);
 
-        runParams += servicePath + ` 2>&1 | tee ${logPath}`;
+        runParams += serviceFile + ` 2>&1 | tee ${logPath}`;
 
         util.log(`Running ${runParams}`);
         const runService = spawn('bash', [ '-c', runParams ], { stdio: 'inherit' });
