@@ -124,7 +124,7 @@ function updateCustomDomainAndKey(cb){
 	}
 	
 	let customSettings = {
-		api: process.env.API_PREFIX,
+		api: process.env.SOAJS_NX_API_DOMAIN.replace("." + process.env.SOAJS_NX_DOMAIN, ""),
 		key: process.env.SOAJS_EXTKEY
 	};
 	customSettings = "var customSettings = " + JSON.stringify(customSettings, null, 2) + ";";
