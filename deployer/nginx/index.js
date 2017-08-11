@@ -1,6 +1,6 @@
 /* jshint esversion: 6 */
 'use strict';
-
+const fs = require('fs');
 const log = require('util').log;
 const path = require('path');
 const async = require('async');
@@ -19,20 +19,22 @@ const utils = require('../utils');
  *
  */
 function startNginx(cb) {
-    const nginx = spawn('service', [ 'nginx', 'start' ], { stdio: 'inherit' });
-
-    nginx.on('data', (data) => {
-        console.log(data.toString());
-    });
-
-    nginx.on('close', (code) => {
-        log(`Nginx process exited with code: ${code}`);
-        return cb();
-    });
-    nginx.on('error', (error) => {
-        log(`Nginx process failed with error: ${error}`);
-        return cb(error);
-    });
+	updateCustomDomainAndKey(function(){
+		const nginx = spawn('service', [ 'nginx', 'start' ], { stdio: 'inherit' });
+		
+		nginx.on('data', (data) => {
+			console.log(data.toString());
+		});
+		
+		nginx.on('close', (code) => {
+			log(`Nginx process exited with code: ${code}`);
+			return cb();
+		});
+		nginx.on('error', (error) => {
+			log(`Nginx process failed with error: ${error}`);
+			return cb(error);
+		});
+	});
 }
 
 /**
@@ -103,6 +105,37 @@ function getUI(options, cb) {
             });
         });
     });
+}
+
+/**
+ * Function that updates the content of custom.js based on key and api prefix provided
+ * @param cb
+ * @returns {*}
+ */
+function updateCustomDomainAndKey(cb){
+	//check if this nginx should deploy dashboard ui
+	if(!process.env.SOAJS_GIT_DASHBOARD_BRANCH || process.env.SOAJS_GIT_DASHBOARD_BRANCH === ''){
+		return cb();
+	}
+	
+	//check if extkey1 is provided
+	if(!process.env.SOAJS_EXTKEY || process.env.SOAJS_EXTKEY === ''){
+		return cb();
+	}
+	
+	let customSettings = {
+		api: process.env.API_PREFIX,
+		key: process.env.SOAJS_EXTKEY
+	};
+	customSettings = "var customSettings = " + JSON.stringify(customSettings, null, 2) + ";";
+	
+	let fileLocation = path.join (config.nginx.siteLocation, '/');
+	fs.writeFile(fileLocation + "settings.js", customSettings, {'encoding': 'utf8'}, function(error){
+		if(error){
+			log("Error:", error);
+		}
+		return cb();
+	});
 }
 
 const exp = {
