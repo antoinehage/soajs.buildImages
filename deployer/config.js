@@ -149,7 +149,11 @@ const config = {
 
     kibana: {
         configDir: process.env.SOAJS_KIBANA_CONFIG_DIR || '/usr/share/kibana/config/'
-    }
+    },
+	
+	es :{
+		configDir: process.env.SOAJS_ES_CONFIG_DIR || '/usr/share/es/config/'
+	}
 
 };
 

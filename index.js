@@ -391,5 +391,23 @@ service.init(function () {
             return res.status(200).send(data);
         });
     });
+	
+	service.get("/buildES", function (req, res) {
+		lib.createImage({
+			imagePrefix: (req.query.imagePrefix ? req.query.imagePrefix + "/" : config.imagePrefix.core),
+			dockerTpl: config.dockerTemnplates.es,
+			type: "es",
+			serviceInfo: {
+				"name": "es"
+			},
+			socket: req.query.socket || null,
+			log: req.soajs.log,
+			deleteFolder: req.query.delete || null
+		}, function (err, data) {
+			if (err)
+				return res.jsonp(req.soajs.buildResponse({"code": 401, "msg": err}));
+			return res.status(200).send(data);
+		});
+	});
     service.start();
 });

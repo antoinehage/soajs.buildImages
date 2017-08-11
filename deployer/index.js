@@ -92,6 +92,9 @@ function deploy() {
         case 'kibana':
             deployKibana(options);
             break;
+	    case 'elasticsearch':
+		    deployES(options);
+		    break;
 
     }
 
@@ -140,6 +143,12 @@ function deploy() {
         const kibana = require('./kibana');
         kibana.deploy(options, exitCb);
     }
+	
+	function deployES(options) {
+		options.kibana = config.es;
+		const es= require('./es');
+		es.deploy(options, exitCb);
+	}
 }
 
 function exitCb() {

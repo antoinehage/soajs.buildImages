@@ -102,7 +102,22 @@ module.exports = {
                 'RUN cd /opt/soajs/deployer && npm install',
                 'CMD ["/bin/sh"]'
             ]
-        }
+        },
+	    "es": {
+		    "from": "FROM elasticsearch:5.5.1",
+		    "maintainer": "MAINTAINER SOAJS Team <team@soajs.org>",
+		    "body": [
+			    'RUN apt-get update && \\',
+			        'apt-get install --fix-missing -y git curl && \\',
+			        'curl -sL https://deb.nodesource.com/setup_6.x | bash && \\',
+			        'apt-get install --fix-missing -y nodejs && \\',
+			        'npm install --global bower',
+			    'WORKDIR /usr/share/es/plugins',
+			    'ADD ./FILES/es/readonlyrest-1.16.9_es5.5.1.zip /usr/share/es/plugins/readonlyrest-1.16.9_es5.5.1.zip',
+			    'ADD ./FILES/es/package.json /usr/share/es/plugins/package.json',
+			    'CMD ["/bin/bash"]'
+		    ]
+	    },
     },
 
     "errors": {
