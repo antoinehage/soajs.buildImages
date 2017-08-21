@@ -159,6 +159,10 @@ let sites = {
     finalize(options, cb) {
         // copy contents of temp_site to nginx site location
         let nxPath = options.nginx.siteLocation;
+        if(options.section && options.section !== ''){
+        	nxPath = path.join(nxPath, "/", options.section);
+        }
+        
         let tempPath = path.join(options.paths.tempFolders.temp.path, '/');
         let tempSitePath = path.join (options.paths.tempFolders.tempSite.path, '/');
         fse.copy(tempSitePath, nxPath, { overwrite: true }, (error) => {

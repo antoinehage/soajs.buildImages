@@ -2,6 +2,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const async = require('async');
 const log = require('util').log;
 const config = require('../../config.js');
 const utils = require('../../utils');
@@ -38,8 +39,13 @@ let builder = {
      *
      */
     writeStaticLocation(options, wstream) {
+    	let rootPath = options.path;
+    	if(options.section){
+		    rootPath = path.join(options.path, '/', options.section);
+	    }
+    	
         wstream.write("  location / {\n");
-        wstream.write("    root  " + options.path + ";\n");
+        wstream.write("    root  " + rootPath + ";\n");
         wstream.write("    sendfile       off;\n");
         wstream.write("    index  index.html index.htm;\n");
         wstream.write("  }\n");
@@ -98,6 +104,7 @@ let builder = {
      *
      */
     writeServer(options, wstream) {
+    	log("writing server entry for", options.domain);
         wstream.write("server {\n");
         wstream.write("  listen       " + options.port + ";\n");
         wstream.write("  server_name  " + options.domain + ";\n");
@@ -150,29 +157,61 @@ let builder = {
      *
      */
     writeSiteConf(options, cb) {
-        log("Writing site conf in " + options.loc + " " + options.confFileName);
-        let wstream = fs.createWriteStream(options.loc + options.confFileName);
-        let httpsSite = config.nginx.config.ssl.httpsSite;
-        let httpSiteRedirect = config.nginx.config.ssl.httpSiteRedirect;
-
-        options.location = "static";
-
-        if (httpsSite) {
-            if (httpSiteRedirect) {
-                options.port = "80";
-                builder.writeServerRedirect(options, wstream);
-            }
-            options.https = true;
-            options.port = "443 ssl";
-            builder.writeServer(options, wstream);
+    	let fileLocation = options.loc + options.confFileName;
+    	
+    	//check if dashboard site.conf
+	    if (process.env.SOAJS_ENV && process.env.SOAJS_ENV.toLowerCase() === 'dashboard') {
+		    if (process.env.SOAJS_GIT_DASHBOARD_BRANCH && process.env.SOAJS_GIT_DASHBOARD_BRANCH !== '') {
+			   
+			    async.series({
+				    "dash": (mCb) =>{
+					    fileLocation = options.loc + "dash.conf";
+					    options.domain = process.env.SOAJS_NX_SITE_DOMAIN;
+					    doWriteSiteConf('dash', fileLocation, options, mCb);
+				    },
+				    "portal": (mCb) =>{
+					    fileLocation = options.loc + "portal.conf";
+					    options.domain = process.env.SOAJS_NX_PORTAL_DOMAIN;
+					    doWriteSiteConf('portal', fileLocation, options, mCb);
+				    }
+			    }, () =>{
+			        return cb(null);
+			    });
+		    }
+	    }
+	    else{
+		    doWriteSiteConf(null, fileLocation, options, cb);
+	    }
+    	
+        function doWriteSiteConf(section, fileLocation, options, mCb){
+	        log("Writing site conf in " + fileLocation);
+	        let wstream = fs.createWriteStream(fileLocation);
+	        
+	        let httpsSite = config.nginx.config.ssl.httpsSite;
+	        let httpSiteRedirect = config.nginx.config.ssl.httpSiteRedirect;
+	
+	        options.location = "static";
+	        options.section = section;
+	        
+	        if (httpsSite) {
+		        if (httpSiteRedirect) {
+			        options.port = "80";
+			        builder.writeServerRedirect(options, wstream);
+		        }
+		        options.https = true;
+		        options.port = "443 ssl";
+		        builder.writeServer(options, wstream);
+	        }
+	        else if (!httpSiteRedirect){
+		        options.port = "80";
+		        builder.writeServer(options, wstream);
+	        }
+	
+	        wstream.end();
+	        setTimeout(function(){
+	            return mCb(null);
+	        }, 100);
         }
-        else if (!httpSiteRedirect){
-            options.port = "80";
-            builder.writeServer(options, wstream);
-        }
-
-        wstream.end();
-        return cb(null);
     },
 
     /**
