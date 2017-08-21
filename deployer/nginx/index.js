@@ -211,7 +211,11 @@ function updateCustomDomainAndKey(cb){
 	});
 }
 
-
+/**
+ * Function that pulls and deploys multiple ui components based on custom repo configuration on top of portal ui
+ * @param options
+ * @param cb
+ */
 function getCustomUISites(options, cb){
 	//check if dashboard environment
 	if (options.type === 'dashboard') {
