@@ -56,6 +56,7 @@ let sites = {
             });
         }
         else {
+        	log('No Custom UI Content found ...');
             return cb();
         }
     },
