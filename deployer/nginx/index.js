@@ -78,32 +78,71 @@ function getUI(options, cb) {
 
         let source = path.join(config.paths.tempFolders.temp.path, gitInfo.path || '/');
 	    let destination = path.join (config.nginx.siteLocation, '/');
-	    
-	    //change destination to portal if type is dashboard
+	
 	    //custom modules will be then installed on top of portal section
-	    if (options.type === 'dashboard') {
-		    if (process.env.SOAJS_ENV && process.env.SOAJS_ENV.toLowerCase() === 'dashboard') {
-		        if (process.env.SOAJS_GIT_DASHBOARD_BRANCH && process.env.SOAJS_GIT_DASHBOARD_BRANCH !== '') {
-		        	destination = path.join(config.nginx.siteLocation, '/', 'portal');
-		        }
-		    }
+	    //custom theme will be installed on top of portal and dashboard
+	    if (process.env.SOAJS_ENV &&
+		    process.env.SOAJS_ENV.toLowerCase() === 'dashboard' &&
+		    process.env.SOAJS_GIT_DASHBOARD_BRANCH &&
+		    process.env.SOAJS_GIT_DASHBOARD_BRANCH !== '') {
+				//analyze downloaded folders list
+				//override and extend the portal
+				//change the theme of dashboard
+				fs.readdir(source, (err, files) =>{
+					if(err){
+						throw new Error(err);
+					}
+					if(files.length > 0 && files.indexOf('portal') !== -1 && files.indexOf('dash') !== -1){
+						async.series({
+							'dash': (mCb) =>{
+								let dashSrc = path.join(source, '/', 'dash', '/', 'themes');
+								let dashDest = path.join(destination, '/', 'dash', '/', 'themes');
+								doCopy(dashSrc, dashDest, mCb);
+							},
+							'portal': (mCb) =>{
+								let portalSrc = path.join(source, '/', 'portal');
+								let portalDest = path.join(destination, '/', 'portal');
+								doCopy(portalSrc, portalDest, mCb);
+							}
+						}, cb);
+					}
+					else{
+						//old style detected ...
+						//copy the modules of portal on top of dash
+						let poratlSource = path.join(destination, 'portal', '/', 'modules');
+						let dashDestination = path.join(destination, 'dash', '/', 'modules');
+						fse.copy(poratlSource, dashDestination, {overwrite: true}, (error) =>{
+							if(error){
+								throw new Error(error);
+							}
+							destination = path.join(destination, 'dash');
+							//copy custom code on top of dash
+							doCopy(source, destination, cb);
+						});
+					}
+		        });
 	    }
-	    
-        fse.copy(source, destination, { overwrite: true }, (error) => {
-            if (error) {
-                log(`Unable to move contents of ${gitInfo.owner}/${gitInfo.repo} to ${destination} ...`);
-                throw new Error(error);
-            }
-
-            // delete contents of temp before cloning a new repository into it
-            fse.remove(config.paths.tempFolders.temp.path, (error) => {
-                if (error) throw new Error(error);
-
-                log(`${gitInfo.owner}/${gitInfo.repo} cloned successfully ...`);
-                return setTimeout(cb, 100);
-            });
-        });
+	    else{
+		    doCopy(source, destination, cb);
+	    }
     });
+    
+    function doCopy(source, destination, cb){
+	    fse.copy(source, destination, { overwrite: true }, (error) => {
+		    if (error) {
+			    log(`Unable to move contents of ${gitInfo.owner}/${gitInfo.repo} to ${destination} ...`);
+			    throw new Error(error);
+		    }
+		
+		    // delete contents of temp before cloning a new repository into it
+		    fse.remove(config.paths.tempFolders.temp.path, (error) => {
+			    if (error) throw new Error(error);
+			
+			    log(`${gitInfo.owner}/${gitInfo.repo} cloned successfully ...`);
+			    return setTimeout(cb, 100);
+		    });
+	    });
+    }
 }
 
 /**
@@ -217,21 +256,7 @@ function updateCustomDomainAndKey(cb){
  * @param cb
  */
 function getCustomUISites(options, cb){
-	//check if dashboard environment
-	if (options.type === 'dashboard') {
-		if (process.env.SOAJS_ENV && process.env.SOAJS_ENV.toLowerCase() === 'dashboard') {
-			if (process.env.SOAJS_GIT_DASHBOARD_BRANCH && process.env.SOAJS_GIT_DASHBOARD_BRANCH !== '') {
-				//extend and override portal UI
-				options.section = 'portal';
-				sites.getSites(options, cb);
-			}
-		}
-		
-	}
-	else{
-		//not dashboard environment, proceed normally
-		sites.getSites(options, cb);
-	}
+	sites.getSites(options, cb);
 }
 
 const exp = {

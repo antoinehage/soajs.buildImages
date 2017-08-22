@@ -157,38 +157,85 @@ let sites = {
      *
      */
     finalize(options, cb) {
-        // copy contents of temp_site to nginx site location
-        let nxPath = options.nginx.siteLocation;
-        if(options.section && options.section !== ''){
-        	nxPath = path.join(nxPath, "/", options.section);
-        }
-        
-        let tempPath = path.join(options.paths.tempFolders.temp.path, '/');
-        let tempSitePath = path.join (options.paths.tempFolders.tempSite.path, '/');
-        fse.copy(tempSitePath, nxPath, { overwrite: true }, (error) => {
-            if (error) {
-                log(`Unable to move temp_site contents to ${nxPath}`);
-                throw new Error(error);
-            }
-
-            // remove temp_site and temp folders
-            fse.remove(tempSitePath, (error) => {
-                if (error) {
-                    log(`Unable to delete ${tempSitePath}`);
-                    log(error);
-                }
-
-                fse.remove(tempPath, (error) => {
-                    if (error) {
-                        log(`Unable to delete ${tempPath}`);
-                        log(error);
-                    }
-
-                    log('Cloning custom UI sites completed ...');
-                    return cb();
-                });
-            });
-        });
+	    let source = path.join (options.paths.tempFolders.tempSite.path, '/');
+	    let destination = options.nginx.siteLocation;
+	    
+	    //custom modules will be then installed on top of portal section
+	    //custom theme will be installed on top of portal and dashboard
+	    if (process.env.SOAJS_ENV &&
+		    process.env.SOAJS_ENV.toLowerCase() === 'dashboard' &&
+		    process.env.SOAJS_GIT_DASHBOARD_BRANCH &&
+		    process.env.SOAJS_GIT_DASHBOARD_BRANCH !== '') {
+		    //analyze downloaded folders list
+		    //override and extend the portal
+		    //change the theme of dashboard
+		    fs.readdir(source, (err, files) =>{
+			    if(err){
+				    throw new Error(err);
+			    }
+			    if(files.length > 0 && files.indexOf('portal') !== -1 && files.indexOf('dash') !== -1){
+				    async.series({
+					    'dash': (mCb) =>{
+						    let dashSrc = path.join(source, 'dash', '/', 'themes');
+						    let dashDest = path.join(destination, '/', 'dash', '/', 'themes');
+						    doCopy(dashSrc, dashDest, mCb);
+					    },
+					    'portal': (mCb) =>{
+						    let portalSrc = path.join(source, 'portal');
+						    let portalDest = path.join(destination, '/', 'portal');
+						    doCopy(portalSrc, portalDest, mCb);
+					    }
+				    }, cb);
+			    }
+			    else{
+				    //old style detected ...
+				    //copy the modules of portal on top of dash
+				    let poratlSource = path.join(destination, '/', 'portal', '/', 'modules');
+				    let dashDestination = path.join(destination, '/', 'dash', '/', 'modules');
+				    fse.copy(poratlSource, dashDestination, {overwrite: true}, (error) =>{
+					    if(error){
+						    throw new Error(error);
+					    }
+					    
+					    destination = path.join(destination, '/', 'dash');
+				        // copy contents of temp_site to nginx site location
+					    doCopy(source, destination, cb);
+				    });
+			    }
+		    });
+	    }
+	    else{
+		    // copy contents of temp_site to nginx site location
+		    doCopy(source, destination, cb);
+	    }
+	    
+	    function doCopy(source, destination, cb){
+		    fse.copy(source, destination, { overwrite: true }, (error) => {
+			    if (error) {
+				    log(`Unable to move temp_site contents to ${nxPath}`);
+				    throw new Error(error);
+			    }
+			
+			    // remove temp_site and temp folders
+			    fse.remove(source, (error) => {
+				    if (error) {
+					    log(`Unable to delete ${source}`);
+					    log(error);
+				    }
+				
+				    let tempPath = path.join(options.paths.tempFolders.temp.path, '/');
+				    fse.remove(tempPath, (error) => {
+					    if (error) {
+						    log(`Unable to delete ${tempPath}`);
+						    log(error);
+					    }
+					
+					    log('Cloning custom UI sites completed ...');
+					    return cb();
+				    });
+			    });
+		    });
+	    }
     }
 
 };
