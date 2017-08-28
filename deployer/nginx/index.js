@@ -95,8 +95,8 @@ function getUI(options, cb) {
 					if(files.length > 0 && files.indexOf('portal') !== -1 && files.indexOf('dash') !== -1){
 						async.series({
 							'dash': (mCb) =>{
-								let dashSrc = path.join(source, '/', 'dash', '/', 'themes');
-								let dashDest = path.join(destination, '/', 'dash', '/', 'themes');
+								let dashSrc = path.join(source, '/', 'dash');
+								let dashDest = path.join(destination, '/', 'dash', '/', 'themes', '/', 'default');
 								doCopy(dashSrc, dashDest, mCb);
 							},
 							'portal': (mCb) =>{
