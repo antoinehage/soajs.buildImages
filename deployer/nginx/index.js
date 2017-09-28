@@ -41,7 +41,7 @@ function startNginx(cb) {
  * @param  {Function} cb      Callback Function
  *
  */
-function getUI(options, cb) {
+function getUI(cb) {
 	if (!process.env.SOAJS_GIT_OWNER || !process.env.SOAJS_GIT_REPO) {
 		log('No or missing git information for custom UI, no custom UI to clone ...');
 		return cb();
@@ -95,8 +95,8 @@ function getUI(options, cb) {
 					if(files.length > 0 && files.indexOf('portal') !== -1 && files.indexOf('dash') !== -1){
 						async.series({
 							'dash': (mCb) =>{
-								let dashSrc = path.join(source, '/', 'dash');
-								let dashDest = path.join(destination, '/', 'dash', '/', 'themes', '/', 'default');
+								let dashSrc = path.join(source, '/', 'dash', '/', 'themes');
+								let dashDest = path.join(destination, '/', 'dash', '/', 'themes');
 								doCopy(dashSrc, dashDest, mCb);
 							},
 							'portal': (mCb) =>{
@@ -104,7 +104,12 @@ function getUI(options, cb) {
 								let portalDest = path.join(destination, '/', 'portal');
 								doCopy(portalSrc, portalDest, mCb);
 							}
-						}, cb);
+						}, (error)=>{
+							if(error){
+								return cb(error);
+							}
+							removeTempFolder(cb);
+						});
 					}
 					else{
 						//old style detected ...
@@ -117,13 +122,24 @@ function getUI(options, cb) {
 							}
 							destination = path.join(destination, 'dash');
 							//copy custom code on top of dash
-							doCopy(source, destination, cb);
+							doCopy(source, destination, (error) => {
+								if(error){
+									return cb(error);
+								}
+								
+								removeTempFolder(cb);
+							});
 						});
 					}
 		        });
 	    }
 	    else{
-		    doCopy(source, destination, cb);
+		    doCopy(source, destination, (error) => {
+		    	if(error){
+		    		return cb(error);
+		    	}
+			    removeTempFolder(cb);
+		    });
 	    }
     });
     
@@ -133,14 +149,17 @@ function getUI(options, cb) {
 			    log(`Unable to move contents of ${gitInfo.owner}/${gitInfo.repo} to ${destination} ...`);
 			    throw new Error(error);
 		    }
+		    return cb(null, true);
+	    });
+    }
+    
+    function removeTempFolder(cb){
+	    // delete contents of temp before cloning a new repository into it
+	    fse.remove(config.paths.tempFolders.temp.path, (error) => {
+		    if (error) throw new Error(error);
 		
-		    // delete contents of temp before cloning a new repository into it
-		    fse.remove(config.paths.tempFolders.temp.path, (error) => {
-			    if (error) throw new Error(error);
-			
-			    log(`${gitInfo.owner}/${gitInfo.repo} cloned successfully ...`);
-			    return setTimeout(cb, 100);
-		    });
+		    log(`${gitInfo.owner}/${gitInfo.repo} cloned successfully ...`);
+		    return setTimeout(cb, 100);
 	    });
     }
 }
@@ -151,11 +170,9 @@ function getUI(options, cb) {
  * @param  {Function} cb      Callback Function
  *
  */
-function getDashboardUI(options, cb) {
-	if (options.type === 'dashboard') {
-		if (process.env.SOAJS_ENV && process.env.SOAJS_ENV.toLowerCase() !== 'dashboard') return cb();
-		if (!process.env.SOAJS_GIT_DASHBOARD_BRANCH || process.env.SOAJS_GIT_DASHBOARD_BRANCH === '') return cb();
-	}
+function getDashboardUI(cb) {
+	if (process.env.SOAJS_ENV && process.env.SOAJS_ENV.toLowerCase() !== 'dashboard') return cb();
+	if (!process.env.SOAJS_GIT_DASHBOARD_BRANCH || process.env.SOAJS_GIT_DASHBOARD_BRANCH === '') return cb();
 	
 	async.series({
 		"dash": (mCb) =>{
@@ -288,10 +305,10 @@ const exp = {
                             if (error) throw new Error(error);
 
                             // Get dashboard UI if dashboard nginx, check for validity is done in the getUI() function
-                            getDashboardUI(options, () => {
+                            getDashboardUI(() => {
                             	
                                 //Get custom UI module if user specified source as environment variables (this is not related to sites.json config)
-                                getUI({ type: 'custom' }, () => {
+                                getUI(() => {
 	
                                     // Get custom UI sites if any
 	                                getCustomUISites(options, () => {
