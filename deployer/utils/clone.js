@@ -4,6 +4,8 @@
 const spawn = require('child_process').spawn;
 const log = require('util').log;
 
+const accelerateClone = process.env.SOAJS_GIT_ACC;
+
 const cloner = {
 
     /**
@@ -40,7 +42,14 @@ const cloner = {
             }
 
             log(`Cloning ${options.repo.git.owner}/${options.repo.git.repo} from ${options.repo.git.branch} branch, in progress ...`);
-            const clone = spawn('git', [ 'clone', '--progress', '--branch', options.repo.git.branch, '--depth', '1', cloneUrl, options.clonePath ], { stdio: 'inherit' });
+
+            let gitCommands = [ 'clone', '--progress', '--branch', options.repo.git.branch ];
+            if(accelerateClone) {
+                gitCommands = gitCommands.concat([ '--depth', '1' ]);
+            }
+            gitCommands = gitCommands.concat([ cloneUrl, options.clonePath ]);
+
+            const clone = spawn('git', gitCommands, { stdio: 'inherit' });
 
             clone.on('data', (data) => {
                 console.log(data.toString());
@@ -49,19 +58,19 @@ const cloner = {
             clone.on('close', (code) => {
                 if (code === 0) {
                     log(`Cloning repository ${options.repo.git.owner}/${options.repo.git.repo} was successful, exit code: ${code}`);
-                    
-                    if(options.repo.git.commit && options.repo.git.commit!==''){
+
+                    if(!accelerateClone && options.repo.git.commit && options.repo.git.commit!==''){
                     	log(`Detected custom commit provided, switching head to commit ${options.repo.git.commit}`);
                     	let commit = spawn("git", [ 'reset', '--hard', options.repo.git.commit ], {stdio: 'inherit', cwd: options.clonePath });
                     	commit.on('data', (data) => {
                     		log(data.toString());
 	                    });
-                    	
+
                     	commit.on('error', (error) => {
                     		log(`Switching HEAD to commit ${options.repo.git.commit} Failed`);
                     		throw new Error(error);
 	                    });
-                    	
+
                     	commit.on('close', function(code){
                     		if(code === 0){
 			                    log(`Repository HEAD switched to commit ${options.repo.git.commit}`);
