@@ -190,7 +190,7 @@ service.init(function () {
                                             if (err) return cb(err.message);
                                             if (param.type === "soajs" && path)
                                                 handleServiceFiles(path, rootFolder, serviceInfo);
-                                            else if (['nginx', 'logstash', 'filebeat', 'metricbeat', 'kibana', 'java'].indexOf(param.type) !== -1)
+                                            else if (['nginx', 'logstash', 'filebeat', 'metricbeat', 'kibana', 'java', 'elasticsearch'].indexOf(param.type) !== -1)
                                                 tarFolder(rootFolder, serviceInfo);
                                         });
                                     });
@@ -391,14 +391,14 @@ service.init(function () {
             return res.status(200).send(data);
         });
     });
-	
+
 	service.get("/buildES", function (req, res) {
 		lib.createImage({
 			imagePrefix: (req.query.imagePrefix ? req.query.imagePrefix + "/" : config.imagePrefix.core),
-			dockerTpl: config.dockerTemnplates.es,
-			type: "es",
+			dockerTpl: config.dockerTemnplates.elasticsearch,
+			type: "elasticsearch",
 			serviceInfo: {
-				"name": "es"
+				"name": "elasticsearch"
 			},
 			socket: req.query.socket || null,
 			log: req.soajs.log,

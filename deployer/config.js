@@ -5,7 +5,7 @@ const path = require('path');
 const config = {
 
     deploy: {
-        types: ['service', 'nginx', 'nodejs', 'profile', 'java', 'metricbeat', 'logstash', 'kibana']
+        types: ['service', 'nginx', 'nodejs', 'profile', 'java', 'metricbeat', 'logstash', 'kibana', 'elasticsearch']
     },
 
     paths: {
@@ -35,6 +35,9 @@ const config = {
             },
             java: {
                 path: __dirname + '/java/templates/'
+            },
+            elasticsearch: {
+                path: __dirname + '/elasticsearch/templates/'
             }
         },
         service: {
@@ -150,9 +153,9 @@ const config = {
     kibana: {
         configDir: process.env.SOAJS_KIBANA_CONFIG_DIR || '/usr/share/kibana/config/'
     },
-	
-	es :{
-		configDir: process.env.SOAJS_ES_CONFIG_DIR || '/usr/share/es/config/'
+
+	elasticsearch: {
+		configDir: process.env.SOAJS_ES_CONFIG_DIR || '/usr/share/elasticsearch/config/'
 	}
 
 };
