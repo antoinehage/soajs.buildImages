@@ -102,7 +102,6 @@ const elasticsearch = {
 	 */
 	run(options, cb) {
 		let configDir = options.elasticsearch.configDir;
-		// let configFile = path.join(configDir, 'elasticsearch.yml');
 
 		const elasticsearch = spawn('elasticsearch', [ `-Epath.conf=${configDir}` ], { stdio: 'inherit' });
 

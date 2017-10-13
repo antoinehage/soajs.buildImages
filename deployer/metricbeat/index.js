@@ -102,9 +102,9 @@ const metricbeat = {
      */
     run(options, cb) {
         let configDir = options.metricbeat.configDir;
-        let entrypoint = path.join(configDir, options.metricbeat.runScript);
+        let configFile = path.join(configDir, 'metricbeat.yml');
 
-        const metricbeat = spawn('sh', [ '-c', `cd ${configDir}; chmod +x ${options.metricbeat.runScript}; ./${options.metricbeat.runScript}` ], { stdio: 'inherit' });
+        const metricbeat = spawn('bash', [ '-c', `chmod go-w ${configFile}; metricbeat -e -v -path.config ${configDir}` ], { stdio: 'inherit' });
 
         metricbeat.on('data', (data) => {
             console.log(data.toString());

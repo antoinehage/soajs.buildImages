@@ -142,8 +142,7 @@ const config = {
     },
 
     metricbeat: {
-        configDir: process.env.SOAJS_METRICBEAT_CONFIG_DIR || '/metricbeat/',
-        runScript: process.env.SOAJS_METRICBEAT_RUN_SCRIPT || 'start.sh'
+        configDir: process.env.SOAJS_METRICBEAT_CONFIG_DIR || '/usr/share/metricbeat/'
     },
 
     logstash: {
