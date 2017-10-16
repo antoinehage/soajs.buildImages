@@ -59,7 +59,8 @@ module.exports = {
             "body": [
                 'USER root',
                 'ADD ./FILES/filebeat/filebeat.yml /usr/share/filebeat/filebeat.yml',
-                'RUN chown filebeat:filebeat /usr/share/filebeat/filebeat.yml',
+                'RUN chown -R filebeat:filebeat /usr/share/filebeat/ && \\',
+                    'mkdir -p /var/log/soajs && chmod -R a+rw /var/log/soajs',
                 'USER filebeat',
                 'CMD ["/bin/bash"]',
                 'ENTRYPOINT [ "/bin/bash", "-c", "filebeat -e -v -path.config /usr/share/filebeat/" ]'

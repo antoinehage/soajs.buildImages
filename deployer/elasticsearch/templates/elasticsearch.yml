@@ -92,8 +92,11 @@ network.host: 0.0.0.0
 # Require explicit names when deleting indices:
 #
 # action.destructive_requires_name: true
-# -------------------------------------- X Pack --------------------------------------
+# --------------------------------- X Pack Settings ----------------------------------
+xpack.ml.enabled: false
+xpack.monitoring.enabled: false
 xpack.security.enabled: false
+xpack.watcher.enabled: false
 # ---------------------------------- Readonly REST -----------------------------------
 #
 readonlyrest:
