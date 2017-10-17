@@ -63,10 +63,11 @@ module.exports = {
                     'mkdir -p /var/log/soajs && chmod -R a+rw /var/log/soajs',
                 'USER filebeat',
                 'CMD ["/bin/bash"]',
-                'ENTRYPOINT [ "/bin/bash", "-c", "filebeat -e -v -path.config /usr/share/filebeat/" ]'
+                'ENTRYPOINT [ "/bin/bash", "-c", "filebeat -e -v -path.home /usr/share/filebeat" ]'
             ]
         },
         "metricbeat": {
+            //NOTE: metricbeat image currently runs as user:root since binding /var/run/docker.sock won't work with user: metricbeat
             "from": "FROM docker.elastic.co/beats/metricbeat:5.5.3",
             "maintainer": "MAINTAINER SOAJS Team <team@soajs.org>",
             "body": [
@@ -75,9 +76,11 @@ module.exports = {
                     'curl --location https://rpm.nodesource.com/setup_6.x | bash - && \\',
                     'yum -y install nodejs',
                 'ADD ./deployer /opt/soajs/deployer/',
-                'RUN cd /opt/soajs/deployer/ && npm install && chown -R metricbeat:metricbeat /opt /usr/share/metricbeat',
-                'USER metricbeat',
-                'CMD ["/bin/bash"]'
+                // 'RUN cd /opt/soajs/deployer/ && npm install && chown -R metricbeat:metricbeat /opt /usr/share/metricbeat',
+                'RUN cd /opt/soajs/deployer/ && npm install',
+                // 'USER metricbeat',
+                'CMD ["/bin/bash"]',
+                'ENTRYPOINT [ "/bin/bash", "-c", "metricbeat -e -v -path.home /usr/share/metricbeat" ]'
             ]
         },
         "kibana": {
@@ -90,7 +93,7 @@ module.exports = {
                     'yum -y install nodejs && \\',
                     'npm install --global bower',
                 'WORKDIR /usr/share/kibana/plugins',
-                'RUN git clone --branch 5.4 https://github.com/nreese/kibana-time-plugin.git && \\',
+                'RUN git clone --branch 5.5 https://github.com/nreese/kibana-time-plugin.git && \\',
                     'cd /usr/share/kibana/plugins/kibana-time-plugin && \\',
                     'bower install --allow-root',
                 'ADD ./FILES/kibana/package.json /usr/share/kibana/plugins/kibana-time-plugin/package.json',
