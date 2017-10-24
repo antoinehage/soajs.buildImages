@@ -102,23 +102,21 @@ const config = {
     },
 
     dashboard: {
-        dash: {
-            provider: 'github',
-            domain: 'github.com',
-            owner: 'soajs',
-            repo: 'soajs.dashboard.ui',
-            branch: process.env.SOAJS_GIT_DASHBOARD_BRANCH,
-            path: '/'
-        },
-	    portal: {
-		    provider: 'github',
-		    domain: 'github.com',
-		    owner: 'soajs',
-		    repo: 'soajs.portal.ui',
-		    branch: process.env.SOAJS_GIT_DASHBOARD_BRANCH,
-		    path: '/'
-	    }
+        provider: 'github',
+        domain: 'github.com',
+        owner: 'soajs',
+        repo: 'soajs.dashboard.ui',
+        branch: process.env.SOAJS_GIT_DASHBOARD_BRANCH,
+        path: '/'
     },
+	portal: {
+		provider: 'github',
+		domain: 'github.com',
+		owner: 'soajs',
+		repo: 'soajs.portal.ui',
+		branch: process.env.SOAJS_GIT_PORTAL_BRANCH,
+		path: '/'
+	},
 
     nodejs: {
         git: {

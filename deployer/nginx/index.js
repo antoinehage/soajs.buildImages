@@ -36,9 +36,37 @@ function startNginx(cb) {
 }
 
 /**
+ * Function that clones UI of dashboard
+ * @param  cb {Function} Callback
+ *
+ */
+function getDashboardUI(cb) {
+	if (process.env.SOAJS_ENV && process.env.SOAJS_ENV.toLowerCase() !== 'dashboard') return cb();
+	if (!process.env.SOAJS_GIT_DASHBOARD_BRANCH || process.env.SOAJS_GIT_DASHBOARD_BRANCH === '') return cb();
+	
+	doClone(config.dashboard, (error) => {
+		if (error) throw new Error(error);
+		return cb(null, true);
+	});
+}
+
+/**
+ * Function that clones UI of portal
+ * @param  cb {Function} Callback
+ */
+function getPortalUI(cb){
+	if (process.env.SOAJS_ENV && process.env.SOAJS_ENV.toLowerCase() !== 'portal') return cb();
+	if (!process.env.SOAJS_GIT_PORTAL_BRANCH || process.env.SOAJS_GIT_PORTAL_BRANCH === '') return cb();
+	
+	doClone(config.portal, (error) => {
+		if (error) throw new Error(error);
+		return cb(null, true);
+	});
+}
+
+/**
  * Function that clones UI passed as environment variables only (not sites.json config)
- * @param  {Object}   options Object that contains the type of the UI module and its git information
- * @param  {Function} cb      Callback Function
+ * @param  cb {Function} Callback
  *
  */
 function getUI(cb) {
@@ -57,175 +85,54 @@ function getUI(cb) {
 		token: process.env.SOAJS_GIT_TOKEN || null
 	};
 	
-    // clone ui
-    let cloneOptions = {
-        repo: {
-            git: {
-                provider: gitInfo.provider,
-                domain: gitInfo.domain,
-                owner: gitInfo.owner,
-                repo: gitInfo.repo,
-                branch: gitInfo.branch,
-	            token: gitInfo.token
-            }
-        },
-        clonePath: config.paths.tempFolders.temp.path
-    };
-
-    log(`Cloning ${gitInfo.owner}/${gitInfo.repo} ...`);
-    utils.clone(cloneOptions, (error) => {
-        if (error) throw new Error(error);
-
-        let source = path.join(config.paths.tempFolders.temp.path, gitInfo.path || '/');
-	    let destination = path.join (config.nginx.siteLocation, '/');
-	
-	    //custom modules will be then installed on top of portal section
-	    //custom theme will be installed on top of portal and dashboard
-	    if (process.env.SOAJS_ENV &&
-		    process.env.SOAJS_ENV.toLowerCase() === 'dashboard' &&
-		    process.env.SOAJS_GIT_DASHBOARD_BRANCH &&
-		    process.env.SOAJS_GIT_DASHBOARD_BRANCH !== '') {
-				//analyze downloaded folders list
-				//override and extend the portal
-				//change the theme of dashboard
-				fs.readdir(source, (err, files) =>{
-					if(err){
-						throw new Error(err);
-					}
-					if(files.length > 0 && files.indexOf('portal') !== -1 && files.indexOf('dash') !== -1){
-						async.series({
-							'dash': (mCb) =>{
-								let dashSrc = path.join(source, '/', 'dash', '/', 'themes');
-								let dashDest = path.join(destination, '/', 'dash', '/', 'themes');
-								doCopy(dashSrc, dashDest, mCb);
-							},
-							'portal': (mCb) =>{
-								let portalSrc = path.join(source, '/', 'portal');
-								let portalDest = path.join(destination, '/', 'portal');
-								doCopy(portalSrc, portalDest, mCb);
-							}
-						}, (error)=>{
-							if(error){
-								return cb(error);
-							}
-							removeTempFolder(cb);
-						});
-					}
-					else{
-						//old style detected ...
-						//copy the modules of portal on top of dash
-						let poratlSource = path.join(destination, 'portal', '/', 'modules');
-						let dashDestination = path.join(destination, 'dash', '/', 'modules');
-						fse.copy(poratlSource, dashDestination, {overwrite: true}, (error) =>{
-							if(error){
-								throw new Error(error);
-							}
-							destination = path.join(destination, 'dash');
-							//copy custom code on top of dash
-							doCopy(source, destination, (error) => {
-								if(error){
-									return cb(error);
-								}
-								
-								removeTempFolder(cb);
-							});
-						});
-					}
-		        });
-	    }
-	    else{
-		    doCopy(source, destination, (error) => {
-		    	if(error){
-		    		return cb(error);
-		    	}
-			    removeTempFolder(cb);
-		    });
-	    }
-    });
-    
-    function doCopy(source, destination, cb){
-	    fse.copy(source, destination, { overwrite: true }, (error) => {
-		    if (error) {
-			    log(`Unable to move contents of ${gitInfo.owner}/${gitInfo.repo} to ${destination} ...`);
-			    throw new Error(error);
-		    }
-		    return cb(null, true);
-	    });
-    }
-    
-    function removeTempFolder(cb){
-	    // delete contents of temp before cloning a new repository into it
-	    fse.remove(config.paths.tempFolders.temp.path, (error) => {
-		    if (error) throw new Error(error);
-		
-		    log(`${gitInfo.owner}/${gitInfo.repo} cloned successfully ...`);
-		    return setTimeout(cb, 100);
-	    });
-    }
-}
-
-/**
- * Function that clones UI of dash and portal
- * @param  {Object}   options Object that contains the type of the UI module and its git information
- * @param  {Function} cb      Callback Function
- *
- */
-function getDashboardUI(cb) {
-	if (process.env.SOAJS_ENV && process.env.SOAJS_ENV.toLowerCase() !== 'dashboard') return cb();
-	if (!process.env.SOAJS_GIT_DASHBOARD_BRANCH || process.env.SOAJS_GIT_DASHBOARD_BRANCH === '') return cb();
-	
-	async.series({
-		"dash": (mCb) =>{
-			doClone('dash', mCb);
-		},
-		"portal": (mCb) =>{
-			doClone('portal', mCb);
-		}
-	}, (error) => {
+	doClone(gitInfo, (error) => {
 		if (error) throw new Error(error);
 		return cb(null, true);
 	});
+}
+
+/**
+ * Function that clones the code from a repo to a temporary folder, then moves it to its final destination and cleans up the temp folder
+ * @param gitInfo {Object} contains the information of the git repo to clone the code from
+ * @param mCb {Function} Callback
+ */
+function doClone(gitInfo, mCb){
+	// clone ui
+	let cloneOptions = {
+		repo: {
+			git: {
+				provider: gitInfo.provider,
+				domain: gitInfo.domain,
+				owner: gitInfo.owner,
+				repo: gitInfo.repo,
+				branch: gitInfo.branch,
+				token: gitInfo.token
+			}
+		},
+		clonePath: config.paths.tempFolders.temp.path
+	};
 	
-	function doClone(section, mCb){
-		let gitInfo = config.dashboard[section];
+	log(`Cloning ${gitInfo.owner}/${gitInfo.repo} ...`);
+	utils.clone(cloneOptions, (error) => {
+		if (error) return mCb(error);
 		
-		// clone ui
-		let cloneOptions = {
-			repo: {
-				git: {
-					provider: gitInfo.provider,
-					domain: gitInfo.domain,
-					owner: gitInfo.owner,
-					repo: gitInfo.repo,
-					branch: gitInfo.branch,
-					token: gitInfo.token
-				}
-			},
-			clonePath: config.paths.tempFolders.temp.path
-		};
-		
-		log(`Cloning ${gitInfo.owner}/${gitInfo.repo} ...`);
-		utils.clone(cloneOptions, (error) => {
-			if (error) return mCb(error);
+		let source = path.join(config.paths.tempFolders.temp.path, gitInfo.path || '/');
+		let destination = path.join (config.nginx.siteLocation, '/');
+		fse.copy(source, destination, { overwrite: true }, (error) => {
+			if (error) {
+				log(`Unable to move contents of ${gitInfo.owner}/${gitInfo.repo} to ${destination} ...`);
+				return mCb(error);
+			}
 			
-			let source = path.join(config.paths.tempFolders.temp.path, gitInfo.path || '/');
-			let destination = path.join (config.nginx.siteLocation, '/', section);
-			fse.copy(source, destination, { overwrite: true }, (error) => {
-				if (error) {
-					log(`Unable to move contents of ${gitInfo.owner}/${gitInfo.repo} to ${destination} ...`);
-					return mCb(error);
-				}
+			// delete contents of temp before cloning a new repository into it
+			fse.remove(config.paths.tempFolders.temp.path, (error) => {
+				if (error) return mCb(error);
 				
-				// delete contents of temp before cloning a new repository into it
-				fse.remove(config.paths.tempFolders.temp.path, (error) => {
-					if (error) return mCb(error);
-					
-					log(`${gitInfo.owner}/${gitInfo.repo} cloned successfully ...`);
-					return setTimeout(mCb, 100);
-				});
+				log(`${gitInfo.owner}/${gitInfo.repo} cloned successfully ...`);
+				return setTimeout(mCb, 100);
 			});
 		});
-	}
+	});
 }
 
 /**
@@ -234,8 +141,12 @@ function getDashboardUI(cb) {
  * @returns {*}
  */
 function updateCustomDomainAndKey(cb){
-	//check if this nginx should deploy dashboard ui
-	if(!process.env.SOAJS_GIT_DASHBOARD_BRANCH || process.env.SOAJS_GIT_DASHBOARD_BRANCH === ''){
+	//check if this nginx should deploy create a settings file for the ui
+	if(!process.env.SOAJS_ENV || ['dashboard', 'portal'].indexOf(process.env.SOAJS_ENV.toLowerCase()) === -1){
+		return cb();
+	}
+	
+	if(!process.env.SOAJS_GIT_DASHBOARD_BRANCH && !process.env.SOAJS_GIT_PORTAL_BRANCH){
 		return cb();
 	}
 	
@@ -250,16 +161,8 @@ function updateCustomDomainAndKey(cb){
 	};
 	customSettings = "var customSettings = " + JSON.stringify(customSettings, null, 2) + ";";
 	
-	async.parallel({
-		"dash": (mCb) => {
-			let fileLocation = path.join (config.nginx.siteLocation, '/', 'dash', '/');
-			fs.writeFile(fileLocation + "settings.js", customSettings, {'encoding': 'utf8'}, mCb);
-		},
-		"portal": (mCb) => {
-			let fileLocation = path.join (config.nginx.siteLocation, '/', 'portal', '/');
-			fs.writeFile(fileLocation + "settings.js", customSettings, {'encoding': 'utf8'}, mCb);
-		}
-	}, (error) =>{
+	let fileLocation = path.join (config.nginx.siteLocation, '/');
+	fs.writeFile(fileLocation + "settings.js", customSettings, {'encoding': 'utf8'}, (error) =>{
 		if(error){
 			log("Error:", error);
 		}
@@ -306,20 +209,24 @@ const exp = {
 
                             // Get dashboard UI if dashboard nginx, check for validity is done in the getUI() function
                             getDashboardUI(() => {
-                            	
-                                //Get custom UI module if user specified source as environment variables (this is not related to sites.json config)
-                                getUI(() => {
 	
-                                    // Get custom UI sites if any
-	                                getCustomUISites(options, () => {
-	                                	
-                                	    //update settings.js for both portal and dash interfaces
-	                                    updateCustomDomainAndKey(() =>{
-			                                // Start nginx
-			                                startNginx(cb);
-		                                });
-	                                });
-                                });
+	                            // Get portal UI if portal nginx, check for validity is done in the getUI() function
+                            	getPortalUI(() => {
+		
+		                            //Get custom UI module if user specified source as environment variables (this is not related to sites.json config)
+		                            getUI(() => {
+			
+			                            // Get custom UI sites if any
+			                            getCustomUISites(options, () => {
+				
+				                            //update settings.js for both portal and dash interfaces
+				                            updateCustomDomainAndKey(() =>{
+					                            // Start nginx
+					                            startNginx(cb);
+				                            });
+			                            });
+		                            });
+	                            });
                             });
                         });
                     });

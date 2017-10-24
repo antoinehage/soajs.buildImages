@@ -55,11 +55,16 @@ SOAJS_MONGO_SSL | This is to turn on SSL | [false] |
 #### GITHUB
 ENV Variable | Description | Default | Example
 --- | ----- | :---: | ---
+SOAJS_GIT_PROVIDER | This is the GIT account provider name | [github] |
+SOAJS_GIT_DOMAIN | This is the GIT account domain | [github.com] |
 SOAJS_GIT_OWNER | This is the GIT account owner name |  |
 SOAJS_GIT_REPO | This is the GIT repo name |  |
 SOAJS_GIT_BRANCH | This the GIT repo branch | [master] |
+SOAJS_GIT_PATH | This the path of where the ui code exists in the GIT repo | [/] |
 SOAJS_GIT_TOKEN | This is the GIT account token |  |
-SOAJS_GIT_DASHBOARD_BRANCH | This is the GIT repo branch for soajs.dashboard | [ master] |
+SOAJS_GIT_DASHBOARD_BRANCH | This is the GIT repo branch for soajs.dashboard.UI | [ master] |
+SOAJS_GIT_PORTAL_BRANCH | This is the GIT repo branch for soajs.portal.ui | [ master] |
+
 
 #### NODEJS
 SOAJS_SRV_MEMORY | defines a custom value for nodejs memory limit
