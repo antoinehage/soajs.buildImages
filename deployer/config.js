@@ -75,13 +75,13 @@ const config = {
                 path: process.env.SOAJS_NX_SITE_PATH || '/opt/soajs/site'
             },
             ssl: {
-                httpsApi: (process.env.SOAJS_NX_API_HTTPS && (process.env.SOAJS_NX_API_HTTPS == 1 ? true : false)) || false,
+                httpsApi: (process.env.SOAJS_NX_API_HTTPS && ((process.env.SOAJS_NX_API_HTTPS == 1 || process.env.SOAJS_NX_API_HTTPS == 'true') ? true : false)) || false,
                 httpApiRedirect: false, // computed field, depends on httpsApi, check end of file
 
-                httpsSite: (process.env.SOAJS_NX_SITE_HTTPS && (process.env.SOAJS_NX_SITE_HTTPS == 1 ? true : false)) || false,
+                httpsSite: (process.env.SOAJS_NX_SITE_HTTPS && ((process.env.SOAJS_NX_SITE_HTTPS == 1 || process.env.SOAJS_NX_SITE_HTTPS == 'true') ? true : false)) || false,
                 httpSiteRedirect: false, // computed field, depends on httpsApi, check end of file
 
-                customCerts: (process.env.SOAJS_NX_CUSTOM_SSL && (process.env.SOAJS_NX_CUSTOM_SSL == 1 ? true : false)) || false,
+                customCerts: (process.env.SOAJS_NX_CUSTOM_SSL && ((process.env.SOAJS_NX_CUSTOM_SSL == 1 || process.env.SOAJS_NX_CUSTOM_SSL == 'true') ? true : false)) || false,
                 customCertsPath: process.env.SOAJS_NX_SSL_CERTS_LOCATION || "/etc/soajs/ssl"
             }
         }
@@ -161,7 +161,7 @@ const config = {
 
 config.configRepo.git.domain = process.env.SOAJS_CONFIG_REPO_DOMAIN || ((config.configRepo.git.provider === 'github') ? 'github.com' : ((config.configRepo.git.provider === 'bitbucket') ? 'bitbucket.org' : ''));
 
-config.nginx.config.ssl.httpApiRedirect = (config.nginx.config.ssl.httpsApi && process.env.SOAJS_NX_API_HTTP_REDIRECT && (process.env.SOAJS_NX_API_HTTP_REDIRECT == 1 ? true : false)) || false;
-config.nginx.config.ssl.httpSiteRedirect = (config.nginx.config.ssl.httpsSite && process.env.SOAJS_NX_SITE_HTTP_REDIRECT && (process.env.SOAJS_NX_SITE_HTTP_REDIRECT == 1 ? true : false)) || false;
+config.nginx.config.ssl.httpApiRedirect = (config.nginx.config.ssl.httpsApi && process.env.SOAJS_NX_API_HTTP_REDIRECT && ((process.env.SOAJS_NX_API_HTTP_REDIRECT == 1 || process.env.SOAJS_NX_API_HTTP_REDIRECT == 'true') ? true : false)) || false;
+config.nginx.config.ssl.httpSiteRedirect = (config.nginx.config.ssl.httpsSite && process.env.SOAJS_NX_SITE_HTTP_REDIRECT && ((process.env.SOAJS_NX_SITE_HTTP_REDIRECT == 1 || process.env.SOAJS_NX_SITE_HTTP_REDIRECT == 'true') ? true : false)) || false;
 
 module.exports = config;
