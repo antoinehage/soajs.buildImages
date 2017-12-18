@@ -25,6 +25,10 @@ handlebars.registerHelper('concat', function(str1, str2) {
     return str1 + str2;
 });
 
+handlebars.registerHelper('equals', function(str1, str2) {
+    return (str1 === str2);
+});
+
 handlebars.registerHelper('env', function (env) {
     return process.env[env];
 });
