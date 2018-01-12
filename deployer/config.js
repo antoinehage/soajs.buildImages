@@ -5,7 +5,7 @@ const path = require('path');
 const config = {
 
     deploy: {
-        types: ['service', 'nginx', 'nodejs', 'profile', 'java', 'metricbeat', 'logstash', 'kibana']
+        types: ['service', 'nginx', 'nodejs', 'profile', 'java', 'metricbeat', 'logstash', 'kibana', 'dockerapi']
     },
 
     paths: {
@@ -155,7 +155,11 @@ const config = {
 
     kibana: {
         configDir: process.env.SOAJS_KIBANA_CONFIG_DIR || '/usr/share/kibana/config/'
-    }
+    },
+	
+	dockerapi: {
+ 
+	}
 
 };
 

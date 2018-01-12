@@ -24,6 +24,9 @@
     "fs-extra": "*",
     "handlebars": "4.0.6",
     "openssl-wrapper": "0.3.4",
-    "rimraf": "*"
+    "rimraf": "*",
+    "dockerode": "soajs/dockerode.git",
+    "http-proxy": "1.16.2",
+    "request": "2.81.0"
   }
 }

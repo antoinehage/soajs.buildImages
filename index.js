@@ -391,5 +391,22 @@ service.init(function () {
             return res.status(200).send(data);
         });
     });
+	service.get("/buildDockerAPI", function (req, res) {
+		lib.createImage({
+			imagePrefix: (req.query.imagePrefix ? req.query.imagePrefix + "/" : config.imagePrefix.core),
+			dockerTpl: config.dockerTemnplates.dockerapi,
+			type: "dockerapi",
+			serviceInfo: {
+				"name": "dockerapi"
+			},
+			socket: req.query.socket || null,
+			log: req.soajs.log,
+			deleteFolder: req.query.delete || null
+		}, function (err, data) {
+			if (err)
+				return res.jsonp(req.soajs.buildResponse({"code": 401, "msg": err}));
+			return res.status(200).send(data);
+		});
+	});
     service.start();
 });
