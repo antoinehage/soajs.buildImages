@@ -191,24 +191,40 @@ let lib = {
     deployService (options, cb) {
         utils.checkEnvVars((res) => {
             //generate and copy the profile to its final destination
-            profileGenerator.getProfile(options, (error, response) => {
-                //clone the repository
-                utils.cloneRepo(options, (error, repo) => {
-                    if(repo) {
-                        //Check if accelerate deployment is checked
-                        utils.accelerateDeployment(options, (error1, res1) => {
-                            //install service dependencies and run the service
-                            utils.npmInstall(options, (error2) => {
-                                if(error2)
-                                    return cb(error2);
-                                utils.runService(options, cb);
-                            });
-                        });
-                    }
-                });
-
-            });
-
+	        if(process.env.SOAJS_REGISTRY_API){
+		        //clone the repository
+		        utils.cloneRepo(options, (error, repo) => {
+			        if(repo) {
+				        //Check if accelerate deployment is checked
+				        utils.accelerateDeployment(options, (error1, res1) => {
+					        //install service dependencies and run the service
+					        utils.npmInstall(options, (error2) => {
+						        if(error2)
+							        return cb(error2);
+						        utils.runService(options, cb);
+					        });
+				        });
+			        }
+		        });
+	        }
+	        else{
+		        profileGenerator.getProfile(options, (error, response) => {
+			        //clone the repository
+			        utils.cloneRepo(options, (error, repo) => {
+				        if(repo) {
+					        //Check if accelerate deployment is checked
+					        utils.accelerateDeployment(options, (error1, res1) => {
+						        //install service dependencies and run the service
+						        utils.npmInstall(options, (error2) => {
+							        if(error2)
+								        return cb(error2);
+							        utils.runService(options, cb);
+						        });
+					        });
+				        }
+			        });
+		        });
+	        }
         });
     }
 };
