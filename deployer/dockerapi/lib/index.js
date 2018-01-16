@@ -6,8 +6,6 @@ const async = require('async');
 const request = require('request');
 const Docker = require('dockerode');
 
-const config = require('../config.js');
-
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = 0;
 
 const lib = {
@@ -34,9 +32,9 @@ const lib = {
         res.end(JSON.stringify({ message: options.message }));
     },
 
-    checkSwarmNetwork() {
+    checkSwarmNetwork(options) {
         let deployer = lib.getDeployer();
-        let network = deployer.getNetwork(config.network);
+        let network = deployer.getNetwork(options.dockerapi.network);
         network.inspect((error, networkInfo) => {
             if(error && error.statusCode !== 404) {
                 log(error);
@@ -80,7 +78,7 @@ const lib = {
         });
     },
 
-    maintenance(req, res) {
+    maintenance(req, res, options) {
         let params = url.parse(req.url, true).query;
         let deployer = lib.getDeployer();
 
@@ -153,18 +151,15 @@ const lib = {
         });
     },
 
-    metrics(req, res) {
-    	let nodePort = config.paths.metrics.port[process.env.NODE_TYPE.toLowerCase()];
-        let deployer = lib.getDeployer({targetNode: true, port: nodePort});
+    metrics(req, res, options) {
+        let deployer = lib.getDeployer();
         deployer.listNodes((error, nodesList) => {
             if(error) {
                 return lib.returnError(res, { error, message: 'Unable to list nodes' });
             }
-	        
+
             async.concat(nodesList, (oneNode, callback) => {
-            	let opts = { targetNode: true, port: nodePort, ip: oneNode.Status.Addr, token: req.headers['token'] }
-	            let targetDeployer = lib.getDeployer(opts);
-	            let targetDeployer2 = lib.getDeployer(opts);
+                let targetDeployer = lib.getDeployer({ targetNode: true, ip: oneNode.Status.Addr, port: options.dockerapi.paths.metrics.port[process.env.NODE_TYPE.toLowerCase()], token: req.headers['token'] });
                 targetDeployer.listContainers({}, (error, containers) => {
                     if(error) {
                         return lib.returnError(res, { error, message: 'Unable to list containers' });
@@ -172,7 +167,7 @@ const lib = {
 
                     let params = { stream: false };
                     async.map(containers, (oneContainer, callback) => {
-                        let container = targetDeployer2.getContainer(oneContainer.Id);
+                        let container = targetDeployer.getContainer(oneContainer.Id);
                         container.stats(params, (error, containerStats) => {
                             if(error) {
                                 return lib.returnError(res, { error, message: 'Unable to get container stats' });
