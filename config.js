@@ -102,7 +102,20 @@ module.exports = {
                 'RUN cd /opt/soajs/deployer && npm install',
                 'CMD ["/bin/sh"]'
             ]
-        }
+        },
+	    "dockerapi": {
+		    "from": "FROM soajsorg/baseservice",
+		    "maintainer": "MAINTAINER SOAJS Team <team@soajs.org>",
+		    "body": [
+			    'RUN mkdir -p /opt/soajs/deployer/',
+			    'ADD ./deployer /opt/soajs/deployer',
+			    'ADD ./FILES /opt/soajs/FILES/',
+			    'ENV NODE_ENV=production',
+			    'RUN cd /opt/soajs/deployer/dockerapi/scripts/ && ./generate_certs.sh',
+			    'RUN cd /opt/soajs/deployer && npm install',
+			    'CMD ["/bin/bash"]'
+		    ]
+	    }
     },
 
     "errors": {
