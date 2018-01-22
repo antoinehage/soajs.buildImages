@@ -3,11 +3,8 @@
 CERTS_PASSWORD=""
 CERTS_FOLDER="$(pwd)/../certs"
 
-generatePass(){
-    CERTS_PASSWORD=$(cat /dev/urandom | \
-                    tr -dc 'a-zA-Z0-9' | \
-                    fold -w 32 | head -n 1)
-    echo "Generated certs password: ${CERTS_PASSWORD}"
+createDir(){
+    mkdir -p $CERTS_FOLDER
 }
 
 generateCertificates(){
@@ -19,7 +16,6 @@ generateCertificates(){
             -out ${CERTS_FOLDER}/client.csr
 
     openssl x509 -req \
-            -passin pass:${CERTS_PASSWORD} \
             -in ${CERTS_FOLDER}/client.csr \
             -signkey ${CERTS_FOLDER}/client-key.pem \
             -out ${CERTS_FOLDER}/client-cert.pem
@@ -28,7 +24,7 @@ generateCertificates(){
 }
 
 run(){
-    generatePass
+    createDir
     generateCertificates
 }
 

@@ -92,7 +92,7 @@ function deploy() {
         case 'kibana':
             deployKibana(options);
             break;
-	
+
 	    case 'dockerapi':
 		    deployDockerAPI(options);
 		    break;
@@ -144,10 +144,11 @@ function deploy() {
         const kibana = require('./kibana');
         kibana.deploy(options, exitCb);
     }
-	
+
 	function deployDockerAPI(options){
+        options.dockerapi = config.dockerapi;
 		const dockerapi = require('./dockerapi');
-		dockerapi.deployAPI(options, exitCb);
+		dockerapi.deploy(options, exitCb);
 	}
 }
 

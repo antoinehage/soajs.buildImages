@@ -109,9 +109,8 @@ module.exports = {
 		    "body": [
 			    'RUN mkdir -p /opt/soajs/deployer/',
 			    'ADD ./deployer /opt/soajs/deployer',
-			    'ADD ./FILES /opt/soajs/FILES/',
 			    'ENV NODE_ENV=production',
-			    'RUN cd /opt/soajs/deployer/dockerapi/scripts/ && ./generate_certs.sh',
+			    'RUN chmod +x /opt/soajs/deployer/dockerapi/scripts/generate_certs.sh',
 			    'RUN cd /opt/soajs/deployer && npm install',
 			    'CMD ["/bin/bash"]'
 		    ]
