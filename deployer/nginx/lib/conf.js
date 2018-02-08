@@ -111,6 +111,11 @@ let builder = {
      *
      */
     writeServer(options, wstream) {
+        if (options.location == "proxy" && !options.count) {
+            log('No API server entry will be written, SOAJS controller count is missing');
+            return;
+        }
+
     	log("writing server entry for", options.domain);
         wstream.write("server {\n");
         wstream.write("  listen       " + options.port + ";\n");
@@ -276,6 +281,7 @@ let builder = {
                         confFileName: options.nginx.config.apiConf.fileName,
                         domain: options.nginx.config.apiConf.domain,
                         upstreamName: options.nginx.config.upstream.upstreamName,
+                        count: options.nginx.config.upstream.count
                     }, () => {
                         log('Nginx API config was written successfully');
                         if (options.nginx.config.siteConf.domain) {
