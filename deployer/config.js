@@ -63,7 +63,7 @@ const config = {
                 ctrlPort: process.env.SOAJS_NX_CONTROLLER_PORT || '4000',
                 ipEnvName: 'SOAJS_NX_CONTROLLER_IP_',
                 upstreamName: 'soajs.controller',
-                count: process.env.SOAJS_NX_CONTROLLER_NB || 1
+                count: process.env.SOAJS_NX_CONTROLLER_NB || 0
             },
             apiConf: {
                 fileName: 'api.conf',

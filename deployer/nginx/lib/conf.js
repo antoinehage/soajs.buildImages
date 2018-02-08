@@ -16,6 +16,11 @@ let builder = {
      *
      */
     writeUpstream(options, cb) {
+        if(!options.count) {
+            log('No upstream entries available for SOAJS controllers, default upstream file won\'t be written');
+            return cb();
+        }
+
         log("Writing upstream.conf in " + options.loc);
         let wstream = fs.createWriteStream(options.loc + 'upstream.conf');
         wstream.write("upstream " + options.upstreamName + " {\n");
@@ -40,7 +45,7 @@ let builder = {
      */
     writeStaticLocation(options, wstream) {
     	let rootPath = options.path;
-    	
+
         wstream.write("  location / {\n");
         wstream.write("    root  " + rootPath + ";\n");
         wstream.write("    sendfile       off;\n");
@@ -55,6 +60,11 @@ let builder = {
      *
      */
     writeProxyLocation(options, wstream) {
+        if(!options.count) {
+            log('No upstream entries available for SOAJS controllers, proxy location will not be written');
+            return;
+        }
+
         wstream.write("  location / {\n");
         wstream.write("    proxy_pass 		    http://" + options.upstreamName + ";\n");
         wstream.write("    proxy_set_header   	X-Forwarded-Proto 	    $scheme;\n");
@@ -165,15 +175,15 @@ let builder = {
 			    fileLocation = options.loc + "portal.conf";
 		    }
 	    }
-	    
+
         log("Writing site conf in " + fileLocation);
         let wstream = fs.createWriteStream(fileLocation);
-        
+
         let httpsSite = config.nginx.config.ssl.httpsSite;
         let httpSiteRedirect = config.nginx.config.ssl.httpSiteRedirect;
 
         options.location = "static";
-        
+
         if (httpsSite) {
 	        if (httpSiteRedirect) {
 		        options.port = "80";
