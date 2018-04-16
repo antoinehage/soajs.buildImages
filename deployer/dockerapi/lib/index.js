@@ -48,7 +48,7 @@ const lib = {
 
             if(error && error.statusCode === 404) {
                 log('Swarm network is not available yet on this node');
-                setTimeout(lib.checkSwarmNetwork, 2500);
+                setTimeout(lib.checkSwarmNetwork.bind(null, options), 2500);
             }
         });
     },
