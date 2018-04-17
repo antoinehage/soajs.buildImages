@@ -159,7 +159,14 @@ const lib = {
             }
 
             async.concat(nodesList, (oneNode, callback) => {
-                let targetDeployer = lib.getDeployer({ targetNode: true, ip: oneNode.Status.Addr, port: options.dockerapi.paths.metrics.port[process.env.NODE_TYPE.toLowerCase()], token: req.headers['token'] });
+                if(!(oneNode && oneNode.Status && oneNode.Status.Addr)) {
+                  return lib.returnError(res, { error: 'Missing node IP address', message: 'Unable to node IP address from docker api' });
+                }
+                if(!(oneNode && oneNode.Spec && oneNode.Spec.Role)) {
+                  return lib.returnError(res, { error: 'Missing node role', message: 'Unable to node role from docker api' });
+                }
+
+                let targetDeployer = lib.getDeployer({ targetNode: true, ip: oneNode.Status.Addr, port: options.dockerapi.paths.metrics.port[oneNode.Spec.Role.toLowerCase()], token: req.headers['token'] });
                 targetDeployer.listContainers({}, (error, containers) => {
                     if(error) {
                         return lib.returnError(res, { error, message: 'Unable to list containers' });
