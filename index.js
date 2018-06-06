@@ -190,7 +190,7 @@ service.init(function () {
                                             if (err) return cb(err.message);
                                             if (param.type === "soajs" && path)
                                                 handleServiceFiles(path, rootFolder, serviceInfo);
-                                            else if (['nginx', 'logstash', 'filebeat', 'metricbeat', 'kibana', 'java'].indexOf(param.type) !== -1)
+                                            else if (['nginx', 'logstash', 'filebeat', 'metricbeat', 'kibana', 'java', 'dockerapi'].indexOf(param.type) !== -1)
                                                 tarFolder(rootFolder, serviceInfo);
                                         });
                                     });
