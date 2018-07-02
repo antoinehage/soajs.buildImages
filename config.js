@@ -32,8 +32,13 @@ module.exports = {
                 'ADD ./deployer /opt/soajs/deployer/',
                 'ADD ./FILES /opt/soajs/FILES/',
                 'ENV NODE_ENV=production',
+                'ENV TERRAFORM_VERSION=0.11.7',
                 'RUN cd /opt/soajs/deployer/ && npm install',
                 'RUN cd /opt/soajs/FILES/soajs && npm install',
+                'RUN apt-get update && apt-get install unzip && \\',
+                    'curl -o terraform.zip https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip && \\',
+                    'unzip terraform.zip -d terraform && \\',
+                    'mv terraform/* /usr/bin/ && rm -r terraform/ && rm terraform.zip',
                 'CMD ["/bin/bash"]']
         },
         "logstash": {
