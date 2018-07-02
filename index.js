@@ -397,7 +397,7 @@ service.init(function () {
 			dockerTpl: config.dockerTemnplates.dockerapi,
 			type: "dockerapi",
 			serviceInfo: {
-				"name": "dockerapi"
+				"name": "docker-api"
 			},
 			socket: req.query.socket || null,
 			log: req.soajs.log,
