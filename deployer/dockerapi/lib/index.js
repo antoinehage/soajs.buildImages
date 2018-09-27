@@ -8,6 +8,9 @@ const Docker = require('dockerode');
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = 0;
 
+let networkErrors = [];
+const networkErrorDefaultMessage = 'The swarm network is not configured properly. Maintenance operations are not available at the moment.';
+
 const lib = {
 
     getDeployer(options) {
@@ -26,10 +29,14 @@ const lib = {
     },
 
     returnError(res, options) {
-        log(options.error);
+        log(options.error || options.message);
+
+        if(options.message && Array.isArray(options.message)) {
+            options.message = options.message.join(', ');
+        }
 
         res.writeHead(500, {'Content-Type': 'application/json'});
-        res.end(JSON.stringify({ message: options.message }));
+        res.end(JSON.stringify({ error: options.message }));
     },
 
     checkSwarmNetwork(options) {
@@ -38,7 +45,9 @@ const lib = {
         network.inspect((error, networkInfo) => {
             if(error && error.statusCode !== 404) {
                 log(error);
-                log('Unable to get swarm network');
+                log('Unable to inspect swarm network');
+
+                networkErrors.push('Dockerapi container is unable to inspect the swarm network');
                 return;
             }
 
@@ -47,6 +56,7 @@ const lib = {
             }
 
             if(error && error.statusCode === 404) {
+                // this is not an error, only a notification that the swarm network is not yet ready and thus further attempts are required
                 log('Swarm network is not available yet on this node');
                 setTimeout(lib.checkSwarmNetwork.bind(null, options), 2500);
             }
@@ -57,11 +67,16 @@ const lib = {
         if(!swarmNetwork.Attachable) {
             log('Swarm network is not attachable, connecting to it is not possible');
             log('Maintenance operations will not work, containers are not reachable');
+
+            networkErrors.push(networkErrorDefaultMessage);
             return;
         }
 
         if(swarmNetwork.Scope !== 'swarm') {
             log('WARNING: network scope is not configured to "swarm"');
+
+            networkErrors.push(networkErrorDefaultMessage);
+            return;
         }
 
         let deployer = lib.getDeployer();
@@ -71,6 +86,8 @@ const lib = {
                 log(error);
                 log('Unable to connect to swarm network');
                 log('Maintenance operations will not work, containers are not reachable');
+
+                networkErrors.push(networkErrorDefaultMessage);
                 return;
             }
 
@@ -79,6 +96,10 @@ const lib = {
     },
 
     maintenance(req, res, options) {
+        if(networkErrors && networkErrors.length > 0) {
+            return lib.returnError(res, { error: networkErrors, message: networkErrors });
+        }
+
         let params = url.parse(req.url, true).query;
         let deployer = lib.getDeployer();
 
