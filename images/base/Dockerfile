@@ -3,7 +3,7 @@ MAINTAINER SOAJS Team <team@soajs.org>
 
 RUN apt-get update && \
     apt-get install --fix-missing -y git curl && \
-    curl -sL https://deb.nodesource.com/setup_6.x | bash && \
+    curl -sL https://deb.nodesource.com/setup_8.x | bash && \
     apt-get install --fix-missing -y nodejs
 
 CMD ["/bin/bash"]
