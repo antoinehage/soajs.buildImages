@@ -97,6 +97,10 @@ function deploy() {
 		    deployDockerAPI(options);
 		    break;
 
+        case 'golang':
+		    deployGolang(options);
+		    break;
+
     }
 
     function deployService(options) {
@@ -149,6 +153,12 @@ function deploy() {
         options.dockerapi = config.dockerapi;
 		const dockerapi = require('./dockerapi');
 		dockerapi.deploy(options, exitCb);
+	}
+
+    function deployGolang(options){
+        options.golang = config.golang;
+		const golang = require('./golang');
+		golang.deploy(options, exitCb);
 	}
 }
 

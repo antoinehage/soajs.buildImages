@@ -2,10 +2,19 @@
 
 const path = require('path');
 
+const defaultGit = {
+    provider: process.env.SOAJS_GIT_PROVIDER || 'github',
+    domain: process.env.SOAJS_GIT_DOMAIN || 'github.com',
+    owner: process.env.SOAJS_GIT_OWNER,
+    repo: process.env.SOAJS_GIT_REPO,
+    branch: process.env.SOAJS_GIT_BRANCH || 'master',
+    token: process.env.SOAJS_GIT_TOKEN
+};
+
 const config = {
 
     deploy: {
-        types: ['service', 'nginx', 'nodejs', 'profile', 'java', 'metricbeat', 'logstash', 'kibana', 'dockerapi']
+        types: ['service', 'nginx', 'nodejs', 'profile', 'java', 'metricbeat', 'logstash', 'kibana', 'dockerapi', 'golang']
     },
 
     paths: {
@@ -50,6 +59,9 @@ const config = {
             bin: {
                 path: '/usr/local/tomcat/bin/'
             }
+        },
+        golang: {
+            path: '/go/src/'
         }
     },
 
@@ -119,27 +131,13 @@ const config = {
 	},
 
     nodejs: {
-        git: {
-            provider: process.env.SOAJS_GIT_PROVIDER || 'github',
-            domain: process.env.SOAJS_GIT_DOMAIN || 'github.com',
-            owner: process.env.SOAJS_GIT_OWNER,
-            repo: process.env.SOAJS_GIT_REPO,
-            branch: process.env.SOAJS_GIT_BRANCH || 'master',
-            token: process.env.SOAJS_GIT_TOKEN
-        },
+        git: Object.assign({}, defaultGit),
         main: process.env.SOAJS_SRV_MAIN || '.',
         memory: process.env.SOAJS_SRV_MEMORY
     },
 
     java: {
-        git: {
-            provider: process.env.SOAJS_GIT_PROVIDER || 'github',
-            domain: process.env.SOAJS_GIT_DOMAIN || 'github.com',
-            owner: process.env.SOAJS_GIT_OWNER,
-            repo: process.env.SOAJS_GIT_REPO,
-            branch: process.env.SOAJS_GIT_BRANCH || 'master',
-            token: process.env.SOAJS_GIT_TOKEN
-        },
+        git: Object.assign({}, defaultGit),
         appArchivePath: process.env.SOAJS_WAR_FILE_PATH || '/',
         configDir: process.env.SOAJS_TOMCAT_CONFIG_DIR || '/usr/local/tomcat/conf'
     },
@@ -189,7 +187,12 @@ const config = {
     	        }
             }
         }
-	}
+	},
+
+    golang: {
+        git: Object.assign({}, defaultGit),
+        main: process.env.SOAJS_SRV_MAIN || process.env.SOAJS_GIT_REPO // compiled binary name matches the name of the git repository
+    }
 
 };
 
