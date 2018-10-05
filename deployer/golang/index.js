@@ -17,9 +17,9 @@ let golang = {
      */
     init(options, cb) {
 
-        if (options.golang && options.golang.git && options.golang.git.owner && options.golang.git.repo) {
+        if (options.golang && options.golang.git && options.golang.git.domain && options.golang.git.owner && options.golang.git.repo) {
 
-            let repoDirPath = path.join(options.paths.golang.path, options.golang.git.domain, options.golang.git.owner);
+            let repoDirPath = path.join(options.paths.golang.path, options.golang.git.domain, options.golang.git.owner, options.golang.git.repo);
             fse.ensureDir(repoDirPath, (error) => {
                 if (error) {
                     log(`An error occured while creating ${repoDirPath} ...`);
