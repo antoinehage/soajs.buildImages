@@ -119,7 +119,17 @@ module.exports = {
 			    'RUN cd /opt/soajs/deployer && npm install',
 			    'CMD ["/bin/bash"]'
 		    ]
-	    }
+	    },
+        "golang": {
+            "from": "FROM golang:1.11.1-alpine",
+		    "maintainer": "MAINTAINER SOAJS Team <team@soajs.org>",
+		    "body": [
+                'RUN apk add --no-cache curl nodejs nodejs-npm git && mkdir -p /opt/soajs/deployer/',
+                'ADD ./deployer /opt/soajs/deployer',
+                'RUN cd /opt/soajs/deployer && npm install',
+                'CMD ["/bin/sh"]'
+		    ]
+        }
     },
 
     "errors": {
