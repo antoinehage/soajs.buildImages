@@ -60,9 +60,25 @@ let ssl = {
         if (options.nginx.config.ssl.customCerts) {
             log('Detected user-provided certificates via voluming, checking certificates ...');
             let certsVolumePath = options.nginx.config.ssl.customCertsPath;
-            let crtPath = path.join(certsVolumePath, '/tls.crt');
-            let keyPath = path.join(certsVolumePath, '/tls.key');
-            options.certs = [ crtPath, keyPath ];
+
+            let tlscrt = certsVolumePath + "/crt/tls-crt";
+            if (!fs.existsSync(tlscrt)) {
+                tlscrt = certsVolumePath + "/tls.crt";
+                if (!fs.existsSync(tlscrt)) {
+                    log('Unable to find SSL CRT file @ location: '+tlscrt)
+                }
+            }
+            let tlskey = certsVolumePath + "/key/tls-key";
+            if (!fs.existsSync(tlskey)) {
+                tlskey = certsVolumePath + "/tls.key";
+                if (!fs.existsSync(tlskey)) {
+                    log('Unable to find SSL KEY file @ location: '+tlskey)
+                }
+            }
+
+            //let crtPath = path.join(certsVolumePath, '/tls.crt');
+            //let keyPath = path.join(certsVolumePath, '/tls.key');
+            options.certs = [ tlscrt, tlskey ];
             ssl.detect(options, (error) => {
                 if (error) throw new Error(error);
 
@@ -115,7 +131,7 @@ let ssl = {
                         log(`Error: ${error.code} Certificate ${oneCert} no found`);
                     }
                     else {
-                        log(`An error occured while checking ${oneCert}`);
+                        log(`An error occurred while checking ${oneCert}`);
                     }
                     return callback(error);
                 }
