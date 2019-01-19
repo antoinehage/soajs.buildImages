@@ -99,8 +99,23 @@ let builder = {
         let certsLocation = path.join(config.nginx.location, '/ssl');
         if (config.nginx.config.ssl.customCerts) certsLocation = config.nginx.config.ssl.customCertsPath;
 
-        wstream.write("  ssl_certificate         " + certsLocation + "/tls.crt;\n");
-        wstream.write("  ssl_certificate_key     " + certsLocation + "/tls.key;\n");
+        let tlscrt = certsLocation + "/crt/tls-crt";
+        if (!fs.existsSync(tlscrt)) {
+            tlscrt = certsLocation + "/tls.crt";
+            if (!fs.existsSync(tlscrt)) {
+                log('Unable to find SSL CRT file @ location: '+tlscrt)
+            }
+        }
+        let tlskey = certsLocation + "/key/tls-key";
+        if (!fs.existsSync(tlskey)) {
+            tlskey = certsLocation + "/tls.key";
+            if (!fs.existsSync(tlskey)) {
+                log('Unable to find SSL KEY file @ location: '+tlskey)
+            }
+        }
+
+        wstream.write("  ssl_certificate         " + tlscrt + ";\n");
+        wstream.write("  ssl_certificate_key     " + tlskey + ";\n");
         wstream.write("  include " + config.nginx.location + "/ssl/ssl.conf;\n");
     },
 
