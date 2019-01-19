@@ -99,14 +99,14 @@ let builder = {
         let certsLocation = path.join(config.nginx.location, '/ssl');
         if (config.nginx.config.ssl.customCerts) certsLocation = config.nginx.config.ssl.customCertsPath;
 
-        let tlscrt = certsLocation + "/tls-crt";
+        let tlscrt = certsLocation + "/crt/tls-crt";
         if (!fs.existsSync(tlscrt)) {
             tlscrt = certsLocation + "/tls.crt";
             if (!fs.existsSync(tlscrt)) {
                 log('Unable to find SSL CRT file @ location: '+tlscrt)
             }
         }
-        let tlskey = certsLocation + "/tls-key";
+        let tlskey = certsLocation + "/key/tls-key";
         if (!fs.existsSync(tlskey)) {
             tlskey = certsLocation + "/tls.key";
             if (!fs.existsSync(tlskey)) {
