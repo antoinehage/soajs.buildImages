@@ -164,6 +164,10 @@ let builder = {
                 options.port = "80";
                 builder.writeServerRedirect(options, wstream);
             }
+            else {
+                options.port = "80";
+                builder.writeServer(options, wstream);
+            }
             options.https = true;
             options.port = "443 ssl";
             builder.writeServer(options, wstream);
@@ -209,6 +213,10 @@ let builder = {
 		        options.port = "80";
 		        builder.writeServerRedirect(options, wstream);
 	        }
+	        else {
+                options.port = "80";
+                builder.writeServer(options, wstream);
+            }
 	        options.https = true;
 	        options.port = "443 ssl";
 	        builder.writeServer(options, wstream);

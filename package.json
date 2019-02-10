@@ -1,7 +1,7 @@
 {
   "name": "soajs.buildImages",
   "description": "soajs build docker images",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "author": {
     "name": "soajs team",
     "email": "team@soajs.org"
@@ -28,7 +28,7 @@
     "mkdirp": "0.5.1",
     "ncp": "2.0.0",
     "rimraf": "2.5.4",
-    "soajs": "2.0.*",
-    "soajs.core.modules": "2.0.*"
+    "soajs": "2.2.*",
+    "soajs.core.modules": "2.1.*"
   }
 }
