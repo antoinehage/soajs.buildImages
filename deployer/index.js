@@ -13,6 +13,7 @@ const version = require('./package.json').version;
 script
     .version(version)
     .option('-T, --type <type>', '(required): Deployment type')
+    .option('-S, --step [step]', '(optional): Deployment step')
     .parse(process.argv);
 
 if (config.deploy.types.indexOf(script.type) === -1) {
@@ -20,7 +21,13 @@ if (config.deploy.types.indexOf(script.type) === -1) {
     log(`Please choose one of ${config.deploy.types.join(', ')}. Exiting ...`);
     process.exit();
 }
-
+if (script.step) {
+    if (config.deploy.steps.indexOf(script.step) === -1) {
+        log(`SOAJS deployer is not compatible with the provided step ${script.steps}`);
+        log(`Please choose one of ${config.deploy.steps.join(', ')}. Exiting ...`);
+        process.exit();
+    }
+}
 log(`Starting SOAJS Deployer v${version}`);
 
 log(`Looking for configuration repository settings ...`)
@@ -48,6 +55,10 @@ else {
 function deploy() {
     log(`Deploying a new ${script.type} instance ...`);
     let options = { paths: config.paths };
+
+    if (script.step) {
+        options.step = script.step;
+    }
 
     try {
         if (process.env.SOAJS_CONFIG_REPO_OWNER && process.env.SOAJS_CONFIG_REPO_NAME) {
