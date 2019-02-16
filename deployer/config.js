@@ -14,7 +14,8 @@ const defaultGit = {
 const config = {
 
     deploy: {
-        types: ['service', 'nginx', 'nodejs', 'profile', 'java', 'metricbeat', 'logstash', 'kibana', 'dockerapi', 'golang']
+        types: ['service', 'nginx', 'nodejs', 'profile', 'java', 'metricbeat', 'logstash', 'kibana', 'dockerapi', 'golang'],
+        steps: ['deploy', 'run', 'all']
     },
 
     paths: {

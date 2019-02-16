@@ -20,6 +20,11 @@ let golang = {
         if (options.golang && options.golang.git && options.golang.git.domain && options.golang.git.owner && options.golang.git.repo) {
 
             let repoDirPath = path.join(options.paths.golang.path, options.golang.git.domain, options.golang.git.owner, options.golang.git.repo);
+            options.repoDirPath = repoDirPath;
+
+            if (options.step && options.step === 'run')
+                return golang.run(options, cb);
+
             fse.ensureDir(repoDirPath, (error) => {
                 if (error) {
                     log(`An error occured while creating ${repoDirPath} ...`);
@@ -35,7 +40,6 @@ let golang = {
                 utils.clone(cloneOptions, (error) => {
                     if (error) throw new Error(error);
 
-                    options.repoDirPath = repoDirPath;
                     return golang.installDeps(options, cb);
                 });
             });
@@ -63,7 +67,10 @@ let golang = {
         get.on('close', (code) => {
             if (code === 0) {
                 log(`go get install process exited with code: ${code}`);
-                return golang.run(options, cb);
+                if (options.step && options.step === 'deploy')
+                    return cb();
+                else
+                    return golang.run(options, cb);
             }
             else {
                 throw new Error(`go get install failed, exit code: ${code}`);
@@ -87,10 +94,7 @@ let golang = {
 
         let runParams = [ options.golang.main ];
 
-        const go = spawn(options.golang.main, [], {
-        	stdio: 'inherit',
-	        // cwd: path.join(options.repoDirPath, '/')
-        });
+        const go = spawn(options.golang.main, [], { stdio: 'inherit', cwd: options.repoDirPath });
 
         go.on('data', (data) => {
             console.log (data.toString());
