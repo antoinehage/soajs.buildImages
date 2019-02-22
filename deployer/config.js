@@ -15,7 +15,7 @@ const config = {
 
     deploy: {
         types: ['service', 'nginx', 'nodejs', 'profile', 'java', 'metricbeat', 'logstash', 'kibana', 'dockerapi', 'golang'],
-        steps: ['deploy', 'run', 'all']
+        steps: ['deploy', 'install', 'run']
     },
 
     paths: {
