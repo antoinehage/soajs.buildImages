@@ -22,9 +22,6 @@ let golang = {
             let repoDirPath = path.join(options.paths.golang.path, options.golang.git.domain, options.golang.git.owner, options.golang.git.repo);
             options.repoDirPath = repoDirPath;
 
-            if (options.step && options.step === 'run')
-                return golang.run(options, cb);
-
             fse.ensureDir(repoDirPath, (error) => {
                 if (error) {
                     log(`An error occured while creating ${repoDirPath} ...`);
@@ -39,8 +36,8 @@ let golang = {
                 };
                 utils.clone(cloneOptions, (error) => {
                     if (error) throw new Error(error);
-
-                    return golang.installDeps(options, cb);
+                    return cb();
+                    //return golang.installDeps(options, cb);
                 });
             });
         }
@@ -58,19 +55,17 @@ let golang = {
      */
     installDeps(options, cb) {
         log('Installing service dependencies ...');
-        const get = spawn('go', [ 'get', '-v', './...' ], { stdio: 'inherit', cwd: options.repoDirPath });
+        const get = spawn('go', ['get', '-v', './...'], {stdio: 'inherit', cwd: options.repoDirPath});
 
         get.on('data', (data) => {
-            console.log (data.toString());
+            console.log(data.toString());
         });
 
         get.on('close', (code) => {
             if (code === 0) {
                 log(`go get install process exited with code: ${code}`);
-                if (options.step && options.step === 'deploy')
-                    return cb();
-                else
-                    return golang.run(options, cb);
+                return cb();
+                //return golang.run(options, cb);
             }
             else {
                 throw new Error(`go get install failed, exit code: ${code}`);
@@ -92,12 +87,12 @@ let golang = {
     run(options, cb) {
         log('Running service ...');
 
-        let runParams = [ options.golang.main ];
+        let runParams = [options.golang.main];
 
-        const go = spawn(options.golang.main, [], { stdio: 'inherit', cwd: options.repoDirPath });
+        const go = spawn(options.golang.main, [], {stdio: 'inherit', cwd: options.repoDirPath});
 
         go.on('data', (data) => {
-            console.log (data.toString());
+            console.log(data.toString());
         });
 
         go.on('close', (code) => {
@@ -114,5 +109,7 @@ let golang = {
 };
 
 module.exports = {
-    deploy: golang.init
+    deploy: golang.init,
+    install: golang.installDeps,
+    run: golang.run
 };

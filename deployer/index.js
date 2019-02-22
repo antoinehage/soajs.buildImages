@@ -128,7 +128,22 @@ function deploy() {
     function deployNodejs(options) {
         options.nodejs = config.nodejs;
         const nodejs = require('./nodejs');
-        nodejs.deploy(options, exitCb);
+        //nodejs.deploy(options, exitCb);
+        if (options.step) {
+            if (options.step === 'deploy')
+                nodejs.deploy(options, exitCb);
+            if (options.step === 'install')
+                nodejs.install(options, exitCb);
+            if (options.step === 'run')
+                nodejs.run(options, exitCb);
+        }
+        else {
+            nodejs.deploy(options, ()=>{
+                nodejs.install(options, ()=>{
+                    nodejs.run(options, exitCb);
+                });
+            });
+        }
     }
 
     function deployJava(options) {
@@ -169,7 +184,22 @@ function deploy() {
     function deployGolang(options){
         options.golang = config.golang;
 		const golang = require('./golang');
-		golang.deploy(options, exitCb);
+
+        if (options.step) {
+            if (options.step === 'deploy')
+                golang.deploy(options, exitCb);
+            if (options.step === 'install')
+                golang.install(options, exitCb);
+            if (options.step === 'run')
+                golang.run(options, exitCb);
+        }
+        else {
+            golang.deploy(options, ()=>{
+                golang.install(options, ()=>{
+                    golang.run(options, exitCb);
+                });
+            });
+        }
 	}
 }
 

@@ -39,7 +39,8 @@ let nodejs = {
                     if (error) throw new Error(error);
 
                     options.repoDirPath = repoDirPath;
-                    return nodejs.installDeps(options, cb);
+                    return cb();
+                    //return nodejs.installDeps(options, cb);
                 });
             });
         }
@@ -66,7 +67,8 @@ let nodejs = {
         npm.on('close', (code) => {
             if (code === 0) {
                 log(`npm install process exited with code: ${code}`);
-                return nodejs.run(options, cb);
+                return cb()
+                //return nodejs.run(options, cb);
             }
             else {
                 throw new Error(`npm install failed, exit code: ${code}`);
@@ -117,5 +119,7 @@ let nodejs = {
 };
 
 module.exports = {
-    deploy: nodejs.init
+    deploy: nodejs.init,
+    install: nodejs.installDeps,
+    run: nodejs.run
 };
