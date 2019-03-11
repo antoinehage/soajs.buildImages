@@ -60,7 +60,7 @@ let helperFunctions = {
                 else {
                     profile.servers.push({
                         "host": process.env[param.ipEnvName + i],
-                        "port": process.env[param.portEnvName + i] || param.portDefault
+                        "port": port
                     });
                 }
             }
