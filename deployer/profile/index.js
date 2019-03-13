@@ -52,10 +52,17 @@ let helperFunctions = {
     updateServersList(param, profile){
         for (var i = 1; i <= param.count; i++) {
             if (process.env[param.ipEnvName + i]) {
-                profile.servers.push({
-                    "host": process.env[param.ipEnvName + i],
-                    "port": process.env[param.portEnvName + i] || param.portDefault
-                });
+                let port = process.env[param.portEnvName + i] || param.portDefault;
+                port = parseInt(port);
+                if (isNaN(port)){
+                    throw new Error("ERROR: Profile PORT must be integer: " + process.env[param.portEnvName + i]);
+                }
+                else {
+                    profile.servers.push({
+                        "host": process.env[param.ipEnvName + i],
+                        "port": port
+                    });
+                }
             }
             else {
                 throw new Error("ERROR: Unable to find environment variable " + param.ipEnvName + i);
