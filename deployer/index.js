@@ -122,6 +122,21 @@ function deploy() {
     function deployNginx(options) {
         options.nginx = config.nginx;
         const nginx = require('./nginx');
+        if (options.step) {
+            if (options.step === 'deploy')
+                nginx.deploy(options, exitCb);
+            if (options.step === 'install')
+                nginx.install(options, exitCb);
+            if (options.step === 'run')
+                nginx.run(options, exitCb);
+        }
+        else {
+            nginx.deploy(options, ()=>{
+                nginx.install(options, ()=>{
+                    nginx.run(options, exitCb);
+                });
+            });
+        }
         nginx.deploy(options, exitCb);
     }
 
