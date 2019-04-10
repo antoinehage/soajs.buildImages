@@ -122,6 +122,7 @@ function deploy() {
     function deployNginx(options) {
         options.nginx = config.nginx;
         const nginx = require('./nginx');
+        //nginx.deploy(options, exitCb);
         if (options.step) {
             if (options.step === 'deploy')
                 nginx.deploy(options, exitCb);
@@ -137,7 +138,6 @@ function deploy() {
                 });
             });
         }
-        nginx.deploy(options, exitCb);
     }
 
     function deployNodejs(options) {
