@@ -121,7 +121,7 @@ module.exports = {
 		    ]
 	    },
         "golang": {
-            "from": "FROM golang:1.11.1-alpine",
+            "from": "FROM golang:1.12.5-alpine",
 		    "maintainer": "MAINTAINER SOAJS Team <team@soajs.org>",
 		    "body": [
                 'RUN apk add --no-cache curl nodejs nodejs-npm git && mkdir -p /opt/soajs/deployer/',
