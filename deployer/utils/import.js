@@ -84,6 +84,7 @@ const importer = {
             }
         }
 
+        log (options);
         // if config repo contains custom files, process them
         if (options.import.path) {
             // check access to specified custom file/directory path

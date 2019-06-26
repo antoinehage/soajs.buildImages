@@ -5,7 +5,6 @@ const path = require('path');
 const log = require('util').log;
 const fse = require('fs-extra');
 const async = require('async');
-const rimraf = require('rimraf');
 
 const utils = require('../../utils');
 

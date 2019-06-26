@@ -5,6 +5,7 @@ const script = require('commander');
 const log = require('util').log;
 const path = require('path');
 const fs = require('fs');
+const rimraf = require('rimraf');
 
 const config = require('./config.js');
 const utils = require('./utils');
@@ -33,19 +34,32 @@ log(`Starting SOAJS Deployer v${version}`);
 log(`Looking for configuration repository settings ...`)
 if (process.env.SOAJS_CONFIG_REPO_OWNER && process.env.SOAJS_CONFIG_REPO_NAME) {
     log('Configuration repository detected, cloning ...');
-    fs.mkdir(config.paths.configRepo.path, (error) => {
-        if (error) throw new Error(error);
 
-        let cloneOptions = {
-            clonePath: config.paths.configRepo.path,
-            repo: { git: config.configRepo.git }
-        };
-        utils.clone(cloneOptions, (error) => {
+    let fnContinue = () => {
+        fs.mkdir(config.paths.configRepo.path, (error) => {
             if (error) throw new Error(error);
 
-            deploy();
+            let cloneOptions = {
+                clonePath: config.paths.configRepo.path,
+                repo: {git: config.configRepo.git}
+            };
+            utils.clone(cloneOptions, (error) => {
+                if (error) throw new Error(error);
+
+                deploy();
+            });
         });
-    });
+    };
+
+    if (fs.existsSync(config.paths.configRepo.path)) {
+        rimraf(config.paths.configRepo.path, (error) => {
+            if (error) throw new Error(error);
+            fnContinue();
+        });
+    }
+    else {
+        fnContinue();
+    }
 }
 else {
     log(`No configuration repository detected, proceeding ...`);
@@ -54,7 +68,7 @@ else {
 
 function deploy() {
     log(`Deploying a new ${script.type} instance ...`);
-    let options = { paths: config.paths };
+    let options = {paths: config.paths};
 
     if (script.step) {
         options.step = script.step;
@@ -104,13 +118,13 @@ function deploy() {
             deployKibana(options);
             break;
 
-	    case 'dockerapi':
-		    deployDockerAPI(options);
-		    break;
+        case 'dockerapi':
+            deployDockerAPI(options);
+            break;
 
         case 'golang':
-		    deployGolang(options);
-		    break;
+            deployGolang(options);
+            break;
 
     }
 
@@ -132,8 +146,8 @@ function deploy() {
                 nginx.run(options, exitCb);
         }
         else {
-            nginx.deploy(options, ()=>{
-                nginx.install(options, ()=>{
+            nginx.deploy(options, () => {
+                nginx.install(options, () => {
                     nginx.run(options, exitCb);
                 });
             });
@@ -153,8 +167,8 @@ function deploy() {
                 nodejs.run(options, exitCb);
         }
         else {
-            nodejs.deploy(options, ()=>{
-                nodejs.install(options, ()=>{
+            nodejs.deploy(options, () => {
+                nodejs.install(options, () => {
                     nodejs.run(options, exitCb);
                 });
             });
@@ -190,15 +204,15 @@ function deploy() {
         kibana.deploy(options, exitCb);
     }
 
-	function deployDockerAPI(options){
+    function deployDockerAPI(options) {
         options.dockerapi = config.dockerapi;
-		const dockerapi = require('./dockerapi');
-		dockerapi.deploy(options, exitCb);
-	}
+        const dockerapi = require('./dockerapi');
+        dockerapi.deploy(options, exitCb);
+    }
 
-    function deployGolang(options){
+    function deployGolang(options) {
         options.golang = config.golang;
-		const golang = require('./golang');
+        const golang = require('./golang');
 
         if (options.step) {
             if (options.step === 'deploy')
@@ -209,13 +223,13 @@ function deploy() {
                 golang.run(options, exitCb);
         }
         else {
-            golang.deploy(options, ()=>{
-                golang.install(options, ()=>{
+            golang.deploy(options, () => {
+                golang.install(options, () => {
                     golang.run(options, exitCb);
                 });
             });
         }
-	}
+    }
 }
 
 function exitCb() {
