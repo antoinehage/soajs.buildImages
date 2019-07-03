@@ -6,7 +6,7 @@
     "name": "soajs team",
     "email": "team@soajs.org"
   },
-  "license" : "Apache-2.0",
+  "license": "Apache-2.0",
   "main": "index.js",
   "repository": {
     "type": "git",
@@ -16,11 +16,11 @@
     "node": "*"
   },
   "scripts": {
-    "test": "grunt test"
+    "test": "grunt test",
+    "snyk-protect": "snyk protect",
+    "prepublish": "npm run snyk-protect"
   },
-  "devDependencies": {
-
-  },
+  "devDependencies": {},
   "dependencies": {
     "archiver": "2.1.0",
     "async": "2.1.4",
@@ -29,6 +29,8 @@
     "ncp": "2.0.0",
     "rimraf": "2.5.4",
     "soajs": "2.2.*",
-    "soajs.core.modules": "2.1.*"
-  }
+    "soajs.core.modules": "2.1.*",
+    "snyk": "^1.189.0"
+  },
+  "snyk": true
 }
