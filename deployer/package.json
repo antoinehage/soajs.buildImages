@@ -6,7 +6,7 @@
     "name": "SOAJS Team",
     "email": "team@soajs.org"
   },
-  "license" : "Apache-2.0",
+  "license": "Apache-2.0",
   "main": "index.js",
   "repository": {
     "type": "git",
@@ -16,7 +16,9 @@
     "node": "*"
   },
   "scripts": {
-    "test": ""
+    "test": "",
+    "snyk-protect": "snyk protect",
+    "prepublish": "npm run snyk-protect"
   },
   "dependencies": {
     "async": "2.1.4",
@@ -27,6 +29,8 @@
     "rimraf": "*",
     "dockerode": "soajs/dockerode.git",
     "http-proxy": "1.16.2",
-    "request": "2.81.0"
-  }
+    "request": "2.81.0",
+    "snyk": "^1.189.0"
+  },
+  "snyk": true
 }
