@@ -22,7 +22,7 @@
     "async": "2.1.4",
     "commander": "2.9.0",
     "fs-extra": "*",
-    "handlebars": "4.0.6",
+    "handlebars": "4.4.1",
     "openssl-wrapper": "0.3.4",
     "rimraf": "*",
     "dockerode": "soajs/dockerode.git",
