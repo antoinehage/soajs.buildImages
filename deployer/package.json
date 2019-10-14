@@ -1,7 +1,7 @@
 {
   "name": "soajs.deployer",
   "description": "SOAJS Deployer",
-  "version": "1.1.6",
+  "version": "2.0.0",
   "author": {
     "name": "SOAJS Team",
     "email": "team@soajs.org"
@@ -19,14 +19,14 @@
     "test": ""
   },
   "dependencies": {
-    "async": "2.1.4",
-    "commander": "2.9.0",
-    "fs-extra": "*",
-    "handlebars": "4.0.6",
+    "async": "3.1.0",
+    "commander": "3.0.2",
+    "fs-extra": "8.1.0",
+    "handlebars":"4.4.3",
     "openssl-wrapper": "0.3.4",
-    "rimraf": "*",
+    "rimraf": "3.0.0",
     "dockerode": "soajs/dockerode.git",
-    "http-proxy": "1.16.2",
-    "request": "2.81.0"
+    "http-proxy": "1.18.0",
+    "request": "2.88.0"
   }
 }
