@@ -26,7 +26,7 @@
     "openssl-wrapper": "0.3.4",
     "rimraf": "3.0.0",
     "dockerode": "soajs/dockerode.git",
-    "http-proxy": "1.18.0",
+    "http-proxy": "1.18.1",
     "request": "2.88.0"
   }
 }
